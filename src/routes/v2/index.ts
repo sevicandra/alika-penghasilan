@@ -1,0 +1,42 @@
+import { Router } from "express";
+import DaftarGaji from "./DaftarGaji";
+import DataCetak from "./DataCetak";
+import DataSptPegawai from "./DataSptPegawai";
+import DataTte from "./DataTte";
+import FilePreview from "./FilePreview";
+import Form1721A2 from "./Form1721A2";
+import Form1721VII from "./Form1721VII";
+import Gaji from "./Gaji";
+import KekuranganGaji from "./KekuranganGaji";
+import KekuranganTukin from "./KekuranganTukin";
+import KP4 from "./KP4";
+import Penghasilan from "./Penghasilan";
+import PenghasilanLain from "./PenghasilanLain";
+import Skp from "./Skp";
+import Tte from "./Tte";
+import Tukin from "./Tukin";
+import UangLembur from "./UangLembur";
+import UangMakan from "./UangMakan";
+
+const router = Router();
+
+router.use("/DataCetak", DataCetak);
+router.use("/1721-A2", Form1721A2);
+router.use("/1721-VII", Form1721VII);
+router.use("/DaftarGaji", DaftarGaji);
+router.use("/DataSptPegawai", DataSptPegawai);
+router.use("/FilePreview", FilePreview);
+router.use("/Gaji", Gaji);
+router.use("/KekuranganGaji", KekuranganGaji);
+router.use("/Tukin", Tukin);
+router.use("/KekuranganTukin", KekuranganTukin);
+router.use("/KP4", KP4);
+router.use("/PenghasilanLain", PenghasilanLain);
+router.use("/Skp", Skp);
+router.use("/UangLembur", UangLembur);
+router.use("/UangMakan", UangMakan);
+router.use("/Penghasilan", Penghasilan);
+router.use("/Tte", Tte);
+router.use("/DataTte", DataTte);
+
+export default router;
