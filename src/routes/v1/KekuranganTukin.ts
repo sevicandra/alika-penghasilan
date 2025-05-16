@@ -11,6 +11,7 @@ import {
   hapusKekuranganTukin,
 } from "@/controllers/v1/kekuranganTukin.controller";
 import multer from "multer";
+import { authenticate } from "@/middlewares/auth.middleware";
 const router = Router();
 const storage = multer.memoryStorage();
 const upload = multer({
@@ -24,14 +25,51 @@ const upload = multer({
   },
 });
 
-router.get("/", getAllKekuranganTukin);
-router.get("/Count", countAllKekuranganTukin);
-router.get("/GetTahun", getTahunKekuranganTukin);
-router.get("/Tahun/:tahun/GetBulan", getBulanKekuranganTukin);
-router.get("/:id", getKekuranganTukinById);
-router.post("/", createKekuranganTukin);
-router.post("/ImportCsv", upload.single("file"), importCsvKekuranganTukin);
-router.patch("/:id", updateKekuranganTukin);
-router.delete("/:id", hapusKekuranganTukin);
+router.get(
+  "/",
+  authenticate(["penghasilan.tukin.read"]),
+  getAllKekuranganTukin
+);
+router.get(
+  "/Count",
+  authenticate(["penghasilan.tukin.read"]),
+  countAllKekuranganTukin
+);
+router.get(
+  "/GetTahun",
+  authenticate(["penghasilan.tukin.read"]),
+  getTahunKekuranganTukin
+);
+router.get(
+  "/Tahun/:tahun/GetBulan",
+  authenticate(["penghasilan.tukin.read"]),
+  getBulanKekuranganTukin
+);
+router.get(
+  "/:id",
+  authenticate(["penghasilan.tukin.read"]),
+  getKekuranganTukinById
+);
+router.post(
+  "/",
+  authenticate(["penghasilan.tukin.write"]),
+  createKekuranganTukin
+);
+router.post(
+  "/ImportCsv",
+  authenticate(["penghasilan.tukin.import"]),
+  upload.single("file"),
+  importCsvKekuranganTukin
+);
+router.patch(
+  "/:id",
+  authenticate(["penghasilan.tukin.update"]),
+  updateKekuranganTukin
+);
+router.delete(
+  "/:id",
+  authenticate(["penghasilan.tukin.delete"]),
+  hapusKekuranganTukin
+);
 
 export default router;

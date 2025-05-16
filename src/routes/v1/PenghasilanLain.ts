@@ -12,6 +12,7 @@ import {
   hapusPenghasilanLain,
 } from "@/controllers/v1/penghasilanLain.controller";
 import multer from "multer";
+import { authenticate } from "@/middlewares/auth.middleware";
 const router = Router();
 const storage = multer.memoryStorage();
 const upload = multer({
@@ -25,15 +26,56 @@ const upload = multer({
   },
 });
 
-router.get("/", getAllPenghasilanLain);
-router.get("/Count", countAllPenghasilanLain);
-router.get("/GetTahun", getTahunPenghasilanLain);
-router.get("/Tahun/:tahun/GetBulan", getBulanPenghasilanLain);
-router.get("/GetJenis", getJenisPenghasilanLain);
-router.get("/:id", getPenghasilanLainById);
-router.post("/", createPenghasilanLain);
-router.post("/ImportCsv", upload.single("file"), importCsvPenghasilanLain);
-router.patch("/:id", updatePenghasilanLain);
-router.delete("/:id", hapusPenghasilanLain);
+router.get(
+  "/",
+  authenticate(["penghasilan.penghasilanlain.read"]),
+  getAllPenghasilanLain
+);
+router.get(
+  "/Count",
+  authenticate(["penghasilan.penghasilanlain.read"]),
+  countAllPenghasilanLain
+);
+router.get(
+  "/GetTahun",
+  authenticate(["penghasilan.penghasilanlain.read"]),
+  getTahunPenghasilanLain
+);
+router.get(
+  "/Tahun/:tahun/GetBulan",
+  authenticate(["penghasilan.penghasilanlain.read"]),
+  getBulanPenghasilanLain
+);
+router.get(
+  "/GetJenis",
+  authenticate(["penghasilan.penghasilanlain.read"]),
+  getJenisPenghasilanLain
+);
+router.get(
+  "/:id",
+  authenticate(["penghasilan.penghasilanlain.read"]),
+  getPenghasilanLainById
+);
+router.post(
+  "/",
+  authenticate(["penghasilan.penghasilanlain.write"]),
+  createPenghasilanLain
+);
+router.post(
+  "/ImportCsv",
+  authenticate(["penghasilan.penghasilanlain.import"]),
+  upload.single("file"),
+  importCsvPenghasilanLain
+);
+router.patch(
+  "/:id",
+  authenticate(["penghasilan.penghasilanlain.update"]),
+  updatePenghasilanLain
+);
+router.delete(
+  "/:id",
+  authenticate(["penghasilan.penghasilanlain.delete"]),
+  hapusPenghasilanLain
+);
 
 export default router;

@@ -10,7 +10,9 @@ import {
   updateUangMakan,
   hapusUangMakan,
 } from "@/controllers/v1/uangMakan.controller";
-import multer from "multer";
+import multer from "multer";  
+import { authenticate } from "@/middlewares/auth.middleware";
+
 const router = Router();
 const storage = multer.memoryStorage();
 const upload = multer({
@@ -23,13 +25,34 @@ const upload = multer({
     cb(null, true);
   },
 });
-router.get("/", getAllUangMakan);
-router.get("/Count", countAllUangMakan);
-router.get("/GetTahun", getTahunUangMakan);
-router.get("/Tahun/:tahun/GetBulan", getBulanUangMakan);
-router.get("/:id", getUangMakanById);
-router.post("/", createUangMakan);
-router.post("/ImportCsv", upload.single("file"), importCsvUangMakan);
-router.put("/:id", updateUangMakan);
-router.delete("/:id", hapusUangMakan);
+router.get("/", authenticate(["penghasilan.makan.read"]), getAllUangMakan);
+router.get(
+  "/Count",
+  authenticate(["penghasilan.makan.read"]),
+  countAllUangMakan
+);
+router.get(
+  "/GetTahun",
+  authenticate(["penghasilan.makan.read"]),
+  getTahunUangMakan
+);
+router.get(
+  "/Tahun/:tahun/GetBulan",
+  authenticate(["penghasilan.makan.read"]),
+  getBulanUangMakan
+);
+router.get("/:id", authenticate(["penghasilan.makan.read"]), getUangMakanById);
+router.post("/", authenticate(["penghasilan.makan.write"]), createUangMakan);
+router.post(
+  "/ImportCsv",
+  authenticate(["penghasilan.makan.import"]),
+  upload.single("file"),
+  importCsvUangMakan
+);
+router.patch("/:id", authenticate(["penghasilan.makan.update"]), updateUangMakan);
+router.delete(
+  "/:id",
+  authenticate(["penghasilan.makan.delete"]),
+  hapusUangMakan
+);
 export default router;

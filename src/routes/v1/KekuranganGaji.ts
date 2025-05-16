@@ -11,6 +11,7 @@ import {
   getBulanKekuranganGaji,
 } from "@/controllers/v1/kekuranganGaji.controller";
 import multer from "multer";
+import { authenticate } from "@/middlewares/auth.middleware";
 const router = Router();
 const storage = multer.memoryStorage();
 const upload = multer({
@@ -24,14 +25,47 @@ const upload = multer({
   },
 });
 
-router.get("/", getAllKekuranganGaji);
-router.get("/Count", countAllKekuranganGaji);
-router.get("/GetTahun", getTahunKekuranganGaji);
-router.get("/Tahun/:tahun/GetBulan", getBulanKekuranganGaji);
-router.get("/:id", getKekuranganGajiById);
-router.post("/", createKekuranganGaji);
-router.post("/ImportCsv", upload.single("file"), importCsvKekuranganGaji);
-router.patch("/:id", updateKekuranganGaji);
-router.delete("/:id", hapusKekuranganGaji);
+router.get("/", authenticate(["penghasilan.gaji.read"]), getAllKekuranganGaji);
+router.get(
+  "/Count",
+  authenticate(["penghasilan.gaji.read"]),
+  countAllKekuranganGaji
+);
+router.get(
+  "/GetTahun",
+  authenticate(["penghasilan.gaji.read"]),
+  getTahunKekuranganGaji
+);
+router.get(
+  "/Tahun/:tahun/GetBulan",
+  authenticate(["penghasilan.gaji.read"]),
+  getBulanKekuranganGaji
+);
+router.get(
+  "/:id",
+  authenticate(["penghasilan.gaji.read"]),
+  getKekuranganGajiById
+);
+router.post(
+  "/",
+  authenticate(["penghasilan.gaji.write"]),
+  createKekuranganGaji
+);
+router.post(
+  "/ImportCsv",
+  authenticate(["penghasilan.gaji.import"]),
+  upload.single("file"),
+  importCsvKekuranganGaji
+);
+router.patch(
+  "/:id",
+  authenticate(["penghasilan.gaji.update"]),
+  updateKekuranganGaji
+);
+router.delete(
+  "/:id",
+  authenticate(["penghasilan.gaji.delete"]),
+  hapusKekuranganGaji
+);
 
 export default router;

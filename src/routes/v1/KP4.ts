@@ -4,7 +4,7 @@ import {
     previewKP4
 } from "@/controllers/v1/kp4.controller";
 const router = Router();
-
-router.post("/Cetak", cetakKP4);
-router.post("/Preview", previewKP4);
+import { authenticate } from "@/middlewares/auth.middleware";
+router.post("/Cetak", authenticate(["penghasilan.kp4.print"]), cetakKP4);
+router.post("/Preview", authenticate(["penghasilan.kp4.submit"]), previewKP4);
 export default router;

@@ -6,11 +6,28 @@ import {
   updateDataCetak,
   hapusDataCetak,
 } from "@/controllers/v1/dataCetak.controller";
+import { authenticate } from "@/middlewares/auth.middleware";
 
 const router = Router();
-router.get("/", getAllDataCetak);
-router.get("/Count", countAllDataCetak);
-router.get("/:id", getDataCetakById);
-router.patch("/:id", updateDataCetak);
-router.delete("/:id", hapusDataCetak);
+router.get("/", authenticate(["penghasilan.datacetak.read"]), getAllDataCetak);
+router.get(
+  "/Count",
+  authenticate(["penghasilan.datacetak.read"]),
+  countAllDataCetak
+);
+router.get(
+  "/:id",
+  authenticate(["penghasilan.datacetak.read"]),
+  getDataCetakById
+);
+router.patch(
+  "/:id",
+  authenticate(["penghasilan.datacetak.update"]),
+  updateDataCetak
+);
+router.delete(
+  "/:id",
+  authenticate(["penghasilan.datacetak.delete"]),
+  hapusDataCetak
+);
 export default router;

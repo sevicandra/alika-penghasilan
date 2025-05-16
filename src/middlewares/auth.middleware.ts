@@ -2,7 +2,6 @@ import { Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import omit from "lodash/omit";
 import { AuthenticatedRequest } from "@/types/auth";
-import { alikaConfig } from "@/config/alika.config";
 import { errorResponse } from "@/helpers/respose.helper";
 import { AlikaService } from "@/services/alika.service";
 
@@ -18,6 +17,7 @@ export function authenticate(requiredScopes?: string[]) {
         return errorResponse(res, "Unauthorized", null, 401);
       }
       const token = authHeader.split(" ")[1];
+      
       if (!token) {
         return errorResponse(res, "Unauthorized", null, 401);
       }
@@ -27,7 +27,7 @@ export function authenticate(requiredScopes?: string[]) {
         {
           issuer: process.env.ALIKA_AUTH_ISSUER,
         }
-      );
+      );      
       req.user = omit(decoded, [
         "scope",
         "account",
@@ -55,10 +55,15 @@ export function authenticate(requiredScopes?: string[]) {
       req.roles = decoded.account || [];
       req.globalRoles = decoded.globalRoles || [];
       if (requiredScopes) {
-        const userScopes = decoded.scope || [];
-        const hasRequiredScopes = requiredScopes.every((scope) =>
-          userScopes.includes(scope)
-        );
+        const tokenScopes = decoded.scope || [];
+        const hasRequiredScopes = requiredScopes.every((scope) => {
+          const [service, resource, action] = scope.split(".");
+          return (
+            tokenScopes.includes(scope) ||
+            tokenScopes.includes(`${service}.${resource}.manage`) ||
+            tokenScopes.includes(`${service}.${resource}.*`)
+          );
+        });
         if (!hasRequiredScopes) {
           return errorResponse(res, "Unauthorized", null, 401);
         }
