@@ -9,14 +9,13 @@ import {
   UniqueConstraintError,
 } from "sequelize";
 import { AxiosError } from "axios";
-import { parse } from "csv-parse";
 
 export const getAllPenghasilanLain = async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -96,7 +95,7 @@ export const countAllPenghasilanLain = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -167,7 +166,7 @@ export const getTahunPenghasilanLain = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -233,7 +232,7 @@ export const getBulanPenghasilanLain = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -304,7 +303,7 @@ export const getJenisPenghasilanLain = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -372,7 +371,7 @@ export const getPenghasilanLainById = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -437,7 +436,7 @@ export const getRekapPenghasilanLain = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }

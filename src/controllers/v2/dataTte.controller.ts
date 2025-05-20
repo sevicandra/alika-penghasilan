@@ -13,7 +13,7 @@ import { errorResponse, successResponse } from "@/helpers/respose.helper";
 
 export async function getAllDataTte(req: AuthenticatedRequest, res: Response) {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -79,7 +79,7 @@ export async function countAllDataTte(
   req: AuthenticatedRequest,
   res: Response
 ) {
-  const { nip } = req.user;
+  const { nip } = req.user || {};
   if (!nip) {
     return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
   }
@@ -146,7 +146,7 @@ export async function countAllDataTte(
 }
 export async function getDataTteById(req: AuthenticatedRequest, res: Response) {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -208,7 +208,7 @@ export async function getDataTteById(req: AuthenticatedRequest, res: Response) {
 }
 export async function tolakDataTte(req: AuthenticatedRequest, res: Response) {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }

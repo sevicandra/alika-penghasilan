@@ -3,7 +3,6 @@ import { Response } from "express";
 import { errorResponse, successResponse } from "@/helpers/respose.helper";
 import { DataKurang, ViewKurang } from "@/models";
 import {
-  Op,
   ValidationError,
   DatabaseError,
   ConnectionError,
@@ -11,13 +10,13 @@ import {
 } from "sequelize";
 import { AxiosError } from "axios";
 import sequelize from "@/config/db.config";
-import { parse } from "csv-parse";
+
 export const getAllKekuranganGaji = async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -106,7 +105,7 @@ export const countAllKekuranganGaji = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -175,7 +174,7 @@ export const getTahunKekuranganGaji = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -240,7 +239,7 @@ export const getBulanKekuranganGaji = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -309,7 +308,7 @@ export const getKekuranganGajiById = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -382,7 +381,7 @@ export const getKekuranganGajiById = async (
 };
 export const getRekapKekuranganGaji = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }

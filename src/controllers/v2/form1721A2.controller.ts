@@ -15,7 +15,6 @@ import {
   DataCetak,
 } from "@/models";
 import {
-  Op,
   ValidationError,
   DatabaseError,
   ConnectionError,
@@ -32,7 +31,7 @@ export const previewForm1721A2 = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -164,7 +163,7 @@ export const cetakForm1721A2 = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }

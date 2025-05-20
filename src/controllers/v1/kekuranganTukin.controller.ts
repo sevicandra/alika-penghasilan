@@ -3,7 +3,6 @@ import { Response } from "express";
 import { errorResponse, successResponse } from "@/helpers/respose.helper";
 import { DataTukin } from "@/models";
 import {
-  Op,
   ValidationError,
   DatabaseError,
   ConnectionError,

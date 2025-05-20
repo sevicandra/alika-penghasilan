@@ -2,19 +2,18 @@ import { Response } from "express";
 import { AuthenticatedRequest } from "@/types/auth";
 import { AxiosError } from "axios";
 import {
-  Op,
   ValidationError,
   DatabaseError,
   ConnectionError,
   UniqueConstraintError,
 } from "sequelize";
 import { DataCetak } from "@/models";
-import { errorResponse, successResponse } from "@/helpers/respose.helper";
+import { errorResponse } from "@/helpers/respose.helper";
 import { MinioService } from "@/services/minio.service";
 const minioClient = new MinioService();
 export const filePreview = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -46,8 +45,8 @@ export const filePreview = async (req: AuthenticatedRequest, res: Response) => {
         res.setHeader("Content-Disposition", "inline; filename=");
         return res.status(200).send(Buffer.concat(chunks));
       });
-      stream.on("error", (err) => {
-        return errorResponse(res, "Terjadi kesalahan", null, 500);
+      stream.on("error", (err: Error) => {
+        return errorResponse(res, "Terjadi kesalahan", err, 500);
       });
     }
   } catch (error: unknown) {

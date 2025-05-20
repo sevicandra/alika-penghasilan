@@ -3,7 +3,6 @@ import { Response } from "express";
 import { errorResponse, successResponse } from "@/helpers/respose.helper";
 import { DataLembur } from "@/models";
 import {
-  Op,
   ValidationError,
   DatabaseError,
   ConnectionError,
@@ -11,14 +10,13 @@ import {
 } from "sequelize";
 import { AxiosError } from "axios";
 import sequelize from "@/config/db.config";
-import { parse } from "csv-parse";
 
 export const getAllUangLembur = async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -109,7 +107,7 @@ export const countAllUangLembur = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -172,7 +170,7 @@ export const getTahunUangLembur = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -236,7 +234,7 @@ export const getBulanUangLembur = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -305,7 +303,7 @@ export const getUangLemburById = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -370,7 +368,7 @@ export const getRekapUangLembur = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }

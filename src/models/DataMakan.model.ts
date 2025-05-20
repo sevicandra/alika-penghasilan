@@ -1,5 +1,5 @@
 import sequelize from "@/config/db.config";
-import { DataTypes, Model, Op, Optional, BelongsTo } from "sequelize";
+import { DataTypes, Model, Optional, BelongsTo } from "sequelize";
 import RefBulan from "./RefBulan.model";
 
 type DataMakanAttributes = {

@@ -3,7 +3,6 @@ import { Response } from "express";
 import { errorResponse, successResponse } from "@/helpers/respose.helper";
 import { DataTukin, ViewTukinRutin } from "@/models";
 import {
-  Op,
   ValidationError,
   DatabaseError,
   ConnectionError,
@@ -11,11 +10,10 @@ import {
 } from "sequelize";
 import { AxiosError } from "axios";
 import sequelize from "@/config/db.config";
-import { parse } from "csv-parse";
 
 export const getAllTukin = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -107,7 +105,7 @@ export const countAllTukin = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -173,7 +171,7 @@ export const getTahunTukin = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -238,7 +236,7 @@ export const getBulanTukin = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -304,7 +302,7 @@ export const getTukinById = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -369,7 +367,7 @@ export const getRekapKekuranganTukin = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }

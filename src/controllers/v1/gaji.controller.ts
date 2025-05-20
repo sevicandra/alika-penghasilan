@@ -1,20 +1,14 @@
 import { AuthenticatedRequest } from "@/types/auth";
 import { Response } from "express";
 import { errorResponse, successResponse } from "@/helpers/respose.helper";
-import { KemenkeuService } from "@/services/kemenkeu.service";
-import { PdfService } from "@/services/pdf.service";
 import { DataGaji } from "@/models";
 import {
-  Op,
   ValidationError,
   DatabaseError,
   ConnectionError,
   UniqueConstraintError,
 } from "sequelize";
 import { AxiosError } from "axios";
-import { MinioService } from "@/services/minio.service";
-import { v4 as uuid } from "uuid";
-import { AlikaService } from "@/services/alika.service";
 import sequelize from "@/config/db.config";
 import { parse } from "csv-parse";
 export const getAllGaji = async (req: AuthenticatedRequest, res: Response) => {

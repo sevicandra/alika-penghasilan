@@ -1,7 +1,6 @@
 import { Response } from "express";
 import { AxiosError } from "axios";
 import {
-  Op,
   ValidationError,
   DatabaseError,
   ConnectionError,
@@ -16,7 +15,7 @@ export const getTahunDataSptPegawai = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }

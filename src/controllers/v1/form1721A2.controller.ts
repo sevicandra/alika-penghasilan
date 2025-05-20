@@ -15,7 +15,6 @@ import {
   DataCetak,
 } from "@/models";
 import {
-  Op,
   ValidationError,
   DatabaseError,
   ConnectionError,

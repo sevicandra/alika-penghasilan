@@ -1,5 +1,5 @@
 import sequelize from "@/config/db.config";
-import { DataTypes, Op, Optional, Model } from "sequelize";
+import { DataTypes, Optional, Model } from "sequelize";
 
 type DataUnitPegawaiAttributes = {
   id: number;

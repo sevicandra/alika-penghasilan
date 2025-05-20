@@ -1,22 +1,10 @@
 import { AuthenticatedRequest } from "@/types/auth";
 import { Response } from "express";
 import { errorResponse, successResponse } from "@/helpers/respose.helper";
-import { KemenkeuService } from "@/services/kemenkeu.service";
-import { PdfService } from "@/services/pdf.service";
 import {
-  DataSptPegawai,
-  DataProfil,
-  DataSatker,
-  ViewPajakGaji,
-  ViewPajakKurang,
-  ViewTukin,
-  RefSptTahunan,
-  DataNomor,
-  DataCetak,
   DataMakan,
   DataLembur,
   DataLain,
-  DataGaji,
   ViewGaji,
   RefBulan,
   ViewKurang,
@@ -24,23 +12,19 @@ import {
   ViewTukinKurang,
 } from "@/models";
 import {
-  Op,
   ValidationError,
   DatabaseError,
   ConnectionError,
   UniqueConstraintError,
 } from "sequelize";
 import { AxiosError } from "axios";
-import { MinioService } from "@/services/minio.service";
-import { v4 as uuid } from "uuid";
-import { AlikaService } from "@/services/alika.service";
 import sequelize from "@/config/db.config";
 export const detailPenghasilan = async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }

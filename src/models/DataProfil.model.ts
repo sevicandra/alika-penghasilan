@@ -1,5 +1,5 @@
 import sequelize from "@/config/db.config";
-import { DataTypes, INTEGER, Op, Optional, Model } from "sequelize";
+import { DataTypes, INTEGER, Optional, Model } from "sequelize";
 
 type DataProfilAttributes = {
   id: number;

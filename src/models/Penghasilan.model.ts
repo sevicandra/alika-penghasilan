@@ -1,5 +1,4 @@
 import sequelize from "@/config/db.config";
-import { DataTypes, Op } from "sequelize";
 import ViewGaji from "./ViewGaji.model";
 import ViewKurang from "./ViewKurang.model";
 import TukinRutin from "./ViewTukinRutin.model";
@@ -8,7 +7,6 @@ import DataMakan from "./DataMakan.model";
 import DataLembur from "./DataLembur.model";
 import DataLain from "./DataLain.model";
 import RefBulan from "./RefBulan.model";
-import ViewTukin from "./ViewTukin.model";
 
 const Penghasilan = async ({ where }: { where: any }) => {
   const gaji = ViewGaji.findAll({

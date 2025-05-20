@@ -4,24 +4,15 @@ import { errorResponse, successResponse } from "@/helpers/respose.helper";
 import { KemenkeuService } from "@/services/kemenkeu.service";
 import { PdfService } from "@/services/pdf.service";
 import {
-  DataSptPegawai,
   DataProfil,
   DataSatker,
-  ViewPajakGaji,
-  ViewPajakKurang,
-  ViewTukin,
-  RefSptTahunan,
   DataNomor,
   DataCetak,
-  DataMakan,
-  DataLembur,
-  DataLain,
   DataGaji,
   ViewGaji,
   RefBulan,
 } from "@/models";
 import {
-  Op,
   ValidationError,
   DatabaseError,
   ConnectionError,

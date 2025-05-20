@@ -1,5 +1,5 @@
 import sequelize from "@/config/db.config";
-import { Model, DataTypes, Op, Optional, BelongsTo } from "sequelize";
+import { Model, DataTypes,  BelongsTo } from "sequelize";
 import RefBulan from "./RefBulan.model";
 
 type ViewGajiAttributes = {

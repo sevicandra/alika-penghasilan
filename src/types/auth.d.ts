@@ -1,6 +1,14 @@
 import { Request } from "express";
+
 export interface AuthenticatedRequest extends Request {
-  user?: any;
+  user?: {
+    name?: string;
+    nik?: string;
+    nip?: string;
+    kode_satker?: string;
+    satker?: string;
+    gravatar?: string;
+  };
   roles?: {
     kode_satker: string;
     roles: {

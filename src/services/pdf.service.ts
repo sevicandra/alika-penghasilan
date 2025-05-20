@@ -104,7 +104,7 @@ export class PdfService {
         margin: [0, 10, 0, 10],
       },
     ];
-    return header;
+    return header as Content[];
   }
   static async Tte({
     kota,
@@ -117,35 +117,31 @@ export class PdfService {
     jabatan: string;
     nama: string;
   }) {
-    return new Promise((resolve, reject) => {
-      try {
-        const tte = {
-          table: {
-            widths: ["*", 150],
-            heights: ["auto", "auto", 70, "auto", "auto"],
-            body: [
-              [{}, `${kota}, ${tanggal}`],
-              [{}, `${jabatan}`],
-              [
-                {},
-                {
-                  text: "$",
-                  characterSpacing: 2,
-                  margin: [35, 35],
-                },
-              ],
-              [{}, { text: "Ditandatangani secara elektronik", fontSize: 7 }],
-              [{}, `${nama}`],
+    const tte = [
+      {
+        table: {
+          widths: ["*", 150],
+          heights: ["auto", "auto", 70, "auto", "auto"],
+          body: [
+            [{}, `${kota}, ${tanggal}`],
+            [{}, `${jabatan}`],
+            [
+              {},
+              {
+                text: "$",
+                characterSpacing: 2,
+                margin: [35, 35],
+              },
             ],
-          },
-          margin: [0, 10, 20, 0],
-          layout: "noBorders",
-        };
-        resolve(tte);
-      } catch (error: any) {
-        reject(error.message);
-      }
-    });
+            [{}, { text: "Ditandatangani secara elektronik", fontSize: 7 }],
+            [{}, `${nama}`],
+          ],
+        },
+        margin: [0, 10, 20, 0],
+        layout: "noBorders",
+      },
+    ];
+    return tte as Content[];
   }
 
   static async Form1721A2({
@@ -156,7 +152,6 @@ export class PdfService {
     kurang,
     tukin,
     tarif,
-    tahun,
     nama,
     nip,
     jabatan,
@@ -184,123 +179,123 @@ export class PdfService {
     tanggal?: string;
   }): Promise<String> {
     return new Promise(async (resolve, reject) => {
-      const imageData = fs
-        .readFileSync(path.join(__dirname, "../../assets/logoKemenkeu.png"))
-        .toString("base64");
-
-      const setahun = gaji?.jumlah || 0 >= 12 ? 12 : gaji?.jumlah || 0;
-      let gapok = 0;
-      let tistri = 0;
-      let tanak = 0;
-      let kelg = 0;
-      let tumum = 0;
-      let tstruktur = 0;
-      let tfungsi = 0;
-      let tunj = 0;
-      let tberas = 0;
-      let bulat = 0;
-      let tpapua = 0;
-      let jml_dipungut = 0;
-      let jml_tukin = 0;
-
-      if (kurang) {
-        gapok += kurang.gapok;
-        tistri += kurang.tistri;
-        tanak += kurang.tanak;
-        kelg += gapok + tistri + tanak;
-        tumum += kurang.tumum;
-        tstruktur += kurang.tstruktur;
-        tfungsi += kurang.tfungsi;
-        tunj += tstruktur + tfungsi;
-        tberas += kurang.tberas;
-        bulat += kurang.bulat;
-        tpapua += kurang.tpapua;
-        jml_dipungut += kurang.tpajak;
-      }
-
-      if (gaji) {
-        gapok += gaji.gapok;
-        tistri += gaji.tistri;
-        tanak += gaji.tanak;
-        kelg += gapok + tistri + tanak;
-        tumum += gaji.tumum;
-        tstruktur += gaji.tstruktur;
-        tfungsi += gaji.tfungsi;
-        tunj += tstruktur + tfungsi;
-        tberas += gaji.tberas;
-        bulat += gaji.bulat;
-        tpapua += gaji.tpapua;
-        jml_dipungut += gaji.tpajak;
-      }
-
-      if (tukin) {
-        jml_dipungut += tukin.potongan;
-      }
-
-      jml_tukin += tukin?.netto || 0;
-      const bruto = kelg + tumum + tunj + tberas + bulat + tpapua + jml_tukin;
-      const ptkp_wp = tarif?.ptkp_wp;
-      const ptkp_istri = tarif?.ptkp_istri;
-      const ptkp_anak = tarif?.ptkp_anak;
-      const iuran_pensiun = tarif?.iuran_pensiun;
-      const biaya_jabatan = tarif?.biaya_jabatan;
-      const biaya_jabatan_maks = tarif?.biaya_jabatan_maks;
-      const jml_iuran_pensiun = (iuran_pensiun * kelg) / 100;
-      const jml_biaya_jabatan = (biaya_jabatan * bruto) / 100;
-      const total_biaya_jabatan =
-        jml_biaya_jabatan >= biaya_jabatan_maks
-          ? biaya_jabatan_maks
-          : jml_biaya_jabatan;
-      const pengurangan = jml_iuran_pensiun + total_biaya_jabatan;
-      const netto = bruto - pengurangan;
-      let disetahun = 0;
-      if (setahun == 0) {
-        disetahun = 0;
-      } else {
-        disetahun = Math.floor(((netto / setahun) * 12) / 1000) * 1000;
-      }
-      const peg_wp = Number(pegawai.kdkawin.substring(0, 1));
-      const peg_istri = Number(pegawai.kdkawin.substring(1, 1));
-      const peg_anak = Number(pegawai.kdkawin.substring(2, 2));
-      const jml_ptkp_wp = peg_wp * ptkp_wp;
-      const jml_ptkp_istri = peg_istri * ptkp_istri;
-      const jml_ptkp_anak = peg_anak * ptkp_anak;
-      const ptkp = jml_ptkp_wp + jml_ptkp_istri + jml_ptkp_anak;
-      const pkp = disetahun - ptkp;
-
-      const pph_tarif_1 = tarif?.pph_tarif_1;
-      const pph_tarif_2 = tarif?.pph_tarif_2;
-      const pph_tarif_3 = tarif?.pph_tarif_3;
-      const pph_tarif_4 = tarif?.pph_tarif_4;
-      const pph_limit_1 = tarif?.pph_limit_1;
-      const pph_limit_2 = tarif?.pph_limit_2;
-      const pph_limit_3 = tarif?.pph_limit_3;
-      //hitung pph
-      let pph1;
-      let pph2;
-      let pph3;
-      let pph4;
-      let pph;
-      if (pkp > pph_limit_3) {
-        pph1 = pph_tarif_1 * pph_limit_1;
-        pph2 = pph_tarif_2 * (pph_limit_2 - pph_limit_1);
-        pph3 = pph_tarif_3 * (pph_limit_3 - pph_limit_2);
-        pph4 = pph_tarif_4 * (pkp - pph_limit_3);
-        pph = (pph1 + pph2 + pph3 + pph4) / 100;
-      } else if (pkp > pph_limit_2) {
-        pph1 = pph_tarif_1 * pph_limit_1;
-        pph2 = pph_tarif_2 * (pph_limit_2 - pph_limit_1);
-        pph3 = pph_tarif_3 * (pkp - pph_limit_2);
-        pph = (pph1 + pph2 + pph3) / 100;
-      } else if (pkp > pph_limit_1) {
-        pph1 = pph_tarif_1 * pph_limit_1;
-        pph2 = pph_tarif_2 * (pkp - pph_limit_1);
-        pph = (pph1 + pph2) / 100;
-      } else {
-        pph = (pph_tarif_1 * pkp) / 100;
-      }
-      const sisa = pph - jml_dipungut;
       try {
+        const imageData = fs
+          .readFileSync(path.join(__dirname, "../../assets/logoKemenkeu.png"))
+          .toString("base64");
+
+        const setahun = gaji?.jumlah || 0 >= 12 ? 12 : gaji?.jumlah || 0;
+        let gapok = 0;
+        let tistri = 0;
+        let tanak = 0;
+        let kelg = 0;
+        let tumum = 0;
+        let tstruktur = 0;
+        let tfungsi = 0;
+        let tunj = 0;
+        let tberas = 0;
+        let bulat = 0;
+        let tpapua = 0;
+        let jml_dipungut = 0;
+        let jml_tukin = 0;
+
+        if (kurang) {
+          gapok += kurang.gapok;
+          tistri += kurang.tistri;
+          tanak += kurang.tanak;
+          kelg += gapok + tistri + tanak;
+          tumum += kurang.tumum;
+          tstruktur += kurang.tstruktur;
+          tfungsi += kurang.tfungsi;
+          tunj += tstruktur + tfungsi;
+          tberas += kurang.tberas;
+          bulat += kurang.bulat;
+          tpapua += kurang.tpapua;
+          jml_dipungut += kurang.tpajak;
+        }
+
+        if (gaji) {
+          gapok += gaji.gapok;
+          tistri += gaji.tistri;
+          tanak += gaji.tanak;
+          kelg += gapok + tistri + tanak;
+          tumum += gaji.tumum;
+          tstruktur += gaji.tstruktur;
+          tfungsi += gaji.tfungsi;
+          tunj += tstruktur + tfungsi;
+          tberas += gaji.tberas;
+          bulat += gaji.bulat;
+          tpapua += gaji.tpapua;
+          jml_dipungut += gaji.tpajak;
+        }
+
+        if (tukin) {
+          jml_dipungut += tukin.potongan;
+        }
+
+        jml_tukin += tukin?.netto || 0;
+        const bruto = kelg + tumum + tunj + tberas + bulat + tpapua + jml_tukin;
+        const ptkp_wp = tarif?.ptkp_wp;
+        const ptkp_istri = tarif?.ptkp_istri;
+        const ptkp_anak = tarif?.ptkp_anak;
+        const iuran_pensiun = tarif?.iuran_pensiun;
+        const biaya_jabatan = tarif?.biaya_jabatan;
+        const biaya_jabatan_maks = tarif?.biaya_jabatan_maks;
+        const jml_iuran_pensiun = (iuran_pensiun * kelg) / 100;
+        const jml_biaya_jabatan = (biaya_jabatan * bruto) / 100;
+        const total_biaya_jabatan =
+          jml_biaya_jabatan >= biaya_jabatan_maks
+            ? biaya_jabatan_maks
+            : jml_biaya_jabatan;
+        const pengurangan = jml_iuran_pensiun + total_biaya_jabatan;
+        const netto = bruto - pengurangan;
+        let disetahun = 0;
+        if (setahun == 0) {
+          disetahun = 0;
+        } else {
+          disetahun = Math.floor(((netto / setahun) * 12) / 1000) * 1000;
+        }
+        const peg_wp = Number(pegawai.kdkawin.substring(0, 1));
+        const peg_istri = Number(pegawai.kdkawin.substring(1, 1));
+        const peg_anak = Number(pegawai.kdkawin.substring(2, 2));
+        const jml_ptkp_wp = peg_wp * ptkp_wp;
+        const jml_ptkp_istri = peg_istri * ptkp_istri;
+        const jml_ptkp_anak = peg_anak * ptkp_anak;
+        const ptkp = jml_ptkp_wp + jml_ptkp_istri + jml_ptkp_anak;
+        const pkp = disetahun - ptkp;
+
+        const pph_tarif_1 = tarif?.pph_tarif_1;
+        const pph_tarif_2 = tarif?.pph_tarif_2;
+        const pph_tarif_3 = tarif?.pph_tarif_3;
+        const pph_tarif_4 = tarif?.pph_tarif_4;
+        const pph_limit_1 = tarif?.pph_limit_1;
+        const pph_limit_2 = tarif?.pph_limit_2;
+        const pph_limit_3 = tarif?.pph_limit_3;
+        //hitung pph
+        let pph1;
+        let pph2;
+        let pph3;
+        let pph4;
+        let pph;
+        if (pkp > pph_limit_3) {
+          pph1 = pph_tarif_1 * pph_limit_1;
+          pph2 = pph_tarif_2 * (pph_limit_2 - pph_limit_1);
+          pph3 = pph_tarif_3 * (pph_limit_3 - pph_limit_2);
+          pph4 = pph_tarif_4 * (pkp - pph_limit_3);
+          pph = (pph1 + pph2 + pph3 + pph4) / 100;
+        } else if (pkp > pph_limit_2) {
+          pph1 = pph_tarif_1 * pph_limit_1;
+          pph2 = pph_tarif_2 * (pph_limit_2 - pph_limit_1);
+          pph3 = pph_tarif_3 * (pkp - pph_limit_2);
+          pph = (pph1 + pph2 + pph3) / 100;
+        } else if (pkp > pph_limit_1) {
+          pph1 = pph_tarif_1 * pph_limit_1;
+          pph2 = pph_tarif_2 * (pkp - pph_limit_1);
+          pph = (pph1 + pph2) / 100;
+        } else {
+          pph = (pph_tarif_1 * pkp) / 100;
+        }
+        const sisa = pph - jml_dipungut;
         const json = [
           {
             table: {
@@ -949,15 +944,18 @@ export class PdfService {
         ] as Content[];
         const pdf = await generatePdf({ json });
         resolve(pdf);
-      } catch (error: any) {
-        reject(error.message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          reject(error.message);
+        } else {
+          reject("Unknown error");
+        }
       }
     });
   }
 
   static async Form1721VII({
     pegawai,
-    satker,
     profil,
     makan,
     lembur,
@@ -979,10 +977,10 @@ export class PdfService {
     tanggal?: string;
   }): Promise<String> {
     return new Promise(async (resolve, reject) => {
-      const imageData = fs
-        .readFileSync(path.join(__dirname, "../../assets/logoKemenkeu.png"))
-        .toString("base64");
       try {
+        const imageData = fs
+          .readFileSync(path.join(__dirname, "../../assets/logoKemenkeu.png"))
+          .toString("base64");
         let total_bruto =
           (makan?.bruto || 0) +
           (lembur?.bruto || 0) +
@@ -1422,8 +1420,12 @@ export class PdfService {
         ] as Content[];
         const pdf = await generatePdf({ json });
         resolve(pdf);
-      } catch (error: any) {
-        reject(error.message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          reject(error.message);
+        } else {
+          reject("Unknown error");
+        }
       }
     });
   }
@@ -1437,7 +1439,6 @@ export class PdfService {
     tahun,
     nama,
     nip,
-    jabatan,
     nomor,
     npwp,
   }: {
@@ -1455,7 +1456,7 @@ export class PdfService {
   }): Promise<String> {
     return new Promise(async (resolve, reject) => {
       try {
-        const json = [
+        const body = [
           {
             text: "KEMENTERIAN KEUANGAN RI",
           },
@@ -2180,22 +2181,30 @@ export class PdfService {
             },
             fontSize: 7,
           },
-          this.Tte({
-            kota: `${satker?.kota ? satker.kota : "-"}`,
-            tanggal: `${new Date().toLocaleDateString("id-ID", {
-              year: "numeric",
-              month: "long",
-              day: "2-digit",
-            })}`,
-            jabatan: `${profil?.jab_ttd_skp || " "}`,
-            nama: `${profil?.nama_ttd_skp || " "}`,
-          }),
         ] as Content[];
-        const pdf = await generatePdf({ json, orientation: "landscape" });
+        const tte = await this.Tte({
+          kota: `${satker?.kota ? satker.kota : "-"}`,
+          tanggal: `${new Date().toLocaleDateString("id-ID", {
+            year: "numeric",
+            month: "long",
+            day: "2-digit",
+          })}`,
+          jabatan: `${profil?.jab_ttd_skp || " "}`,
+          nama: `${profil?.nama_ttd_skp || " "}`,
+        });
+
+        const pdf = await generatePdf({
+          json: [...body, ...tte],
+          orientation: "landscape",
+        });
 
         resolve(pdf);
-      } catch (error: any) {
-        reject(error.message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          reject(error.message);
+        } else {
+          reject("Unknown error");
+        }
       }
     });
   }
@@ -2214,7 +2223,6 @@ export class PdfService {
     namaSatker,
     golongan,
     profil,
-    nomor,
     satker,
   }: {
     keluargas: any[];
@@ -2230,7 +2238,6 @@ export class PdfService {
     namaSatker: string;
     golongan: string;
     profil: DataProfil;
-    nomor?: string;
     satker: DataSatker;
   }): Promise<String> {
     return new Promise(async (resolve, reject) => {
@@ -2506,8 +2513,12 @@ export class PdfService {
         ] as Content;
         const pdf = await generatePdf({ json });
         resolve(pdf);
-      } catch (error: any) {
-        reject(error.message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          reject(error.message);
+        } else {
+          reject("Unknown error");
+        }
       }
     });
   }
@@ -2529,12 +2540,12 @@ export class PdfService {
     nomor,
   }: {
     satker: DataSatker;
-    gaji: DataGaji|null;
-    kurang: DataKurang|null;
-    makan: DataMakan|null;
-    lembur: DataLembur|null;
+    gaji: DataGaji | null;
+    kurang: DataKurang | null;
+    makan: DataMakan | null;
+    lembur: DataLembur | null;
     profil: DataProfil;
-    tukin: DataTukin|null;
+    tukin: DataTukin | null;
     bulan: RefBulan;
     tahun: string;
     nama: string;
@@ -2639,14 +2650,14 @@ export class PdfService {
         } else {
           netto4 = 0;
         }
-        const json = [
-          this.Header({
-            eselon2: `${satker?.header1.toUpperCase() || ""}`,
-            eselon3: `${satker?.header2.toUpperCase() || ""}`,
-            alamat: `${satker?.subheader1.toUpperCase() || ""} ${
-              satker?.subheader2.toUpperCase() || ""
-            } ${satker?.subheader3.toUpperCase() || ""}`,
-          }),
+        const header = await this.Header({
+          eselon2: `${satker?.header1.toUpperCase() || ""}`,
+          eselon3: `${satker?.header2.toUpperCase() || ""}`,
+          alamat: `${satker?.subheader1.toUpperCase() || ""} ${
+            satker?.subheader2.toUpperCase() || ""
+          } ${satker?.subheader3.toUpperCase() || ""}`,
+        });
+        const body = [
           {
             text: "SURAT KETERANGAN PENGHASILAN",
             margin: [0, 10, 0, 0],
@@ -3280,21 +3291,29 @@ export class PdfService {
             layout: "noBorders",
             lineHeight: 0.7,
           },
-          this.Tte({
-            kota: `${satker?.kota ? satker.kota : "-"}`,
-            tanggal: `${new Date().toLocaleDateString("id-ID", {
-              year: "numeric",
-              month: "long",
-              day: "2-digit",
-            })}`,
-            jabatan: `${profil.jab_ttd_skp}`,
-            nama: `${profil.nama_ttd_skp}`,
-          }),
-        ] as Content;
-        const pdf = await generatePdf({ json });
+        ] as Content[];
+        const tte = await this.Tte({
+          kota: `${satker?.kota ? satker.kota : "-"}`,
+          tanggal: `${new Date().toLocaleDateString("id-ID", {
+            year: "numeric",
+            month: "long",
+            day: "2-digit",
+          })}`,
+          jabatan: `${profil.jab_ttd_skp}`,
+          nama: `${profil.nama_ttd_skp}`,
+        });
+
+        const pdf = await generatePdf({
+          json: [...header, ...body, ...tte],
+          margin: { top: 1, right: 1.5, bottom: 1, left: 2 },
+        });
         resolve(pdf);
-      } catch (error: any) {
-        reject(error.message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          reject(error.message);
+        } else {
+          reject("Unknown error");
+        }
       }
     });
   }

@@ -16,7 +16,7 @@ export async function getAllDataCetak(
   res: Response
 ) {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -82,7 +82,7 @@ export async function countAllDataCetak(
   req: AuthenticatedRequest,
   res: Response
 ) {
-  const { nip } = req.user;
+  const { nip } = req.user || {};
   if (!nip) {
     return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
   }
@@ -152,7 +152,7 @@ export async function getDataCetakById(
   res: Response
 ) {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -214,7 +214,7 @@ export async function getDataCetakById(
 }
 export async function hapusDataCetak(req: AuthenticatedRequest, res: Response) {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }

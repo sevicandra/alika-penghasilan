@@ -1,34 +1,25 @@
 import { AuthenticatedRequest } from "@/types/auth";
 import { Response } from "express";
-import { errorResponse, successResponse } from "@/helpers/respose.helper";
+import { errorResponse } from "@/helpers/respose.helper";
 import { KemenkeuService } from "@/services/kemenkeu.service";
 import { PdfService } from "@/services/pdf.service";
 import {
-  DataSptPegawai,
   DataProfil,
   DataSatker,
-  ViewPajakGaji,
-  ViewPajakKurang,
-  ViewTukin,
-  RefSptTahunan,
   DataNomor,
   DataCetak,
   DataMakan,
   DataLembur,
-  DataLain,
   DataGaji,
-  ViewGaji,
   RefBulan,
   DataKurang,
   DataTukin,
 } from "@/models";
 import {
-  Op,
   ValidationError,
   DatabaseError,
   ConnectionError,
   UniqueConstraintError,
-  Sequelize,
 } from "sequelize";
 import sequelize from "@/config/db.config";
 import { AxiosError } from "axios";

@@ -1,39 +1,17 @@
 import { AuthenticatedRequest } from "@/types/auth";
 import { Response } from "express";
-import { errorResponse, successResponse } from "@/helpers/respose.helper";
-import { KemenkeuService } from "@/services/kemenkeu.service";
-import { PdfService } from "@/services/pdf.service";
+import { errorResponse } from "@/helpers/respose.helper";
 import {
-  DataSptPegawai,
-  DataProfil,
-  DataSatker,
-  ViewPajakGaji,
-  ViewPajakKurang,
-  ViewTukin,
-  RefSptTahunan,
-  DataNomor,
   DataCetak,
-  DataMakan,
-  DataLembur,
-  DataLain,
-  DataGaji,
-  ViewGaji,
-  RefBulan,
-  DataKurang,
-  DataTukin,
 } from "@/models";
 import {
-  Op,
   ValidationError,
   DatabaseError,
   ConnectionError,
   UniqueConstraintError,
-  Sequelize,
 } from "sequelize";
-import sequelize from "@/config/db.config";
 import { AxiosError } from "axios";
 import { MinioService } from "@/services/minio.service";
-import { v4 as uuid } from "uuid";
 import { AlikaService } from "@/services/alika.service";
 import { EsignService } from "@/services/esign.service";
 const minioService = new MinioService();
@@ -41,7 +19,7 @@ const minioService = new MinioService();
 export const processTte = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id, Passphrase } = req.body;
-    const { nip, nik } = req.user;
+    const { nip, nik } = req.user || {};
     if (!id || !Passphrase || !nip || !nik)
       throw new Error("Parameter Tidak Lengkap");
     const dataCetak = await DataCetak.findByPk(id);
@@ -131,10 +109,13 @@ export const processTte = async (req: AuthenticatedRequest, res: Response) => {
     }
   }
 };
-export const processTteKp4s = async (req: AuthenticatedRequest, res: Response) => {
+export const processTteKp4s = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
   try {
     const { id, Passphrase } = req.body;
-    const { nip, nik } = req.user;
+    const { nip, nik } = req.user || {};
     if (!id || !Passphrase || !nip || !nik)
       throw new Error("Parameter Tidak Lengkap");
     const dataCetak = await DataCetak.findByPk(id);
@@ -164,7 +145,7 @@ export const processTteKp4s = async (req: AuthenticatedRequest, res: Response) =
       blob,
       fileName: dataCetak.file,
       tag_koordinat: `#`,
-    })
+    });
     await minioService.uploadFile(tte.buffer, dataCetak.file);
     const tujuan = dataCetak.tujuan.split("/");
     await dataCetak.update({
@@ -182,41 +163,48 @@ export const processTteKp4s = async (req: AuthenticatedRequest, res: Response) =
       message: `Permohonan KP4 sedang diproses oleh ${tujuan[0]}.`,
     });
     return res.status(200).json({ message: "success" });
-}  catch (error: unknown) {
-  if (
-    error instanceof ValidationError ||
-    error instanceof UniqueConstraintError
-  ) {
-    const parsedErrors = error.errors.map((err) => ({
-      field: err.path,
-      message: err.message,
-    }));
-    return errorResponse(res, "Validation gagal", parsedErrors, 422);
-  } else if (
-    error instanceof DatabaseError ||
-    error instanceof ConnectionError
-  ) {
-    const parsedErrors = error.message;
-    return errorResponse(res, "Kesalahan pada database", parsedErrors, 500);
-  } else if (error instanceof ConnectionError) {
-    const parsedErrors = { message: "Gagal terhubung ke database" };
-    return errorResponse(res, "Koneksi ke database gagal", parsedErrors, 503);
-  } else if(error instanceof AxiosError){
-    if (typeof error === "object" && error !== null && "isAxiosError" in error && (error as AxiosError).isAxiosError) {
-      const axiosError = error as AxiosError;
-      const statusCode = axiosError.response?.status || 500;
-      const message = (axiosError.response?.data as { message?: string })?.message || axiosError.message || "Kesalahan pada permintaan eksternal";
-      const details = axiosError.response?.data || null;
-      return errorResponse(res, message, details, statusCode);
+  } catch (error: unknown) {
+    if (
+      error instanceof ValidationError ||
+      error instanceof UniqueConstraintError
+    ) {
+      const parsedErrors = error.errors.map((err) => ({
+        field: err.path,
+        message: err.message,
+      }));
+      return errorResponse(res, "Validation gagal", parsedErrors, 422);
+    } else if (
+      error instanceof DatabaseError ||
+      error instanceof ConnectionError
+    ) {
+      const parsedErrors = error.message;
+      return errorResponse(res, "Kesalahan pada database", parsedErrors, 500);
+    } else if (error instanceof ConnectionError) {
+      const parsedErrors = { message: "Gagal terhubung ke database" };
+      return errorResponse(res, "Koneksi ke database gagal", parsedErrors, 503);
+    } else if (error instanceof AxiosError) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "isAxiosError" in error &&
+        (error as AxiosError).isAxiosError
+      ) {
+        const axiosError = error as AxiosError;
+        const statusCode = axiosError.response?.status || 500;
+        const message =
+          (axiosError.response?.data as { message?: string })?.message ||
+          axiosError.message ||
+          "Kesalahan pada permintaan eksternal";
+        const details = axiosError.response?.data || null;
+        return errorResponse(res, message, details, statusCode);
+      }
+      return errorResponse(res, "Terjadi kesalahan", null, 500);
+    } else if (error instanceof Error) {
+      const parsedErrors = { message: error.message };
+      return errorResponse(res, "Terjadi kesalahan", parsedErrors, 500);
+    } else {
+      const parsedErrors = { message: "Kesalahan tidak diketahui" };
+      return errorResponse(res, "Terjadi kesalahan", parsedErrors, 500);
     }
-    return errorResponse(res, "Terjadi kesalahan", null, 500);
-  } else if (error instanceof Error) {
-    const parsedErrors = { message: error.message };
-    return errorResponse(res, "Terjadi kesalahan", parsedErrors, 500);
-  } else {
-    const parsedErrors = { message: "Kesalahan tidak diketahui" };
-    return errorResponse(res, "Terjadi kesalahan", parsedErrors, 500);
   }
-}
-
-}
+};

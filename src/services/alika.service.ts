@@ -38,9 +38,11 @@ export class AlikaService {
   static async sendPushNotification({
     nip,
     message,
+    title,
   }: {
     nip: string;
     message: string;
+    title?: string;
   }) {
     try {
       await axios.post(
@@ -48,6 +50,7 @@ export class AlikaService {
         {
           nip: nip,
           message,
+          title
         },
         {
           headers: {

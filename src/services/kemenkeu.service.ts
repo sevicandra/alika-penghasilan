@@ -2,6 +2,7 @@ import axios from "axios";
 import { ServiceKemenkeuConfig } from "@/config/serviceKemenkeu.config";
 import { appConfig } from "@/config/app.config";
 import { RedisService } from "./redis.service";
+import { Keluarga, Profile } from "@/types/serviceKemenkeu";
 const redis = new RedisService();
 
 export class KemenkeuService {
@@ -36,7 +37,7 @@ export class KemenkeuService {
       throw new Error("Failed to get access token");
     }
   }
-  static async getProfil({ nip }: { nip: string }): Promise<any> {
+  static async getProfil({ nip }: { nip: string }): Promise<Profile> {
     try {
       const cachedProfil = await redis.getCache(
         `${appConfig.name}:KemenkeuService:Profil:${nip}`
@@ -63,7 +64,7 @@ export class KemenkeuService {
       throw new Error("Failed to get Profil");
     }
   }
-  static async getKeluarga({ nip }: { nip: string }): Promise<any> {
+  static async getKeluarga({ nip }: { nip: string }): Promise<Keluarga[]> {
     try {
         const cachedKeluarga = await redis.getCache(
           `${appConfig.name}:KemenkeuService:Keluarga:${nip}`

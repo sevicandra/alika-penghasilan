@@ -4,21 +4,12 @@ import { errorResponse, successResponse } from "@/helpers/respose.helper";
 import { KemenkeuService } from "@/services/kemenkeu.service";
 import { PdfService } from "@/services/pdf.service";
 import {
-  DataSptPegawai,
   DataProfil,
   DataSatker,
-  ViewPajakGaji,
-  ViewPajakKurang,
-  ViewTukin,
-  RefSptTahunan,
   DataNomor,
   DataCetak,
-  DataMakan,
-  DataLembur,
-  DataLain,
   DataGaji,
-  ViewGaji,
-  RefBulan,
+
 } from "@/models";
 import {
   Op,
@@ -233,7 +224,6 @@ export const cetakKP4 = async (req: AuthenticatedRequest, res: Response) => {
       namaSatker: namaSatker,
       golongan: kodeGolonganRuang,
       profil: profil,
-      nomor: `${Number(dataNomor.no_urut_kp4)}${dataNomor.ext_kp4}`,
       satker: satker,
     });
     const pdfBuffer = Buffer.from(pdf, "base64");

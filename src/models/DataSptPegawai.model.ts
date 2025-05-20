@@ -1,10 +1,8 @@
 import sequelize from "@/config/db.config";
 import {
   DataTypes,
-  Op,
   Optional,
   Model,
-  Association,
   BelongsTo,
 } from "sequelize";
 import RefPangkat from "./RefPangkat.model";

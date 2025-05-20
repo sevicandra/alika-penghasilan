@@ -4,21 +4,11 @@ import { errorResponse, successResponse } from "@/helpers/respose.helper";
 import { KemenkeuService } from "@/services/kemenkeu.service";
 import { PdfService } from "@/services/pdf.service";
 import {
-  DataSptPegawai,
   DataProfil,
   DataSatker,
-  ViewPajakGaji,
-  ViewPajakKurang,
-  ViewTukin,
-  RefSptTahunan,
   DataNomor,
   DataCetak,
-  DataMakan,
-  DataLembur,
-  DataLain,
   DataGaji,
-  ViewGaji,
-  RefBulan,
 } from "@/models";
 import {
   Op,
@@ -34,7 +24,7 @@ import { v4 as uuid } from "uuid";
 const minioService = new MinioService();
 export const previewKP4 = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -156,7 +146,7 @@ export const previewKP4 = async (req: AuthenticatedRequest, res: Response) => {
 };
 export const cetakKP4 = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -233,7 +223,6 @@ export const cetakKP4 = async (req: AuthenticatedRequest, res: Response) => {
       namaSatker: namaSatker,
       golongan: kodeGolonganRuang,
       profil: profil,
-      nomor: `${Number(dataNomor.no_urut_kp4)}${dataNomor.ext_kp4}`,
       satker: satker,
     });
     const pdfBuffer = Buffer.from(pdf, "base64");

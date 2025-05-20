@@ -1,16 +1,12 @@
 import { AuthenticatedRequest } from "@/types/auth";
 import { Response } from "express";
-import { errorResponse, successResponse } from "@/helpers/respose.helper";
+import { errorResponse } from "@/helpers/respose.helper";
 import { KemenkeuService } from "@/services/kemenkeu.service";
 import { PdfService } from "@/services/pdf.service";
 import {
   DataSptPegawai,
   DataProfil,
   DataSatker,
-  ViewPajakGaji,
-  ViewPajakKurang,
-  ViewTukin,
-  RefSptTahunan,
   DataNomor,
   DataCetak,
   DataMakan,
@@ -37,7 +33,7 @@ export const previewForm1721VII = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
@@ -170,7 +166,7 @@ export const cetakForm1721VII = async (
   res: Response
 ) => {
   try {
-    const { nip } = req.user;
+    const { nip } = req.user || {};
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }

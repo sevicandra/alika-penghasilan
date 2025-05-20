@@ -9,9 +9,26 @@ export class MinioService {
         file
       );
       return result;
-    } catch (error: any) {
-      console.error("Error uploading file to MinIO:", error);
-      throw error;
+    } catch (error: unknown) {
+      if (error instanceof Error && "code" in error) {
+        const code = (error as any).code;
+        switch (code) {
+          case "NoSuchKey":
+            console.error("Object not found in MinIO");
+            throw new Error("Object not found in MinIO");
+            break;
+          case "AccessDenied":
+            console.error("Permission denied");
+            throw new Error("Permission denied");
+            break;
+          default:
+            console.error("Unhandled MinIO error:", code);
+            throw new Error("Unhandled MinIO error: " + code);
+        }
+      } else {
+        console.error("Unknown error occurred:", error);
+        throw new Error("Unknown error occurred: " + error);
+      }
     }
   }
 
@@ -19,9 +36,26 @@ export class MinioService {
     try {
       const result = await minioClient.getObject(minioConfig.bucket, fileName);
       return result;
-    } catch (error: any) {
-      console.error("Error downloading file from MinIO:", error);
-      throw error;
+    } catch (error: unknown) {
+      if (error instanceof Error && "code" in error) {
+        const code = (error as any).code;
+        switch (code) {
+          case "NoSuchKey":
+            console.error("Object not found in MinIO");
+            throw new Error("Object not found in MinIO");
+            break;
+          case "AccessDenied":
+            console.error("Permission denied");
+            throw new Error("Permission denied");
+            break;
+          default:
+            console.error("Unhandled MinIO error:", code);
+            throw new Error("Unhandled MinIO error: " + code);
+        }
+      } else {
+        console.error("Unknown error occurred:", error);
+        throw new Error("Unknown error occurred: " + error);
+      }
     }
   }
 
@@ -32,9 +66,22 @@ export class MinioService {
         fileName
       );
       return result;
-    } catch (error: any) {
-      console.error("Error deleting file from MinIO:", error);
-      throw error;
+    } catch (error: unknown) {
+      if (error instanceof Error && "code" in error) {
+        const code = (error as any).code;
+        switch (code) {
+          case "NoSuchKey":
+            console.error("Object not found in MinIO");
+            break;
+          case "AccessDenied":
+            console.error("Permission denied");
+            break;
+          default:
+            console.error("Unhandled MinIO error:", code);
+        }
+      } else {
+        console.error("Unknown error occurred:", error);
+      }
     }
   }
 }

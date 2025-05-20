@@ -1,7 +1,6 @@
 import { Response } from "express";
 import { AxiosError } from "axios";
 import {
-  Op,
   ValidationError,
   DatabaseError,
   ConnectionError,

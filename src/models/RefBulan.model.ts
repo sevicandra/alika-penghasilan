@@ -1,5 +1,5 @@
 import sequelize from "@/config/db.config";
-import { Model, DataTypes, Op, Optional } from "sequelize";
+import { Model, DataTypes, Optional } from "sequelize";
 
 type RefBulanAttributes = {
   id: number;
@@ -32,7 +32,7 @@ RefBulan.init(
           args: /^[0]{1}[1-9]{1}|[1]{1}[0-4]{1}$/,
           msg: "Format Bulan Salah",
         },
-      }
+      },
     },
     bulan: {
       type: DataTypes.STRING(50),
