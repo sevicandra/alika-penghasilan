@@ -46,7 +46,7 @@ export class AlikaService {
   }) {
     try {
       await axios.post(
-        `${alikaConfig.PUSH_NOTIFICATION_URL}/send-notification`,
+        `${alikaConfig.PUSH_NOTIFICATION_URL}/notification/Send`,
         {
           nip: nip,
           message,
