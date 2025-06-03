@@ -37,14 +37,13 @@ export const previewSkp = async (req: AuthenticatedRequest, res: Response) => {
     const { bulan, tahun } = req.body;
     if (!bulan || !tahun)
       return errorResponse(res, "Parameter Tidak Lengkap", 400);
-    const ClientProfile = await KemenkeuService.getProfil({ nip });
+    const ClientProfile = await KemenkeuService.getProfilHris2({ nip });
     const {
-      Nama: name,
-      Jabatan: jabatan,
-      Organisasi: organisasi,
-      KdSatker: kode_satker,
+      nama: name,
+      jabatan: jabatan,
+      kdSatker: kode_satker,
     } = ClientProfile;
-    if (!kode_satker || !organisasi || !name || !jabatan)
+    if (!kode_satker || !name || !jabatan)
       return errorResponse(res, "Data HRIS Tidak Lengkap", 400);
     const satker = await DataSatker.findOne({
       where: { kdsatker: kode_satker },
@@ -115,8 +114,10 @@ export const previewSkp = async (req: AuthenticatedRequest, res: Response) => {
       tahun: tahun,
       nama: name,
       nip: nip,
-      jabatan: jabatan,
-      organisasi: organisasi,
+      jabatan:
+        jabatan.find((x) => x.statusJabatan == "Definitif")?.namaJabatan || "",
+      organisasi:
+        jabatan.find((x) => x.statusJabatan == "Definitif")?.organisasi || "",
     });
     const pdfBuffer = Buffer.from(pdf, "base64");
     res.setHeader("Content-Type", "application/pdf");
@@ -176,14 +177,13 @@ export const cetakSkp = async (req: AuthenticatedRequest, res: Response) => {
     const { bulan, tahun } = req.body;
     if (!bulan || !tahun)
       return errorResponse(res, "Parameter Tidak Lengkap", 400);
-    const ClientProfile = await KemenkeuService.getProfil({ nip });
+    const ClientProfile = await KemenkeuService.getProfilHris2({ nip });
     const {
-      Nama: name,
-      Jabatan: jabatan,
-      Organisasi: organisasi,
-      KdSatker: kode_satker,
+      nama: name,
+      jabatan: jabatan,
+      kdSatker: kode_satker,
     } = ClientProfile;
-    if (!kode_satker || !organisasi || !name || !jabatan)
+    if (!kode_satker || !name || !jabatan)
       return errorResponse(res, "Data HRIS Tidak Lengkap", 400);
     const satker = await DataSatker.findOne({
       where: { kdsatker: kode_satker },
@@ -262,8 +262,10 @@ export const cetakSkp = async (req: AuthenticatedRequest, res: Response) => {
       tahun: tahun,
       nama: name,
       nip: nip,
-      jabatan: jabatan,
-      organisasi: organisasi,
+      jabatan:
+        jabatan.find((x) => x.statusJabatan == "Definitif")?.namaJabatan || "",
+      organisasi:
+        jabatan.find((x) => x.statusJabatan == "Definitif")?.organisasi || "",
       nomor: `${Number(dataNomor.no_urut_skp)}${dataNomor.ext_skp}`,
     });
     const pdfBuffer = Buffer.from(pdf, "base64");

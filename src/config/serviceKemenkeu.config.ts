@@ -1,6 +1,7 @@
 import fs from "fs";
 export const ServiceKemenkeuConfig = {
   BASE_URI: process.env.SERVICE_KEMENKEU_BASE_URI || "",
+  BASE_URI2: process.env.SERVICE_KEMENKEU_BASE_URI2 || "",
   TOKEN_URI: process.env.SERVICE_KEMENKEU_TOKEN_URI || "",
   CLIENT_ID: process.env.SERVICE_KEMENKEU_CLIENT_ID_FILE
     ? fs

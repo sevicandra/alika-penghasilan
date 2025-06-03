@@ -2217,9 +2217,6 @@ export class PdfService {
     tempatLahir,
     tanggalLahir,
     jabatan,
-    alamat,
-    kota,
-    provinsi,
     namaSatker,
     golongan,
     profil,
@@ -2232,9 +2229,6 @@ export class PdfService {
     tempatLahir: string;
     tanggalLahir: string;
     jabatan: string;
-    alamat: string;
-    kota: string;
-    provinsi: string;
     namaSatker: string;
     golongan: string;
     profil: DataProfil;
@@ -2369,16 +2363,7 @@ export class PdfService {
                     }),
                     alignment: "left",
                   },
-                ],
-                [
-                  { text: "11.", alignment: "center" },
-                  { text: "Alamat", alignment: "left" },
-                  { text: ":", alignment: "center" },
-                  {
-                    text: `${alamat.toUpperCase()}, ${kota.toUpperCase()}, ${provinsi.toUpperCase()}`,
-                    alignment: "left",
-                  },
-                ],
+                ]
               ],
             },
             layout: "noBorders",

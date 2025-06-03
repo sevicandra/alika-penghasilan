@@ -2,7 +2,7 @@ import axios from "axios";
 import { ServiceKemenkeuConfig } from "@/config/serviceKemenkeu.config";
 import { appConfig } from "@/config/app.config";
 import { RedisService } from "./redis.service";
-import { Keluarga, Profile } from "@/types/serviceKemenkeu";
+import { Keluarga, Profile, Profile2 } from "@/types/serviceKemenkeu";
 const redis = new RedisService();
 
 export class KemenkeuService {
@@ -66,29 +66,56 @@ export class KemenkeuService {
   }
   static async getKeluarga({ nip }: { nip: string }): Promise<Keluarga[]> {
     try {
-        const cachedKeluarga = await redis.getCache(
-          `${appConfig.name}:KemenkeuService:Keluarga:${nip}`
-        );
-        if (cachedKeluarga) {
-          return JSON.parse(cachedKeluarga);
-        }
-        const response = await axios.get(
-          `${ServiceKemenkeuConfig.BASE_URI}/hris/keluarga/Riwayat/GetKeluargaByNip/${nip}`,
-          {
-            headers: {
-              Authorization: `Bearer ${await this.getAccessToken()}`,
-            },
-          }
-        );
-        await redis.setCache(
-          `${appConfig.name}:KemenkeuService:Keluarga:${nip}`,
-          JSON.stringify(response.data.Data),
-          3600
-        );
-        return response.data.Data;
-      } catch (error) {
-        console.error("Error requesting Profil:", error);
-        throw new Error("Failed to get Profil");
+      const cachedKeluarga = await redis.getCache(
+        `${appConfig.name}:KemenkeuService:Keluarga:${nip}`
+      );
+      if (cachedKeluarga) {
+        return JSON.parse(cachedKeluarga);
       }
+      const response = await axios.get(
+        `${ServiceKemenkeuConfig.BASE_URI}/hris/keluarga/Riwayat/GetKeluargaByNip/${nip}`,
+        {
+          headers: {
+            Authorization: `Bearer ${await this.getAccessToken()}`,
+          },
+        }
+      );
+      await redis.setCache(
+        `${appConfig.name}:KemenkeuService:Keluarga:${nip}`,
+        JSON.stringify(response.data.Data),
+        3600
+      );
+      return response.data.Data;
+    } catch (error) {
+      console.error("Error requesting Profil:", error);
+      throw new Error("Failed to get Profil");
+    }
+  }
+  static async getProfilHris2({ nip }: { nip: string }): Promise<Profile2> {
+    try {
+      const cachedProfil = await redis.getCache(
+        `${appConfig.name}:KemenkeuService:Profil2:${nip}`
+      );
+      if (cachedProfil) {
+        return JSON.parse(cachedProfil);
+      }
+      const response = await axios.get(
+        `${ServiceKemenkeuConfig.BASE_URI2}/HrisProfil/2.0/api/Profile/GetPegawai?nip=${nip}`,
+        {
+          headers: {
+            Authorization: `Bearer ${await this.getAccessToken()}`,
+          },
+        }
+      );
+      await redis.setCache(
+        `${appConfig.name}:KemenkeuService:Profil2:${nip}`,
+        JSON.stringify(response.data.data),
+        3600
+      );
+      return response.data.data;
+    } catch (error) {
+      console.error("Error requesting Profil:", error);
+      throw new Error("Failed to get Profil");
+    }
   }
 }

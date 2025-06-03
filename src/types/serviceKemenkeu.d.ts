@@ -78,3 +78,87 @@ export interface Profile {
   TMTStatusPegawai: string;
   TanggalSKStatusPegawai: string;
 }
+
+export interface Profile2 {
+  idPegawai: number;
+  nip18: string;
+  nip9: string;
+  nama: string;
+  gelarDepan: string;
+  gelarBelakang: string;
+  tempatLahir: string;
+  tanggalLahir: string;
+  idrefJenisKelamin: string;
+  jenisKelamin: string;
+  idrefAgama: number;
+  agama: string;
+  golonganDarah: string;
+  noKartuPegawai: string;
+  npwp: string;
+  provinsiKTP: string;
+  provinsiDomisili: string;
+  nomorTelepon: string;
+  email: string;
+  noHp: string;
+  noKk: string;
+  namaKontakDarurat: string;
+  nomorKontakDarurat: string;
+  kdSatker: string;
+  namaSatker: string;
+  nik: string;
+  jabatan: {
+    idPegawaiJabatan: number;
+    idJabatan: number;
+    idJabatanAtasan: number;
+    idRefNamaJabatan: number;
+    namaJabatan: string;
+    statusJabatan: string;
+    esl1: string;
+    esl2: string;
+    esl3: string;
+    esl4: string;
+    idOrganisasi: number;
+    kodeOrganisasi: string;
+    kodeIndukOrganisasi: string;
+    organisasi: string;
+    tanggalMulai: string;
+    grading: number;
+    jenisJabatan: string;
+    kodeEselon: string;
+    uraianEselon: string;
+    idRefJenjangJabatan: number;
+    noSK: string;
+    lampiran: string;
+  }[];
+  pangkat: {
+    idPegawaiPangkat: number;
+    idRefPangkat: number;
+    namaPangkat: string;
+    kodeGolongan: string;
+    noSK: string;
+    tanggalMulai: string;
+    lampiran: string;
+  };
+  status: {
+    idPegawaiStatus: number;
+    idRefStatus: number;
+    uraian: string;
+    tanggalMulai: string;
+    noSK: string;
+  };
+  grading: {
+    idPegawaiGrading: number;
+    grading: number;
+    noSK: string;
+    tanggalMulai: string;
+  };
+  statusPernikahan: string;
+  id: {
+    timestamp: number;
+    machine: number;
+    pid: number;
+    increment: number;
+    creationTime: string;
+  };
+  createdAt: string;
+}

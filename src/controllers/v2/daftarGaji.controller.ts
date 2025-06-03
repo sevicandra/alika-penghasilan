@@ -35,11 +35,11 @@ export const previewDaftarGaji = async (
     const { bulan, tahun } = req.body;
     if (!bulan || !nip || !tahun)
       return errorResponse(res, "Parameter Tidak Lengkap", 400);
-    const ClientProfile = await KemenkeuService.getProfil({ nip });
+    const ClientProfile = await KemenkeuService.getProfilHris2({ nip });
     const {
-      Nama: name,
-      Jabatan: jabatan,
-      KdSatker: kode_satker,
+      nama: name,
+      jabatan: jabatan,
+      kdSatker: kode_satker,
     } = ClientProfile;
     if (!kode_satker || !name || !jabatan)
       return errorResponse(res, "Data HRIS Tidak Lengkap", 400);
@@ -81,7 +81,7 @@ export const previewDaftarGaji = async (
       tahun: tahun,
       nama: name,
       nip: nip,
-      jabatan: jabatan,
+      jabatan: (jabatan.find((x) => x.statusJabatan == "Definitif"))?.namaJabatan || "",
     });
     const pdfBuffer = Buffer.from(pdf, "base64");
     res.setHeader("Content-Type", "application/pdf");
@@ -147,11 +147,11 @@ export const cetakDaftarGaji = async (
     const { bulan, tahun } = req.body;
     if (!bulan || !tahun)
       return errorResponse(res, "Parameter Tidak Lengkap", 400);
-    const ClientProfile = await KemenkeuService.getProfil({ nip });
+    const ClientProfile = await KemenkeuService.getProfilHris2({ nip });
     const {
-      Nama: name,
-      Jabatan: jabatan,
-      KdSatker: kode_satker,
+      nama: name,
+      jabatan: jabatan,
+      kdSatker: kode_satker,
     } = ClientProfile;
     if (!kode_satker || !name || !jabatan)
       return errorResponse(res, "Data HRIS Tidak Lengkap", 400);
@@ -201,7 +201,7 @@ export const cetakDaftarGaji = async (
       tahun: tahun,
       nama: name,
       nip: nip,
-      jabatan: jabatan,
+      jabatan: (jabatan.find((x) => x.statusJabatan == "Definitif"))?.namaJabatan || "",
       nomor: `${Number(dataNomor.no_urut_daftar)}${dataNomor.ext_daftar}`,
     });
     const pdfBuffer = Buffer.from(pdf, "base64");

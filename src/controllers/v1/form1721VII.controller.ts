@@ -36,8 +36,8 @@ export const previewForm1721VII = async (
     const { tahun, nip, kdsatker } = req.body;
     if (!nip || !tahun || !kdsatker)
       return errorResponse(res, "Parameter Tidak Lengkap", 400);
-    const ClientProfile = await KemenkeuService.getProfil({ nip });
-    const { Nama: name } = ClientProfile;
+    const ClientProfile = await KemenkeuService.getProfilHris2({ nip });
+    const { nama: name } = ClientProfile;
     if (!name) return errorResponse(res, "Parameter HRIS Tidak Lengkap", 400);
     const pegawai = await DataSptPegawai.findOne({
       where: {
@@ -168,8 +168,8 @@ export const cetakForm1721VII = async (
     const { tahun, nip, kdsatker } = req.body;
     if (!nip || !tahun || !kdsatker)
       return errorResponse(res, "Parameter Tidak Lengkap", 400);
-    const ClientProfile = await KemenkeuService.getProfil({ nip });
-    const { Nama: name } = ClientProfile;
+    const ClientProfile = await KemenkeuService.getProfilHris2({ nip });
+    const { nama: name } = ClientProfile;
     if (!name) return errorResponse(res, "Parameter HRIS Tidak Lengkap", 400);
     const pegawai = await DataSptPegawai.findOne({
       where: {

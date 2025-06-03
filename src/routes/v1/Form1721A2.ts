@@ -12,7 +12,7 @@ router.post(
 );
 router.post(
   "/Cetak",
-  authenticate(["penghasilan.1721a2.process"]),
+  authenticate(["penghasilan.1721a2.submit"]),
   cetakForm1721A2
 );
 export default router;

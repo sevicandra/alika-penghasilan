@@ -37,15 +37,15 @@ export const previewForm1721A2 = async (
     }
     const { tahun } = req.body;
     if (!tahun) return errorResponse(res, "Parameter Tidak Lengkap", 400);
-    const ClientProfile = await KemenkeuService.getProfil({ nip });
+    const ClientProfile = await KemenkeuService.getProfilHris2({ nip });
     const {
-      Nama: name,
-      Jabatan: jabatan,
-      Npwp: npwp,
-      Nik: nik,
-      KodeGolonganRuang: golongan,
+      nama: name,
+      jabatan: jabatan,
+      npwp: npwp,
+      namaSatker: nik,
+      pangkat: pangkat,
     } = ClientProfile;
-    if (!name || !jabatan || !npwp || !nik || !golongan)
+    if (!name || !jabatan || !npwp || !nik || !pangkat)
       return errorResponse(res, "Parameter HRIS Tidak Lengkap", 400);
     const pegawai = await DataSptPegawai.findOne({
       where: {
@@ -100,10 +100,11 @@ export const previewForm1721A2 = async (
       tahun: tahun,
       nama: name,
       nip: nip,
-      jabatan: jabatan,
+      jabatan:
+        jabatan.find((x) => x.statusJabatan == "Definitif")?.namaJabatan || "",
       npwp: npwp,
       nik: nik,
-      golongan: golongan,
+      golongan: `${pangkat.namaPangkat} / ${pangkat.kodeGolongan}`,
     });
     const pdfBuffer = Buffer.from(pdf, "base64");
     res.setHeader("Content-Type", "application/pdf");
@@ -169,15 +170,15 @@ export const cetakForm1721A2 = async (
     }
     const { tahun } = req.body;
     if (!tahun) return errorResponse(res, "Parameter Tidak Lengkap", 400);
-    const ClientProfile = await KemenkeuService.getProfil({ nip });
+    const ClientProfile = await KemenkeuService.getProfilHris2({ nip });
     const {
-      Nama: name,
-      Jabatan: jabatan,
-      Npwp: npwp,
-      Nik: nik,
-      KodeGolonganRuang: golongan,
+      nama: name,
+      jabatan: jabatan,
+      npwp: npwp,
+      nik: nik,
+      pangkat: pangkat,
     } = ClientProfile;
-    if (!name || !jabatan || !nik || !golongan)
+    if (!name || !jabatan || !nik || !pangkat)
       return errorResponse(res, "Parameter HRIS Tidak Lengkap", 400);
     const pegawai = await DataSptPegawai.findOne({
       where: {
@@ -240,10 +241,11 @@ export const cetakForm1721A2 = async (
       tahun: tahun,
       nama: name,
       nip: nip,
-      jabatan: jabatan,
+      jabatan:
+        jabatan.find((x) => x.statusJabatan == "Definitif")?.namaJabatan || "",
       npwp: npwp,
       nik: nik,
-      golongan: golongan,
+      golongan: `${pangkat.namaPangkat} / ${pangkat.kodeGolongan}`,
       nomor: `${Number(dataNomor.no_urut_pph)}${dataNomor.ext_pph}`,
       tanggal: new Date().toLocaleDateString("id-ID", {
         day: "2-digit",

@@ -28,19 +28,16 @@ export const previewKP4 = async (req: AuthenticatedRequest, res: Response) => {
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
-    const ClientProfile = await KemenkeuService.getProfil({ nip });
+    const ClientProfile = await KemenkeuService.getProfilHris2({ nip });
     const keluarga = await KemenkeuService.getKeluarga({ nip });
     const {
-      TempatLahir: tempatLahir,
-      TanggalLahir: tanggalLahir,
-      Jabatan: jabatan,
-      AlamatKtp: alamat,
-      KotaKtp: kota,
-      ProvinsiKtp: provinsi,
-      Nama: name,
-      NamaSatker: namaSatker,
-      KodeGolonganRuang: kodeGolonganRuang,
-      KdSatker: kode_satker,
+      tempatLahir: tempatLahir,
+      tanggalLahir: tanggalLahir,
+      jabatan: jabatan,
+      nama: name,
+      namaSatker: namaSatker,
+      pangkat: pangkat,
+      kdSatker: kode_satker,
     } = ClientProfile;
     keluarga.sort(
       (a: any, b: any) =>
@@ -50,13 +47,10 @@ export const previewKP4 = async (req: AuthenticatedRequest, res: Response) => {
       !tempatLahir ||
       !tanggalLahir ||
       !jabatan ||
-      !alamat ||
       !name ||
       !namaSatker ||
-      !kodeGolonganRuang ||
-      !kode_satker ||
-      !kota ||
-      !provinsi
+      !pangkat ||
+      !kode_satker
     )
       return errorResponse(res, "Data HRIS Tidak Lengkap", 400);
     const satker = await DataSatker.findOne({
@@ -86,12 +80,10 @@ export const previewKP4 = async (req: AuthenticatedRequest, res: Response) => {
       nama: name,
       tempatLahir: tempatLahir,
       tanggalLahir: tanggalLahir,
-      jabatan: jabatan,
-      alamat: alamat,
-      kota: kota,
-      provinsi: provinsi,
+      jabatan:
+        jabatan.find((x) => x.statusJabatan == "Definitif")?.namaJabatan || "",
       namaSatker: namaSatker,
-      golongan: kodeGolonganRuang,
+      golongan: `${pangkat.namaPangkat} / ${pangkat.kodeGolongan}`,
       profil: profil,
       satker: satker,
     });
@@ -150,19 +142,16 @@ export const cetakKP4 = async (req: AuthenticatedRequest, res: Response) => {
     if (!nip) {
       return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
     }
-    const ClientProfile = await KemenkeuService.getProfil({ nip });
+    const ClientProfile = await KemenkeuService.getProfilHris2({ nip });
     const keluarga = await KemenkeuService.getKeluarga({ nip });
     const {
-      TempatLahir: tempatLahir,
-      TanggalLahir: tanggalLahir,
-      Jabatan: jabatan,
-      AlamatKtp: alamat,
-      KotaKtp: kota,
-      ProvinsiKtp: provinsi,
-      Nama: name,
-      NamaSatker: namaSatker,
-      KodeGolonganRuang: kodeGolonganRuang,
-      KdSatker: kode_satker,
+      tempatLahir: tempatLahir,
+      tanggalLahir: tanggalLahir,
+      jabatan: jabatan,
+      nama: name,
+      namaSatker: namaSatker,
+      pangkat: pangkat,
+      kdSatker: kode_satker,
     } = ClientProfile;
     keluarga.sort(
       (a: any, b: any) =>
@@ -172,13 +161,10 @@ export const cetakKP4 = async (req: AuthenticatedRequest, res: Response) => {
       !tempatLahir ||
       !tanggalLahir ||
       !jabatan ||
-      !alamat ||
       !name ||
       !namaSatker ||
-      !kodeGolonganRuang ||
-      !kode_satker ||
-      !kota ||
-      !provinsi
+      !pangkat ||
+      !kode_satker
     )
       return errorResponse(res, "Data HRIS Tidak Lengkap", 400);
     const satker = await DataSatker.findOne({
@@ -216,12 +202,10 @@ export const cetakKP4 = async (req: AuthenticatedRequest, res: Response) => {
       nama: name,
       tempatLahir: tempatLahir,
       tanggalLahir: tanggalLahir,
-      jabatan: jabatan,
-      alamat: alamat,
-      kota: kota,
-      provinsi: provinsi,
+      jabatan:
+        jabatan.find((x) => x.statusJabatan == "Definitif")?.namaJabatan || "",
       namaSatker: namaSatker,
-      golongan: kodeGolonganRuang,
+      golongan: `${pangkat.namaPangkat} / ${pangkat.kodeGolongan}`,
       profil: profil,
       satker: satker,
     });
