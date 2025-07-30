@@ -19,6 +19,7 @@ import fs from "fs";
 import { Content } from "pdfmake/interfaces";
 import generatePdf from "@/config/pdf.config";
 import { numberToWords } from "@/helpers/numberToWord.helper";
+import { Keluarga } from "@/types/serviceKemenkeu";
 import path from "path";
 export class PdfService {
   static async Header({
@@ -2222,7 +2223,7 @@ export class PdfService {
     profil,
     satker,
   }: {
-    keluargas: any[];
+    keluargas: Keluarga[];
     gaji: DataGaji;
     nip: string;
     nama: string;
@@ -2363,7 +2364,7 @@ export class PdfService {
                     }),
                     alignment: "left",
                   },
-                ]
+                ],
               ],
             },
             layout: "noBorders",
@@ -2411,35 +2412,47 @@ export class PdfService {
                           { text: "Pekerjaan", alignment: "center" },
                           { text: "Status", alignment: "center" },
                         ],
-                        ...keluargas.map((item: any, index: number) => [
-                          {
-                            text: `${index + 1}.`,
-                            alignment: "center",
-                          },
-                          { text: item.Nama.toUpperCase(), alignment: "left" },
-                          {
-                            text: new Date(item.TanggalLahir)
-                              .toLocaleDateString("id-ID", {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                              })
-                              .toUpperCase(),
-                            alignment: "center",
-                          },
-                          {
-                            text: item.Hubungan.toUpperCase(),
-                            alignment: "center",
-                          },
-                          {
-                            text: item.Pekerjaan.toUpperCase(),
-                            alignment: "center",
-                          },
-                          {
-                            text: item.StatusTanggungan.toUpperCase(),
-                            alignment: "center",
-                          },
-                        ]),
+                        ...keluargas
+                          .filter((k) => {
+                            // k.IdrefHubungan == 4 ||
+                            //   k.IdrefHubungan == 7 ||
+                            //   k.IdrefHubungan == 1 ||
+                            //   k.IdrefHubungan == 2 ||
+                            //   k.IdrefHubungan == 3 ||
+                            //   k.IdrefHubungan == 12;
+                          })
+                          .map((item: any, index: number) => [
+                            {
+                              text: `${index + 1}.`,
+                              alignment: "center",
+                            },
+                            {
+                              text: item.Nama.toUpperCase(),
+                              alignment: "left",
+                            },
+                            {
+                              text: new Date(item.TanggalLahir)
+                                .toLocaleDateString("id-ID", {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                })
+                                .toUpperCase(),
+                              alignment: "center",
+                            },
+                            {
+                              text: item.Hubungan.toUpperCase(),
+                              alignment: "center",
+                            },
+                            {
+                              text: item.Pekerjaan.toUpperCase(),
+                              alignment: "center",
+                            },
+                            {
+                              text: item.StatusTanggungan.toUpperCase(),
+                              alignment: "center",
+                            },
+                          ]),
                       ],
                     },
                     fontSize: 9,
