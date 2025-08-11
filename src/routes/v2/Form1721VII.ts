@@ -6,6 +6,6 @@ import {
 import { authenticate } from "@/middlewares/auth.middleware";
 
 const router = Router();
-router.post("/Preview",authenticate(["penghasilan2.1721vii.print"]), previewForm1721VII);
-router.post("/Cetak",authenticate(["penghasilan2.1721vii.submit"]), cetakForm1721VII);
+router.post("/Preview", authenticate(), previewForm1721VII);
+router.post("/Cetak", authenticate(), cetakForm1721VII);
 export default router;

@@ -3,5 +3,5 @@ import { getTahunDataSptPegawai } from "@/controllers/v2/dataSptPegawai.controll
 import { authenticate } from "@/middlewares/auth.middleware";
 
 const router = Router();
-router.get("/GetTahun", authenticate(["penghasilan2.spt.read"]),getTahunDataSptPegawai);
+router.get("/GetTahun", authenticate(), getTahunDataSptPegawai);
 export default router;

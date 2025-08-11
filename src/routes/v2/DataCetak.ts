@@ -8,20 +8,8 @@ import {
 import { authenticate } from "@/middlewares/auth.middleware";
 
 const router = Router();
-router.get("/", authenticate(["penghasilan2.datacetak.read"]), getAllDataCetak);
-router.get(
-  "/Count",
-  authenticate(["penghasilan2.datacetak.read"]),
-  countAllDataCetak
-);
-router.get(
-  "/:id",
-  authenticate(["penghasilan2.datacetak.read"]),
-  getDataCetakById
-);
-router.delete(
-  "/:id",
-  authenticate(["penghasilan2.datacetak.delete"]),
-  hapusDataCetak
-);
+router.get("/", authenticate(), getAllDataCetak);
+router.get("/Count", authenticate(), countAllDataCetak);
+router.get("/:id", authenticate(), getDataCetakById);
+router.delete("/:id", authenticate(), hapusDataCetak);
 export default router;

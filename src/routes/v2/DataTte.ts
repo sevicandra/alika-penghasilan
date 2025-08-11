@@ -3,13 +3,13 @@ import {
   getAllDataTte,
   getDataTteById,
   countAllDataTte,
-  tolakDataTte
+  tolakDataTte,
 } from "@/controllers/v2/dataTte.controller";
 import { authenticate } from "@/middlewares/auth.middleware";
 
 const router = Router();
-router.get("/", authenticate(["penghasilan2.datatte.read"]),getAllDataTte);
-router.get("/Count", authenticate(["penghasilan2.datatte.read"]),countAllDataTte);
-router.get("/:id", authenticate(["penghasilan2.datatte.read"]),getDataTteById);
-router.post("/:id/tolak", authenticate(["penghasilan2.datatte.reject"]),tolakDataTte);
+router.get("/", authenticate(), getAllDataTte);
+router.get("/Count", authenticate(), countAllDataTte);
+router.get("/:id", authenticate(), getDataTteById);
+router.post("/:id/tolak", authenticate(), tolakDataTte);
 export default router;

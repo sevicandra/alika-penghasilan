@@ -6,15 +6,7 @@ import {
 import { authenticate } from "@/middlewares/auth.middleware";
 
 const router = Router();
-router.post(
-  "/Preview",
-  authenticate(["penghasilan2.daftargaji.print"]),
-  previewDaftarGaji
-);
-router.post(
-  "/Cetak",
-  authenticate(["penghasilan2.daftargaji.print"]),
-  cetakDaftarGaji
-);
+router.post("/Preview", authenticate(), previewDaftarGaji);
+router.post("/Cetak", authenticate(), cetakDaftarGaji);
 
 export default router;

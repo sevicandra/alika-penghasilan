@@ -10,30 +10,10 @@ import {
 import { authenticate } from "@/middlewares/auth.middleware";
 
 const router = Router();
-router.get("/", authenticate(["penghasilan2.gaji.read"]), getAllKekuranganGaji);
-router.get(
-  "/Count",
-  authenticate(["penghasilan2.gaji.read"]),
-  countAllKekuranganGaji
-);
-router.get(
-  "/GetTahun",
-  authenticate(["penghasilan2.gaji.read"]),
-  getTahunKekuranganGaji
-);
-router.get(
-  "/Tahun/:tahun/GetBulan",
-  authenticate(["penghasilan2.gaji.read"]),
-  getBulanKekuranganGaji
-);
-router.get(
-  "/GetRekap",
-  authenticate(["penghasilan2.gaji.read"]),
-  getRekapKekuranganGaji
-);
-router.get(
-  "/:id",
-  authenticate(["penghasilan2.gaji.read"]),
-  getKekuranganGajiById
-);
+router.get("/", authenticate(), getAllKekuranganGaji);
+router.get("/Count", authenticate(), countAllKekuranganGaji);
+router.get("/GetTahun", authenticate(), getTahunKekuranganGaji);
+router.get("/Tahun/:tahun/GetBulan", authenticate(), getBulanKekuranganGaji);
+router.get("/GetRekap", authenticate(), getRekapKekuranganGaji);
+router.get("/:id", authenticate(), getKekuranganGajiById);
 export default router;

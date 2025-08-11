@@ -10,10 +10,10 @@ import {
 import { authenticate } from "@/middlewares/auth.middleware";
 
 const router = Router();
-router.get("/", authenticate(["penghasilan2.gaji.read"]),getAllGaji);
-router.get("/Count", authenticate(["penghasilan2.gaji.read"]),countAllGaji);
-router.get("/GetTahun", authenticate(["penghasilan2.gaji.read"]),getTahunGaji);
-router.get("/Tahun/:tahun/GetBulan", authenticate(["penghasilan2.gaji.read"]),getBulanGaji);
-router.get("/GetRekap", authenticate(["penghasilan2.gaji.read"]),getRekapGaji);
-router.get("/:id", authenticate(["penghasilan2.gaji.read"]),getGajiById);
+router.get("/", authenticate(), getAllGaji);
+router.get("/Count", authenticate(), countAllGaji);
+router.get("/GetTahun", authenticate(), getTahunGaji);
+router.get("/Tahun/:tahun/GetBulan", authenticate(), getBulanGaji);
+router.get("/GetRekap", authenticate(), getRekapGaji);
+router.get("/:id", authenticate(), getGajiById);
 export default router;

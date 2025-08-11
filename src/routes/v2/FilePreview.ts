@@ -4,6 +4,6 @@ import { authenticate } from "@/middlewares/auth.middleware";
 
 const router = Router();
 
-router.get("/:id", authenticate(["penghasilan2.file.access"]),filePreview);
+router.get("/:id", authenticate(), filePreview);
 
 export default router;

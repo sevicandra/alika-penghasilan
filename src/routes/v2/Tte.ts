@@ -6,6 +6,6 @@ import {
 import { authenticate } from "@/middlewares/auth.middleware";
 
 const router = Router();
-router.post("/", authenticate(["penghasilan2.tte.process"]),processTte);
-router.post("/Kp4s", authenticate(["penghasilan2.tte.process"]),processTteKp4s);
+router.post("/", authenticate(),processTte);
+router.post("/Kp4s", authenticate(),processTteKp4s);
 export default router;

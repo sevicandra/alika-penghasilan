@@ -2414,12 +2414,12 @@ export class PdfService {
                         ],
                         ...keluargas
                           .filter((k) => {
-                            // k.IdrefHubungan == 4 ||
-                            //   k.IdrefHubungan == 7 ||
-                            //   k.IdrefHubungan == 1 ||
-                            //   k.IdrefHubungan == 2 ||
-                            //   k.IdrefHubungan == 3 ||
-                            //   k.IdrefHubungan == 12;
+                            k.IdrefHubungan === 4 ||
+                              k.IdrefHubungan === 7 ||
+                              k.IdrefHubungan === 1 ||
+                              k.IdrefHubungan === 2 ||
+                              k.IdrefHubungan === 3 ||
+                              k.IdrefHubungan === 12;
                           })
                           .map((item: any, index: number) => [
                             {
