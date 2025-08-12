@@ -2413,14 +2413,15 @@ export class PdfService {
                           { text: "Status", alignment: "center" },
                         ],
                         ...keluargas
-                          .filter((k) => {
-                            k.IdrefHubungan === 4 ||
-                              k.IdrefHubungan === 7 ||
-                              k.IdrefHubungan === 1 ||
-                              k.IdrefHubungan === 2 ||
-                              k.IdrefHubungan === 3 ||
-                              k.IdrefHubungan === 12;
-                          })
+                          .filter(
+                            (k) =>
+                              k.IdrefHubungan == 4 ||
+                              k.IdrefHubungan == 7 ||
+                              k.IdrefHubungan == 1 ||
+                              k.IdrefHubungan == 2 ||
+                              k.IdrefHubungan == 3 ||
+                              k.IdrefHubungan == 12
+                          )
                           .map((item: any, index: number) => [
                             {
                               text: `${index + 1}.`,
@@ -2453,6 +2454,14 @@ export class PdfService {
                               alignment: "center",
                             },
                           ]),
+                        [
+                          { text: "", alignment: "center", colSpan: 6 },
+                          {},
+                          {},
+                          {},
+                          {},
+                          {},
+                        ],
                       ],
                     },
                     fontSize: 9,
