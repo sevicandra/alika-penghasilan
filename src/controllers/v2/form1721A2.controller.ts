@@ -13,6 +13,7 @@ import {
   RefSptTahunan,
   DataNomor,
   DataCetak,
+  sequelize,
 } from "@/models";
 import {
   ValidationError,
@@ -163,6 +164,7 @@ export const cetakForm1721A2 = async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
+  const t = await sequelize.transaction();
   try {
     const { nip } = req.user || {};
     if (!nip) {
@@ -256,22 +258,32 @@ export const cetakForm1721A2 = async (
     const pdfBuffer = Buffer.from(pdf, "base64");
     const filename = `${uuid()}-${Date.now()}.pdf`;
     await minioService.uploadFile(pdfBuffer, filename);
-    await DataCetak.create({
-      tahun: new Date().getFullYear().toString(),
-      nip_asal: nip,
-      nip_tujuan: profil.nip_bendahara,
-      nama_tujuan: profil.nama_bendahara,
-      jenis: "pph",
-      nomor: `${Number(dataNomor.no_urut_pph)}${dataNomor.ext_pph}`,
-      tanggal: Math.round(Date.now() / 1000),
-      tujuan: name,
-      perihal: `Bukti Potong PPh Pasal 21 Tahun ${tahun}`,
-      file: filename,
-      status: 0,
-    });
-    await dataNomor.update({
-      no_urut_pph: `${Number(dataNomor.no_urut_pph) + 1}`,
-    });
+    await DataCetak.create(
+      {
+        tahun: new Date().getFullYear().toString(),
+        nip_asal: nip,
+        nip_tujuan: profil.nip_bendahara,
+        nama_tujuan: profil.nama_bendahara,
+        jenis: "pph",
+        nomor: `${Number(dataNomor.no_urut_pph)}${dataNomor.ext_pph}`,
+        tanggal: Math.round(Date.now() / 1000),
+        tujuan: name,
+        perihal: `Bukti Potong PPh Pasal 21 Tahun ${tahun}`,
+        file: filename,
+        status: 0,
+      },
+      {
+        transaction: t,
+      }
+    );
+    await dataNomor.update(
+      {
+        no_urut_pph: `${Number(dataNomor.no_urut_pph) + 1}`,
+      },
+      {
+        transaction: t,
+      }
+    );
     await AlikaService.sendPushNotification({
       nip: profil.nip_bendahara,
       message: `${name} mengirimkan permohonan Bukti Potong PPh Pasal 21 Tahun ${tahun}`,
@@ -280,8 +292,10 @@ export const cetakForm1721A2 = async (
       nip: nip,
       message: `Permohonan Bukti Potong PPh Pasal 21 Tahun ${tahun} sedang diproses oleh bendahara.`,
     });
+    await t.commit();
     return successResponse(res, "Success", 200);
   } catch (error: unknown) {
+    await t.rollback();
     if (
       error instanceof ValidationError ||
       error instanceof UniqueConstraintError
@@ -326,41 +340,3 @@ export const cetakForm1721A2 = async (
     }
   }
 };
-
-// try {
-// }  catch (error: unknown) {
-//   if (
-//     error instanceof ValidationError ||
-//     error instanceof UniqueConstraintError
-//   ) {
-//     const parsedErrors = error.errors.map((err) => ({
-//       field: err.path,
-//       message: err.message,
-//     }));
-//     return errorResponse(res, "Validation gagal", parsedErrors, 422);
-//   } else if (
-//     error instanceof DatabaseError ||
-//     error instanceof ConnectionError
-//   ) {
-//     const parsedErrors = error.message;
-//     return errorResponse(res, "Kesalahan pada database", parsedErrors, 500);
-//   } else if (error instanceof ConnectionError) {
-//     const parsedErrors = { message: "Gagal terhubung ke database" };
-//     return errorResponse(res, "Koneksi ke database gagal", parsedErrors, 503);
-//   } else if(error instanceof AxiosError){
-//     if (typeof error === "object" && error !== null && "isAxiosError" in error && (error as AxiosError).isAxiosError) {
-//       const axiosError = error as AxiosError;
-//       const statusCode = axiosError.response?.status || 500;
-//       const message = (axiosError.response?.data as { message?: string })?.message || axiosError.message || "Kesalahan pada permintaan eksternal";
-//       const details = axiosError.response?.data || null;
-//       return errorResponse(res, message, details, statusCode);
-//     }
-//     return errorResponse(res, "Terjadi kesalahan", null, 500);
-//   } else if (error instanceof Error) {
-//     const parsedErrors = { message: error.message };
-//     return errorResponse(res, "Terjadi kesalahan", parsedErrors, 500);
-//   } else {
-//     const parsedErrors = { message: "Kesalahan tidak diketahui" };
-//     return errorResponse(res, "Terjadi kesalahan", parsedErrors, 500);
-//   }
-// }

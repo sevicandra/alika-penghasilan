@@ -9,6 +9,7 @@ import {
   DataNomor,
   DataCetak,
   DataGaji,
+  sequelize,
 } from "@/models";
 import {
   Op,
@@ -137,6 +138,7 @@ export const previewKP4 = async (req: AuthenticatedRequest, res: Response) => {
   }
 };
 export const cetakKP4 = async (req: AuthenticatedRequest, res: Response) => {
+  const t = await sequelize.transaction();
   try {
     const { nip, kdsatker } = req.body;
     if (!nip || !kdsatker)
@@ -212,22 +214,32 @@ export const cetakKP4 = async (req: AuthenticatedRequest, res: Response) => {
     const pdfBuffer = Buffer.from(pdf, "base64");
     const filename = `${uuid()}-${Date.now()}.pdf`;
     await minioService.uploadFile(pdfBuffer, filename);
-    await DataCetak.create({
-      tahun: new Date().getFullYear().toString(),
-      nip_asal: nip,
-      nip_tujuan: nip,
-      nama_tujuan: name,
-      jenis: "KP4S",
-      nomor: `${Number(dataNomor.no_urut_kp4)}${dataNomor.ext_kp4}`,
-      tanggal: Math.round(Date.now() / 1000),
-      tujuan: `${profil.nama_ttd_kp4}/${profil.nip_ttd_kp4}`,
-      perihal: `KP4 Tahun ${new Date().getFullYear()}`,
-      file: filename,
-      status: 0,
-    });
-    await dataNomor.update({
-      no_urut_kp4: `${Number(dataNomor.no_urut_kp4) + 1}`,
-    });
+    await DataCetak.create(
+      {
+        tahun: new Date().getFullYear().toString(),
+        nip_asal: nip,
+        nip_tujuan: nip,
+        nama_tujuan: name,
+        jenis: "KP4S",
+        nomor: `${Number(dataNomor.no_urut_kp4)}${dataNomor.ext_kp4}`,
+        tanggal: Math.round(Date.now() / 1000),
+        tujuan: `${profil.nama_ttd_kp4}/${profil.nip_ttd_kp4}`,
+        perihal: `KP4 Tahun ${new Date().getFullYear()}`,
+        file: filename,
+        status: 0,
+      },
+      {
+        transaction: t,
+      }
+    );
+    await dataNomor.update(
+      {
+        no_urut_kp4: `${Number(dataNomor.no_urut_kp4) + 1}`,
+      },
+      {
+        transaction: t,
+      }
+    );
     return successResponse(res, "Cetak KP4 Berhasil", null, 200);
   } catch (error: unknown) {
     if (

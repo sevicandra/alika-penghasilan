@@ -14,6 +14,7 @@ import {
   RefBulan,
   DataKurang,
   DataTukin,
+  sequelize,
 } from "@/models";
 import {
   ValidationError,
@@ -21,7 +22,6 @@ import {
   ConnectionError,
   UniqueConstraintError,
 } from "sequelize";
-import sequelize from "@/config/db.config";
 import { AxiosError } from "axios";
 import { MinioService } from "@/services/minio.service";
 import { v4 as uuid } from "uuid";
@@ -166,6 +166,7 @@ export const previewSkp = async (req: AuthenticatedRequest, res: Response) => {
   }
 };
 export const cetakSkp = async (req: AuthenticatedRequest, res: Response) => {
+  const t = await sequelize.transaction();
   try {
     const { bulan, tahun, nip, kdsatker } = req.body;
     if (!bulan || !nip || !tahun || !kdsatker)
@@ -265,22 +266,32 @@ export const cetakSkp = async (req: AuthenticatedRequest, res: Response) => {
     const pdfBuffer = Buffer.from(pdf, "base64");
     const filename = `${uuid()}-${Date.now()}.pdf`;
     await minioService.uploadFile(pdfBuffer, filename);
-    await DataCetak.create({
-      tahun: new Date().getFullYear().toString(),
-      nip_asal: nip,
-      nip_tujuan: profil.nip_ttd_skp,
-      nama_tujuan: profil.nama_ttd_skp,
-      jenis: "skp",
-      nomor: `${Number(dataNomor.no_urut_skp)}${dataNomor.ext_skp}`,
-      tanggal: Math.round(Date.now() / 1000),
-      tujuan: name,
-      perihal: `SKP Bulan ${(await dataBulan).bulan} Tahun ${tahun}`,
-      file: filename,
-      status: 0,
-    });
-    await dataNomor.update({
-      no_urut_skp: `${Number(dataNomor.no_urut_skp) + 1}`,
-    });
+    await DataCetak.create(
+      {
+        tahun: new Date().getFullYear().toString(),
+        nip_asal: nip,
+        nip_tujuan: profil.nip_ttd_skp,
+        nama_tujuan: profil.nama_ttd_skp,
+        jenis: "skp",
+        nomor: `${Number(dataNomor.no_urut_skp)}${dataNomor.ext_skp}`,
+        tanggal: Math.round(Date.now() / 1000),
+        tujuan: name,
+        perihal: `SKP Bulan ${(await dataBulan).bulan} Tahun ${tahun}`,
+        file: filename,
+        status: 0,
+      },
+      {
+        transaction: t,
+      }
+    );
+    await dataNomor.update(
+      {
+        no_urut_skp: `${Number(dataNomor.no_urut_skp) + 1}`,
+      },
+      {
+        transaction: t,
+      }
+    );
     await AlikaService.sendPushNotification({
       nip: profil.nip_ttd_skp,
       message: `${name} mengirimkan permohonan SKP Bulan ${dataBulan.bulan} Tahun ${tahun}`,
@@ -289,8 +300,10 @@ export const cetakSkp = async (req: AuthenticatedRequest, res: Response) => {
       nip: nip,
       message: `Surat Keterangan Penghasilan Bulan ${dataBulan.bulan} Tahun ${tahun} sedang diproses oleh ${profil.nama_ttd_skp}.`,
     });
+    await t.commit();
     return res.status(200).json({ message: "Permohonan berhasil di kirim." });
   } catch (error: unknown) {
+    await t.rollback();
     if (
       error instanceof ValidationError ||
       error instanceof UniqueConstraintError

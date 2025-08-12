@@ -12,6 +12,7 @@ import {
   DataMakan,
   DataLembur,
   DataLain,
+  sequelize,
 } from "@/models";
 import {
   Op,
@@ -24,7 +25,6 @@ import { AxiosError } from "axios";
 import { MinioService } from "@/services/minio.service";
 import { v4 as uuid } from "uuid";
 import { AlikaService } from "@/services/alika.service";
-import sequelize from "@/config/db.config";
 
 const minioService = new MinioService();
 
@@ -165,6 +165,7 @@ export const cetakForm1721VII = async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
+  const t = await sequelize.transaction();
   try {
     const { nip } = req.user || {};
     if (!nip) {
@@ -258,22 +259,32 @@ export const cetakForm1721VII = async (
     const pdfBuffer = Buffer.from(pdf, "base64");
     const filename = `${uuid()}-${Date.now()}.pdf`;
     await minioService.uploadFile(pdfBuffer, filename);
-    await DataCetak.create({
-      tahun: new Date().getFullYear().toString(),
-      nip_asal: nip,
-      nip_tujuan: profil.nip_bendahara,
-      nama_tujuan: profil.nama_bendahara,
-      jenis: "pph-final",
-      nomor: `${Number(dataNomor.no_urut_final)}${dataNomor.ext_final}`,
-      tanggal: Math.round(Date.now() / 1000),
-      tujuan: name,
-      perihal: `Bukti Potong PPh Pasal 21 Final Tahun ${tahun}`,
-      file: filename,
-      status: 0,
-    });
-    await dataNomor.update({
-      no_urut_final: `${Number(dataNomor.no_urut_final) + 1}`,
-    });
+    await DataCetak.create(
+      {
+        tahun: new Date().getFullYear().toString(),
+        nip_asal: nip,
+        nip_tujuan: profil.nip_bendahara,
+        nama_tujuan: profil.nama_bendahara,
+        jenis: "pph-final",
+        nomor: `${Number(dataNomor.no_urut_final)}${dataNomor.ext_final}`,
+        tanggal: Math.round(Date.now() / 1000),
+        tujuan: name,
+        perihal: `Bukti Potong PPh Pasal 21 Final Tahun ${tahun}`,
+        file: filename,
+        status: 0,
+      },
+      {
+        transaction: t,
+      }
+    );
+    await dataNomor.update(
+      {
+        no_urut_final: `${Number(dataNomor.no_urut_final) + 1}`,
+      },
+      {
+        transaction: t,
+      }
+    );
     await AlikaService.sendPushNotification({
       nip: profil.nip_bendahara,
       message: `${name} mengirimkan permohonan Bukti Potong PPh Pasal 21 Final Tahun ${tahun}`,
@@ -282,8 +293,10 @@ export const cetakForm1721VII = async (
       nip: nip,
       message: `Permohonan Bukti Potong PPh Pasal 21 Final Tahun ${tahun} sedang diproses oleh bendahara.`,
     });
+    await t.commit();
     return res.status(200).json({ message: "Permohonan berhasil di kirim." });
   } catch (error: unknown) {
+    await t.rollback();
     if (
       error instanceof ValidationError ||
       error instanceof UniqueConstraintError

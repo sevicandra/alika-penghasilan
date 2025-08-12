@@ -11,6 +11,7 @@ import {
   DataGaji,
   ViewGaji,
   RefBulan,
+  sequelize,
 } from "@/models";
 import {
   ValidationError,
@@ -78,7 +79,8 @@ export const previewDaftarGaji = async (
       tahun: tahun,
       nama: name,
       nip: nip,
-      jabatan: (jabatan.find((x) => x.statusJabatan == "Definitif"))?.namaJabatan || "",
+      jabatan:
+        jabatan.find((x) => x.statusJabatan == "Definitif")?.namaJabatan || "",
     });
     const pdfBuffer = Buffer.from(pdf, "base64");
     res.setHeader("Content-Type", "application/pdf");
@@ -136,6 +138,7 @@ export const cetakDaftarGaji = async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
+  const t = await sequelize.transaction();
   try {
     const { bulan, tahun, nip, kdsatker } = req.body;
     if (!bulan || !nip || !tahun || !kdsatker)
@@ -195,28 +198,39 @@ export const cetakDaftarGaji = async (
       tahun: tahun,
       nama: name,
       nip: nip,
-      jabatan: (jabatan.find((x) => x.statusJabatan == "Definitif"))?.namaJabatan || "",
+      jabatan:
+        jabatan.find((x) => x.statusJabatan == "Definitif")?.namaJabatan || "",
       nomor: `${Number(dataNomor.no_urut_daftar)}${dataNomor.ext_daftar}`,
     });
     const pdfBuffer = Buffer.from(pdf, "base64");
     const filename = `${uuid()}-${Date.now()}.pdf`;
     await minioService.uploadFile(pdfBuffer, filename);
-    await DataCetak.create({
-      tahun: new Date().getFullYear().toString(),
-      nip_asal: nip,
-      nip_tujuan: profil.nip_ttd_skp,
-      nama_tujuan: profil.nama_ttd_skp,
-      jenis: "daftar-gaji",
-      nomor: `${Number(dataNomor.no_urut_daftar)}${dataNomor.ext_daftar}`,
-      tanggal: Math.round(Date.now() / 1000),
-      tujuan: name,
-      perihal: `Daftar Gaji Bulan ${dataBulan.bulan} Tahun ${tahun}`,
-      file: filename,
-      status: 0,
-    });
-    await dataNomor.update({
-      no_urut_daftar: `${Number(dataNomor.no_urut_daftar) + 1}`,
-    });
+    await DataCetak.create(
+      {
+        tahun: new Date().getFullYear().toString(),
+        nip_asal: nip,
+        nip_tujuan: profil.nip_ttd_skp,
+        nama_tujuan: profil.nama_ttd_skp,
+        jenis: "daftar-gaji",
+        nomor: `${Number(dataNomor.no_urut_daftar)}${dataNomor.ext_daftar}`,
+        tanggal: Math.round(Date.now() / 1000),
+        tujuan: name,
+        perihal: `Daftar Gaji Bulan ${dataBulan.bulan} Tahun ${tahun}`,
+        file: filename,
+        status: 0,
+      },
+      {
+        transaction: t,
+      }
+    );
+    await dataNomor.update(
+      {
+        no_urut_daftar: `${Number(dataNomor.no_urut_daftar) + 1}`,
+      },
+      {
+        transaction: t,
+      }
+    );
     await AlikaService.sendPushNotification({
       nip: profil.nip_ttd_skp,
       message: `${name} mengirimkan permohonan Daftar Gaji Bulan ${dataBulan.bulan} Tahun ${tahun}`,
@@ -225,8 +239,10 @@ export const cetakDaftarGaji = async (
       nip: nip,
       message: `Permohonan Daftar Gaji Bulan ${dataBulan.bulan} Tahun ${tahun} sedang diproses oleh ${profil.nama_ttd_skp}.`,
     });
+    await t.commit();
     return successResponse(res, "Permohonan berhasil di kirim.");
   } catch (error: unknown) {
+    await t.rollback();
     if (
       error instanceof ValidationError ||
       error instanceof UniqueConstraintError

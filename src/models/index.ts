@@ -21,6 +21,7 @@ import ViewPajakKurang from "./ViewPajakKurang.model";
 import ViewTukin from "./ViewTukin.model";
 import ViewTukinKurang from "./ViewTukinKurang.model";
 import ViewTukinRutin from "./ViewTukinRutin.model";
+import sequelize from "@/config/db.config";
 
 export {
   DataCetak,
@@ -46,4 +47,5 @@ export {
   DataSatker,
   ViewPajakGaji,
   ViewPajakKurang,
+  sequelize
 };

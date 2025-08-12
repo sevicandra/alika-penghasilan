@@ -44,7 +44,7 @@ export class EsignService {
       formdata.append("image", `false`);
       formdata.append("tag_koordinat", tag_koordinat);
       formdata.append("file", blob, fileName);
-      const sign = await fetch(`${eSignConfig.BASE_URI}/api/pdf`, {
+      const sign = await fetch(`${eSignConfig.BASE_URI}/pdf`, {
         method: "POST",
         headers: {
           Authorization: `Basic ${this.Credentials}`,

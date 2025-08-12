@@ -1,9 +1,7 @@
 import { AuthenticatedRequest } from "@/types/auth";
 import { Response } from "express";
 import { errorResponse } from "@/helpers/respose.helper";
-import {
-  DataCetak,
-} from "@/models";
+import { DataCetak, sequelize } from "@/models";
 import {
   ValidationError,
   DatabaseError,
@@ -17,6 +15,7 @@ import { EsignService } from "@/services/esign.service";
 const minioService = new MinioService();
 
 export const processTte = async (req: AuthenticatedRequest, res: Response) => {
+  const t = await sequelize.transaction();
   try {
     const { id, Passphrase } = req.body;
     const { nip, nik } = req.user || {};
@@ -54,17 +53,24 @@ export const processTte = async (req: AuthenticatedRequest, res: Response) => {
     });
     minioService.uploadFile(tte.buffer, dataCetak.file);
 
-    await dataCetak.update({
-      status: 1,
-      date: tte.date as string,
-      id_dokumen: tte.id_dokumen as string,
-    });
+    await dataCetak.update(
+      {
+        status: 1,
+        date: tte.date as string,
+        id_dokumen: tte.id_dokumen as string,
+      },
+      {
+        transaction: t,
+      }
+    );
     AlikaService.sendPushNotification({
       nip: dataCetak.nip_asal,
       message: `Permohonan TTE ${dataCetak.jenis} telah ditandatangani oleh ${dataCetak.nama_tujuan}`,
     });
+    await t.commit();
     return res.status(200).json({ message: "success" });
   } catch (error: unknown) {
+    await t.rollback();
     if (
       error instanceof ValidationError ||
       error instanceof UniqueConstraintError
@@ -113,6 +119,7 @@ export const processTteKp4s = async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
+  const t = await sequelize.transaction();
   try {
     const { id, Passphrase } = req.body;
     const { nip, nik } = req.user || {};
@@ -148,12 +155,17 @@ export const processTteKp4s = async (
     });
     await minioService.uploadFile(tte.buffer, dataCetak.file);
     const tujuan = dataCetak.tujuan.split("/");
-    await dataCetak.update({
-      nip_tujuan: tujuan[1],
-      nama_tujuan: tujuan[0],
-      tujuan: dataCetak.nama_tujuan,
-      jenis: "KP4",
-    });
+    await dataCetak.update(
+      {
+        nip_tujuan: tujuan[1],
+        nama_tujuan: tujuan[0],
+        tujuan: dataCetak.nama_tujuan,
+        jenis: "KP4",
+      },
+      {
+        transaction: t,
+      }
+    );
     await AlikaService.sendPushNotification({
       nip: tujuan[1],
       message: `${dataCetak.tujuan} mengirimkan permohonan KP4`,
@@ -162,8 +174,10 @@ export const processTteKp4s = async (
       nip: nip,
       message: `Permohonan KP4 sedang diproses oleh ${tujuan[0]}.`,
     });
+    await t.commit();
     return res.status(200).json({ message: "success" });
   } catch (error: unknown) {
+    await t.rollback();
     if (
       error instanceof ValidationError ||
       error instanceof UniqueConstraintError
