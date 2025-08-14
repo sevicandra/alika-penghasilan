@@ -19,8 +19,10 @@ import RefSptTahunan from "./RefSptTahunan";
 import Skp from "./Skp";
 import UangLembur from "./UangLembur";
 import UangMakan from "./UangMakan";
+import Penghasilan from "./Penghasilan";
+import RefPangkat from "./RefPangkat";
 
-import { authenticate } from "@/middlewares/auth.middleware";
+
 const router = Router();
 
 router.use("/DataCetak", DataCetak);
@@ -28,40 +30,22 @@ router.use("/1721-A2", Form1721A2);
 router.use("/1721-VII", Form1721VII);
 router.use("/DaftarGaji", DaftarGaji);
 router.use("/DataNomor", DataNomor);
-router.use(
-  "/DataSptPegawai",
-  authenticate(["alk2.dataSptPegawai"]),
-  DataSptPegawai
-);
+router.use("/DataSptPegawai", DataSptPegawai);
 router.use("/FilePreview", FilePreview);
 router.use("/Gaji", Gaji);
-router.use(
-  "/KekuranganGaji",
-  authenticate(["alk2.kekuranganGaji"]),
-  KekuranganGaji
-);
+router.use("/KekuranganGaji", KekuranganGaji);
 router.use("/Tukin", Tukin);
-router.use(
-  "/KekuranganTukin",
-  authenticate(["alk2.kekuranganTukin"]),
-  KekuranganTukin
-);
+router.use("/KekuranganTukin", KekuranganTukin);
 router.use("/KP4", KP4);
-router.use(
-  "/PenghasilanLain",
-  authenticate(["alk2.penghasilanLain"]),
-  PenghasilanLain
-);
+router.use("/PenghasilanLain", PenghasilanLain);
 router.use("/Profil", Profil);
 router.use("/RefJabatan", RefJabatan);
 router.use("/RefSatker", RefSatker);
-router.use(
-  "/RefSptTahunan",
-  authenticate(["alk2.refSptTahunan"]),
-  RefSptTahunan
-);
+router.use("/RefPangkat", RefPangkat);
+router.use("/RefSptTahunan", RefSptTahunan);
 router.use("/Skp", Skp);
 router.use("/UangLembur", UangLembur);
 router.use("/UangMakan", UangMakan);
+router.use("/Penghasilan", Penghasilan);
 
 export default router;

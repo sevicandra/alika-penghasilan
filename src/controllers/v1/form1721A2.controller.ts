@@ -158,7 +158,6 @@ export const previewForm1721A2 = async (
     }
   }
 };
-
 export const cetakForm1721A2 = async (
   req: AuthenticatedRequest,
   res: Response
