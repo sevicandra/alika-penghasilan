@@ -10,7 +10,6 @@ export class EsignService {
     nomor,
     tujuan,
     perihal,
-    id,
     blob,
     fileName,
     tag_koordinat,
@@ -21,7 +20,6 @@ export class EsignService {
     nomor: string;
     tujuan: string;
     perihal: string;
-    id: string | number;
     blob: Blob;
     fileName: string;
     tag_koordinat: string;
@@ -39,7 +37,7 @@ export class EsignService {
       formdata.append("width", `75`);
       formdata.append(
         "linkQR",
-        `${process.env.APP_URL}/download/pdf/${id}${fileName}`
+        `${process.env.APP_URL}/download/pdf/${fileName}`
       );
       formdata.append("image", `false`);
       formdata.append("tag_koordinat", tag_koordinat);

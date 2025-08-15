@@ -8,8 +8,8 @@ import multer from "multer";
 import logger from "morgan";
 import { errorResponse } from "@/helpers/respose.helper";
 import { appConfig } from "./config/app.config";
-import './register-alias';
-import  redisClient  from "@/config/redis.config";
+import "./register-alias";
+import redisClient from "@/config/redis.config";
 
 dotenv.config();
 
@@ -23,7 +23,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(publicPath));
-app.use("/api", router);
+app.use("/", router);
 
 app.use((err: any, req: Request, res: Response, next: any) => {
   if (err instanceof multer.MulterError) {

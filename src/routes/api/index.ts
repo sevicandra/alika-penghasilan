@@ -1,11 +1,11 @@
 import { Router } from "express";
-import download from "./download";
-import api from "./api";
+import v1 from "./v1";
+import v2 from "./v2";
 import { errorResponse } from "@/helpers/respose.helper";
 const router = Router();
 
-router.use("/download", download);
-router.use("/api", api);
+router.use("/v1", v1);
+router.use("/v2", v2);
 
 router.use((req, res) => {
   return errorResponse(res, "Route not found", null, 404);
