@@ -1,13 +1,9 @@
 import { Router } from "express";
 import download from "./download";
 import api from "./api";
-import { errorResponse } from "@/helpers/respose.helper";
 const router = Router();
 
 router.use("/download", download);
 router.use("/api", api);
 
-router.use((req, res) => {
-  return errorResponse(res, "Route not found", null, 404);
-});
 export default router;

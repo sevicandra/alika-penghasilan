@@ -64,17 +64,8 @@ export function authenticate(requiredScopes?: string[]) {
         }
       }
       next();
-    } catch (e: unknown) {
-      if (e instanceof jwt.TokenExpiredError) {
-        return errorResponse(res, "Token expired", null, 401);
-      }
-      if (e instanceof jwt.JsonWebTokenError) {
-        return errorResponse(res, "Invalid token", null, 401);
-      }
-      if (e instanceof jwt.NotBeforeError) {
-        return errorResponse(res, "Token not active", null, 401);
-      }
-      return errorResponse(res, "Internal Server Error", e, 500);
+    } catch (error: unknown) {
+      next(error);
     }
   };
 }
