@@ -58,7 +58,7 @@ ViewKurang.init(
   },
   {
     sequelize,
-    tableName: "view_gaji",
+    tableName: "view_kurang",
     timestamps: false,
     freezeTableName: true,
     modelName: "ViewKurang",

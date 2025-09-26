@@ -167,7 +167,7 @@ export class PdfService {
     profil: DataProfil;
     gaji: ViewPajakGaji | null;
     kurang: ViewPajakKurang | null;
-    tukin: ViewTukin | null;
+    tukin: ViewTukin[] | [];
     tarif: RefSptTahunan;
     tahun: string | number;
     nama: string;
@@ -231,10 +231,10 @@ export class PdfService {
         }
 
         if (tukin) {
-          jml_dipungut += tukin.potongan;
+          jml_dipungut += tukin.reduce((acc, curr) => acc + curr.potongan, 0);
         }
 
-        jml_tukin += tukin?.netto || 0;
+        jml_tukin += tukin?.reduce((acc, curr) => acc + curr.netto, 0) || 0;
         const bruto = kelg + tumum + tunj + tberas + bulat + tpapua + jml_tukin;
         const ptkp_wp = tarif?.ptkp_wp;
         const ptkp_istri = tarif?.ptkp_istri;

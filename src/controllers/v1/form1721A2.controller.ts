@@ -77,7 +77,7 @@ export const previewForm1721A2 = async (
         tahun: tahun,
       },
     });
-    const viewTukin = await ViewTukin.findOne({
+    const viewTukin = await ViewTukin.findAll({
       where: {
         nip: nip,
         tahun: tahun,
@@ -169,7 +169,7 @@ export const cetakForm1721A2 = async (
         tahun: tahun,
       },
     });
-    const viewTukin = await ViewTukin.findOne({
+    const viewTukin = await ViewTukin.findAll({
       where: {
         nip: nip,
         tahun: tahun,
