@@ -28,7 +28,7 @@ export const getAllTukin = async (
     const sortField = (req.query.sortField as string) || "id";
     const sortOrder = (req.query.sortOrder as string) || "DESC";
     order.push([sortField, sortOrder.toUpperCase()]);
-    const data = await DataTukin.findAll({
+    const { count, rows: data } = await DataTukin.findAndCountAll({
       where,
       order,
       limit,
@@ -42,9 +42,6 @@ export const getAllTukin = async (
       attributes: {
         include: [[sequelize.col("Bulan.bulan"), "nama_bulan"]],
       },
-    });
-    const count = await DataTukin.count({
-      where,
     });
     return successResponse(res, "Success get all data tukin", data, {
       limit,

@@ -23,7 +23,7 @@ export const getAllDataSptPegawai = async (
     const sortField = (req.query.sortField as string) || "id";
     const sortOrder = (req.query.sortOrder as string) || "DESC";
     order.push([sortField, sortOrder.toUpperCase()]);
-    const data = await DataSptPegawai.findAll({
+    const { rows: data, count } = await DataSptPegawai.findAndCountAll({
       where,
       order,
       limit,
@@ -35,7 +35,6 @@ export const getAllDataSptPegawai = async (
         { association: "Jabatan" },
       ],
     });
-    const count = await DataSptPegawai.count({ where });
     return successResponse(
       res,
       "success get all data spt pegawai",
@@ -266,7 +265,7 @@ export const importCsvDataSpt = async (
     }
     await DataSptPegawai.bulkCreate(records);
 
-    return successResponse(res, "Data gaji berhasil ditambahkan", null, 201);
+    return successResponse(res, "Data spt pegawai berhasil ditambahkan", null, 201);
   } catch (error: unknown) {
     next(error);
   }

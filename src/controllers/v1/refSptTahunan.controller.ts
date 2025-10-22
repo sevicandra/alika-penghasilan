@@ -12,8 +12,11 @@ export const getAllRefSptTahunan = async (
     const limit = parseInt(req.query.limit as string) || undefined;
     const offset = parseInt(req.query.offset as string) || undefined;
     const where: any = {};
-    const data = await RefSptTahunan.findAll({ where, limit, offset });
-    const count = await RefSptTahunan.count({ where });
+    const { count, rows: data } = await RefSptTahunan.findAndCountAll({
+      where,
+      limit,
+      offset,
+    });
     return successResponse(res, "Success get ref spt tahunan", data, {
       limit,
       offset,

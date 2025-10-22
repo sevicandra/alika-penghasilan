@@ -21,13 +21,12 @@ export const getAllProfil = async (
     const sortField = (req.query.sortField as string) || "id";
     const sortOrder = (req.query.sortOrder as string) || "DESC";
     order.push([sortField, sortOrder.toUpperCase()]);
-    const data = await DataProfil.findAll({
+    const { count, rows: data } = await DataProfil.findAndCountAll({
       where,
       order,
       limit,
       offset,
     });
-    const count = await DataProfil.count({ where });
     return successResponse(res, "success get data profil", data, {
       limit,
       offset,

@@ -21,13 +21,12 @@ export const getAllRefPangkat = async (
     const sortField = (req.query.sortField as string) || "id";
     const sortOrder = (req.query.sortOrder as string) || "DESC";
     order.push([sortField, sortOrder.toUpperCase()]);
-    const data = await RefPangkat.findAll({
+    const { count, rows: data } = await RefPangkat.findAndCountAll({
       where,
       order,
       limit,
       offset,
     });
-    const count = await RefPangkat.count({ where });
     return successResponse(res, "success get ref pangkat", data, {
       limit,
       offset,

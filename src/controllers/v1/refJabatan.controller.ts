@@ -21,13 +21,12 @@ export const getAllRefJabatan = async (
     const sortField = (req.query.sortField as string) || "id";
     const sortOrder = (req.query.sortOrder as string) || "DESC";
     order.push([sortField, sortOrder.toUpperCase()]);
-    const data = await RefJabatan.findAll({
+    const { count, rows: data } = await RefJabatan.findAndCountAll({
       where,
       order,
       limit,
       offset,
     });
-    const count = await RefJabatan.count({ where });
     return successResponse(res, "success get ref jabatan", data, {
       limit,
       offset,

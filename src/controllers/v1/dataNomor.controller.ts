@@ -20,13 +20,12 @@ export const getAllDataNomor = async (
     const sortField = (req.query.sortField as string) || "id";
     const sortOrder = (req.query.sortOrder as string) || "DESC";
     order.push([sortField, sortOrder.toUpperCase()]);
-    const data = await DataNomor.findAll({
+    const { count, rows: data } = await DataNomor.findAndCountAll({
       where,
       order,
       limit,
       offset,
     });
-    const count = await DataNomor.count({ where });
     return successResponse(res, "success get data nomor", data, {
       limit,
       offset,

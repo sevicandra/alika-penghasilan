@@ -27,7 +27,7 @@ export const getAllPenghasilanLain = async (
     const sortField = (req.query.sortField as string) || "id";
     const sortOrder = (req.query.sortOrder as string) || "DESC";
     order.push([sortField, sortOrder.toUpperCase()]);
-    const data = await DataLain.findAll({
+    const { count, rows: data } = await DataLain.findAndCountAll({
       where,
       order,
       limit,
@@ -42,7 +42,6 @@ export const getAllPenghasilanLain = async (
         include: [[sequelize.col("Bulan.bulan"), "nama_bulan"]],
       },
     });
-    const count = await DataLain.count({ where });
     return successResponse(res, "success get all data penghasilan lain", data, {
       limit,
       offset,

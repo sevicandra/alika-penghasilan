@@ -28,13 +28,12 @@ export const getAllRefSatker = async (
     const sortField = (req.query.sortField as string) || "id";
     const sortOrder = (req.query.sortOrder as string) || "DESC";
     order.push([sortField, sortOrder.toUpperCase()]);
-    const data = await DataSatker.findAll({
+    const { count, rows: data } = await DataSatker.findAndCountAll({
       where,
       order,
       limit,
       offset,
     });
-    const count = await DataSatker.count({ where });
     return successResponse(res, "success get all ref satker", data, {
       limit,
       offset,

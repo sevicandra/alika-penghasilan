@@ -29,13 +29,12 @@ export async function getAllDataCetak(
     const sortField = (req.query.sortField as string) || "id";
     const sortOrder = (req.query.sortOrder as string) || "DESC";
     order.push([sortField, sortOrder.toUpperCase()]);
-    const data = await DataCetak.findAll({
+    const { count, rows: data } = await DataCetak.findAndCountAll({
       where,
       limit,
       offset,
       order,
     });
-    const count = await DataCetak.count({ where });
     return successResponse(res, "success get data cetak", data, {
       limit,
       offset,
