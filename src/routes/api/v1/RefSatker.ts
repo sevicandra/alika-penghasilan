@@ -6,6 +6,7 @@ import {
   createRefSatker,
   updateRefSatker,
   hapusRefSatker,
+  getRefSatkerByKdSatker
 } from "@/controllers/v1/refSatker.controller";
 import { authenticate } from "@/middlewares/auth.middleware";
 
@@ -15,6 +16,11 @@ router.get(
   "/Count",
   authenticate(["penghasilan.refsatker.read"]),
   countAllRefSatker
+);
+router.get(
+  "/KdSatker/:kdSatker",
+  authenticate(["penghasilan.refsatker.read"]),
+  getRefSatkerByKdSatker
 );
 router.get(
   "/:id",
