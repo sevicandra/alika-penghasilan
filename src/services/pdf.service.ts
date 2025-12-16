@@ -2633,15 +2633,18 @@ export class PdfService {
 
         let tunjangan = 0;
         let absenr = 0;
-        let pajak = 0;
+        let tkpph = 0;
+        let potpph= 0;
+
 
         if (tukin) {
           tunjangan = tukin.tjpokok + tukin.tjtamb;
           absenr = tukin.abspotr;
-          pajak = tukin.tkpph;
+          tkpph = tukin.tkpph;
+          potpph = tukin.potpph;
         }
-        let bruto2 = tunjangan + pajak - absenr;
-        let potongan2 = pajak;
+        let bruto2 = tunjangan + tkpph - absenr;
+        let potongan2 = potpph;
         let netto2 = bruto2 - potongan2;
 
         let netto3 = 0;
@@ -3096,7 +3099,7 @@ export class PdfService {
                       },
                       {
                         width: "*",
-                        text: `${pajak.toLocaleString("id-ID")}`,
+                        text: `${tkpph.toLocaleString("id-ID")}`,
                         alignment: "right",
                       },
                     ],
@@ -3164,7 +3167,7 @@ export class PdfService {
                       },
                       {
                         width: "*",
-                        text: `${pajak.toLocaleString("id-ID")}`,
+                        text: `${potpph.toLocaleString("id-ID")}`,
                         alignment: "right",
                       },
                     ],

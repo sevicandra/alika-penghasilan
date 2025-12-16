@@ -55,7 +55,6 @@ export function authenticate(requiredScopes?: string[]) {
           const [service, resource, action] = scope.split(".");
           return (
             tokenScopes.includes(`${service}.${resource}.${action}`) ||
-            tokenScopes.includes(`${service}.${resource}.manage`) ||
             tokenScopes.includes(`${service}.${resource}.*`)
           );
         });
