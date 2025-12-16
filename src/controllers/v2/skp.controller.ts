@@ -80,6 +80,7 @@ export const previewSkp = async (
         [sequelize.fn("sum", sequelize.col("abspotp")), "abspotp"],
         [sequelize.fn("sum", sequelize.col("abspotr")), "abspotr"],
         [sequelize.fn("sum", sequelize.col("tkpph")), "tkpph"],
+        [sequelize.fn("sum", sequelize.col("potpph")), "potpph"],
       ],
     });
     const makan = await DataMakan.findOne({
@@ -184,6 +185,7 @@ export const cetakSkp = async (
         [sequelize.fn("sum", sequelize.col("abspotp")), "abspotp"],
         [sequelize.fn("sum", sequelize.col("abspotr")), "abspotr"],
         [sequelize.fn("sum", sequelize.col("tkpph")), "tkpph"],
+        [sequelize.fn("sum", sequelize.col("potpph")), "potpph"],
       ],
     });
     const makan = await DataMakan.findOne({
