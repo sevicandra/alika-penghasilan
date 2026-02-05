@@ -1,15 +1,14 @@
+import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "@/config/db.config";
-import { Model, Optional, DataTypes } from "sequelize";
 
 type UserAttributes = {
-    id: string;
-    nip: string;
+  id: string;
+  nip: string;
 };
 
 type UserCreationAttributes = Optional<UserAttributes, "id">;
 
-class User extends Model<UserAttributes, UserCreationAttributes>
-  implements UserAttributes {
+class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
   public id!: string;
   public nip!: string;
 }
@@ -32,4 +31,4 @@ User.init(
   }
 );
 
-export default User
+export default User;

@@ -1,8 +1,8 @@
+import { BelongsTo, DataTypes, Model } from "sequelize";
 import sequelize from "@/config/db.config";
-import { Model, DataTypes, BelongsTo } from "sequelize";
 import RefBulan from "./RefBulan.model";
 
-type TukinRutinAttributes = {
+type ViewTukinRutinAttributes = {
   bulan: string;
   tahun: string;
   nip: string;
@@ -11,10 +11,7 @@ type TukinRutinAttributes = {
   netto: number;
 };
 
-class TukinRutin
-  extends Model<TukinRutinAttributes>
-  implements TukinRutinAttributes
-{
+class ViewTukinRutin extends Model<ViewTukinRutinAttributes> implements ViewTukinRutinAttributes {
   public bulan!: string;
   public tahun!: string;
   public nip!: string;
@@ -22,12 +19,12 @@ class TukinRutin
   public potongan!: number;
   public netto!: number;
   public static associations: {
-    Bulan: BelongsTo<TukinRutin, RefBulan>;
+    Bulan: BelongsTo<ViewTukinRutin, RefBulan>;
   };
-  public Bulan!: BelongsTo<TukinRutin, RefBulan>;
+  public Bulan!: BelongsTo<ViewTukinRutin, RefBulan>;
 }
 
-TukinRutin.init(
+ViewTukinRutin.init(
   {
     bulan: {
       type: DataTypes.STRING(2),
@@ -71,10 +68,4 @@ TukinRutin.init(
   }
 );
 
-TukinRutin.belongsTo(RefBulan, {
-  foreignKey: "bulan",
-  targetKey: "kode",
-  as: "Bulan",
-});
-
-export default TukinRutin;
+export default ViewTukinRutin;

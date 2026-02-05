@@ -1,142 +1,114 @@
-import { AuthenticatedRequest } from "@/types/auth";
-import { Response, NextFunction } from "express";
-import { errorResponse, successResponse } from "@/helpers/respose.helper";
-import { RefJabatan } from "@/models";
+import { Request, Response } from "express";
 import { Op } from "sequelize";
+import { asyncHandler } from "@/middlewares/async-handler.middleware";
+import { InternalServerError, InvalidRequestError, NotFoundError } from "@/utils/errors";
+import { successResponse } from "@/helpers/respose.helper";
+import { sortBuilder } from "@/helpers/sequelizer.helper";
+import { RefJabatan } from "@/repositories";
 
-export const getAllRefJabatan = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
+export const RefJabatanControllerV1 = {
+  getAll: asyncHandler(async (req: Request, res: Response) => {
+    const limit = parseInt(req.query.limit as string) || undefined;
+    const offset = parseInt(req.query.offset as string) || undefined;
     const kode = req.query.kode as string;
     const nama = req.query.nama as string;
-    const limit = parseInt(req.query.limit as string) || undefined;
-    const offset = parseInt(req.query.offset as string) || 0;
     const where: any = {};
     if (kode) where.kode = kode;
     if (nama) where.nama = { [Op.like]: `%${nama}%` };
-    const order: any[] = [];
-    const sortField = (req.query.sortField as string) || "id";
-    const sortOrder = (req.query.sortOrder as string) || "DESC";
-    order.push([sortField, sortOrder.toUpperCase()]);
-    const { count, rows: data } = await RefJabatan.findAndCountAll({
+    const sort = req.query.sort as string;
+    const order = sortBuilder(sort);
+    const { items: data, pagination } = await RefJabatan.findAllWithPagination({
       where,
+      limit,
+      offset,
       order,
-      limit,
-      offset,
     });
-    return successResponse(res, "success get ref jabatan", data, {
-      limit,
-      offset,
-      count,
-      totalPages: limit ? Math.ceil(count / limit) : 1,
-    });
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const countAllRefJabatan = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const kode = (req.query.kode as string) || undefined;
-    const nama = (req.query.nama as string) || undefined;
+
+    successResponse(res, "Success get all referensi jabatan", data, pagination);
+  }),
+  count: asyncHandler(async (req: Request, res: Response) => {
+    const kode = req.query.kode as string;
+    const nama = req.query.nama as string;
     const where: any = {};
     if (kode) where.kode = kode;
     if (nama) where.nama = { [Op.like]: `%${nama}%` };
     const count = await RefJabatan.count({
       where,
     });
-    return successResponse(res, "Success count all ref jabatan", count);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const getRefJabatanById = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const id = parseInt(req.params.id);
-    const data = await RefJabatan.findByPk(id);
-    if (!data) {
-      return errorResponse(
-        res,
-        `Data dengan ID ${id} tidak ditemukan.`,
-        null,
-        404
-      );
+
+    successResponse(res, "Success count referensi jabatan", { count });
+  }),
+  getById: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    if (typeof id !== "string") {
+      throw new InvalidRequestError("Invalid request");
     }
-    return successResponse(res, "Success get data ref jabatan", data);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const createRefJabatan = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
+
+    const data = await RefJabatan.findById(id);
+    if (!data) {
+      throw new NotFoundError("Data not found");
+    }
+
+    successResponse(res, "Success get referensi jabatan", data);
+  }),
+  create: asyncHandler(async (req: Request, res: Response) => {
     const { kode, nama } = req.body;
-    const result = await RefJabatan.create({ kode, nama });
-    return successResponse(res, "Success create data ref jabatan", result);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const updateRefJabatan = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const id = parseInt(req.params.id);
-    const { kode, nama } = req.body;
-    const data = await RefJabatan.findByPk(id);
-    if (!data) {
-      return errorResponse(
-        res,
-        `Data dengan ID ${id} tidak ditemukan.`,
-        null,
-        404
-      );
-    }
-    if (kode) data.kode = kode;
-    if (nama) data.nama = nama;
-    await data.save();
-    await data.reload();
-    return successResponse(res, "Success update data ref jabatan", data);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const hapusRefJabatan = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const id = parseInt(req.params.id);
-    const data = await RefJabatan.findByPk(id);
-    if (!data) {
-      return errorResponse(
-        res,
-        `Data dengan ID ${id} tidak ditemukan.`,
-        null,
-        404
-      );
-    }
-    await data.destroy();
-    return successResponse(res, "Success delete data ref jabatan", {
-      id,
+    const data = await RefJabatan.create({
+      kode,
+      nama,
     });
-  } catch (error: unknown) {
-    next(error);
-  }
+
+    successResponse(res, "Success create referensi jabatan", data);
+  }),
+  update: asyncHandler(
+    async (req: Request, res: Response) => {
+      const t = req.transaction;
+      if (!t) {
+        throw new InternalServerError("Transaction not found");
+      }
+      const { id } = req.params;
+      if (typeof id !== "string") {
+        throw new InvalidRequestError("Invalid request");
+      }
+      const { kode, nama } = req.body;
+
+      const data = await RefJabatan.updateById(
+        id,
+        {
+          kode,
+          nama,
+        },
+        t
+      );
+
+      successResponse(res, "Success update referensi jabatan", data);
+    },
+    {
+      useTransaction: true,
+    }
+  ),
+  delete: asyncHandler(
+    async (req: Request, res: Response) => {
+      const t = req.transaction;
+      if (!t) {
+        throw new InternalServerError("Transaction not found");
+      }
+      const { id } = req.params;
+      if (typeof id !== "string") {
+        throw new InvalidRequestError("Invalid request");
+      }
+      const data = await RefJabatan.deleteOne(
+        {
+          where: {
+            id: id,
+          },
+        },
+        t
+      );
+      successResponse(res, "Success delete referensi jabatan", data);
+    },
+    {
+      useTransaction: true,
+    }
+  ),
 };

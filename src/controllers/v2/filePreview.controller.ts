@@ -1,47 +1,31 @@
-import { NextFunction, Response } from "express";
-import { AuthenticatedRequest } from "@/types/auth";
-import { DataCetak } from "@/models";
-import { errorResponse } from "@/helpers/respose.helper";
-import { MinioService } from "@/services/minio.service";
-const minioClient = new MinioService();
-export const filePreview = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { nip } = req.user || {};
-    if (!nip) {
-      return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
-    }
-    const id = +req.params.id;
-    const data = await DataCetak.findByPk(id);
-    if (!data) {
-      return errorResponse(
-        res,
-        `Data dengan ID ${id} tidak ditemukan.`,
-        null,
-        404
-      );
-    }
-    if (data.nip_asal !== nip && data.nip_tujuan !== nip) {
-      return errorResponse(res, `Forbidden`, null, 403);
-    }
+import { Request, Response } from "express";
+import { Op } from "sequelize";
+import { asyncHandler } from "@/middlewares/async-handler.middleware";
+import { minioService } from "@/services/minio-service";
+import { AuthorizationError, InvalidRequestError, NotFoundError } from "@/utils/errors";
+import { fileResponse } from "@/helpers/respose.helper";
+import { DataCetak } from "@/repositories";
 
-    const stream = await minioClient.downloadFile(data.file);
-    if (stream) {
-      const chunks: Buffer[] = [];
-      stream.on("data", (chunk) => chunks.push(chunk));
-      stream.on("end", () => {
-        res.setHeader("Content-Type", "application/pdf");
-        res.setHeader("Content-Disposition", "inline; filename=");
-        return res.status(200).send(Buffer.concat(chunks));
-      });
-      stream.on("error", (err: Error) => {
-        return errorResponse(res, "Terjadi kesalahan", err, 500);
-      });
-    }
-  } catch (error: unknown) {
-    next(error);
+export const filePreview = asyncHandler(async (req: Request, res: Response) => {
+  const nip = req.user?.nip;
+  if (!nip) {
+    throw new AuthorizationError("Pengguna tidak dapat di verifikasi");
   }
-};
+  const { id } = req.params;
+  if (typeof id !== "string" || typeof nip !== "string") {
+    throw new InvalidRequestError("Invalid request");
+  }
+
+  const data = await DataCetak.findOne({
+    where: {
+      id: id,
+      [Op.or]: [{ nip_asal: nip }, { nip_tujuan: nip }],
+    },
+  });
+  if (!data) {
+    throw new NotFoundError("Data not found");
+  }
+
+  const stream = await minioService.getFile(`${data.file}`);
+  fileResponse(res, stream, `${data.nomor}.pdf`, "application/pdf");
+});

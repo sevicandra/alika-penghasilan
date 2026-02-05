@@ -1,5 +1,6 @@
-import sequelize from "@/config/db.config";
 import { DataTypes, Model, Optional } from "sequelize";
+import sequelize from "@/config/db.config";
+
 type DataNomorAttributes = {
   id: number;
   kdsatker: string;

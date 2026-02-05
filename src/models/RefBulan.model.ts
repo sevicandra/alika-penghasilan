@@ -1,5 +1,5 @@
+import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "@/config/db.config";
-import { Model, DataTypes, Optional } from "sequelize";
 
 type RefBulanAttributes = {
   id: number;

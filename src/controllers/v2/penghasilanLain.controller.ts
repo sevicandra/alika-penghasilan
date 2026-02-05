@@ -1,21 +1,19 @@
-import { AuthenticatedRequest } from "@/types/auth";
-import { Response, NextFunction } from "express";
-import { errorResponse, successResponse } from "@/helpers/respose.helper";
-import { DataLain } from "@/models";
-import sequelize from "@/config/db.config";
+import { Request, Response } from "express";
+import { asyncHandler } from "@/middlewares/async-handler.middleware";
+import { AuthorizationError, InvalidRequestError, NotFoundError } from "@/utils/errors";
+import { successResponse } from "@/helpers/respose.helper";
+import { sortBuilder } from "@/helpers/sequelizer.helper";
+import { sequelize } from "@/models";
+import { DataLain } from "@/repositories";
 
-export const getAllPenghasilanLain = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { nip } = req.user || {};
+export const PenghasilanLainControllerV2 = {
+  getAll: asyncHandler(async (req: Request, res: Response) => {
+    const nip = req.user?.nip;
     if (!nip) {
-      return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
+      throw new AuthorizationError("Pengguna tidak dapat di verifikasi");
     }
     const limit = parseInt(req.query.limit as string) || undefined;
-    const offset = parseInt(req.query.offset as string) || 0;
+    const offset = parseInt(req.query.offset as string) || undefined;
     const tahun = (req.query.tahun as string) || undefined;
     const bulan = (req.query.bulan as string) || undefined;
     const jenis = (req.query.jenis as string) || undefined;
@@ -23,15 +21,13 @@ export const getAllPenghasilanLain = async (
     if (tahun) where.tahun = tahun;
     if (bulan) where.bulan = bulan;
     if (jenis) where.jenis = jenis;
-    const order: any[] = [];
-    const sortField = (req.query.sortField as string) || "id";
-    const sortOrder = (req.query.sortOrder as string) || "DESC";
-    order.push([sortField, sortOrder.toUpperCase()]);
-    const { count, rows: data } = await DataLain.findAndCountAll({
+    const sort = req.query.sort as string;
+    const order = sortBuilder(sort);
+    const { items: data, pagination } = await DataLain.findAllWithPagination({
       where,
-      order,
       limit,
       offset,
+      order,
       include: [
         {
           association: "Bulan",
@@ -43,177 +39,124 @@ export const getAllPenghasilanLain = async (
       },
     });
 
-    return successResponse(res, "success get all data penghasilan lain", data, {
-      limit,
-      offset,
-      count,
-      totalPages: limit ? Math.ceil(count / limit) : 1,
-    });
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const countAllPenghasilanLain = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { nip } = req.user || {};
+    successResponse(res, "Success get all pembayaran lain", data, pagination);
+  }),
+  count: asyncHandler(async (req: Request, res: Response) => {
+    const nip = req.user?.nip;
     if (!nip) {
-      return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
+      throw new AuthorizationError("Pengguna tidak dapat di verifikasi");
     }
     const tahun = (req.query.tahun as string) || undefined;
     const bulan = (req.query.bulan as string) || undefined;
     const jenis = (req.query.jenis as string) || undefined;
-    const where: any = {
-      nip: nip,
-    };
+    const where: any = { nip: nip };
     if (tahun) where.tahun = tahun;
     if (bulan) where.bulan = bulan;
     if (jenis) where.jenis = jenis;
     const count = await DataLain.count({
       where,
     });
-    return successResponse(
-      res,
-      "Success count all data penghasilan lain",
-      count
-    );
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const getTahunPenghasilanLain = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { nip } = req.user || {};
+
+    successResponse(res, "Success count pembayaran lain", { count });
+  }),
+  getTahun: asyncHandler(async (req: Request, res: Response) => {
+    const nip = req.user?.nip;
     if (!nip) {
-      return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
+      throw new AuthorizationError("Pengguna tidak dapat di verifikasi");
     }
     const jenis = (req.query.jenis as string) || undefined;
     const where: any = {
       nip: nip,
     };
     if (jenis) where.jenis = jenis;
-    const result = await DataLain.findAll({
+    const data = await DataLain.getTahun({
       where,
-      attributes: ["tahun"],
-      group: ["tahun"],
-      order: [["tahun", "DESC"]],
     });
-    return successResponse(res, "Success get tahun penghasilan lain", result);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const getBulanPenghasilanLain = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { nip } = req.user || {};
+
+    successResponse(res, "Success get tahun pembayaran lain", data);
+  }),
+  getBulan: asyncHandler(async (req: Request, res: Response) => {
+    const nip = req.user?.nip;
     if (!nip) {
-      return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
+      throw new AuthorizationError("Pengguna tidak dapat di verifikasi");
     }
-    const tahun = parseInt(req.params.tahun);
-    if (!tahun || isNaN(tahun)) {
-      return errorResponse(res, "Tahun tidak valid", null, 422);
+    const { tahun } = req.params;
+    if (typeof tahun !== "string") {
+      throw new InvalidRequestError("Invalid request");
     }
     const jenis = (req.query.jenis as string) || undefined;
     const where: any = {
       tahun: tahun,
-      nip: nip,
     };
+    if (nip) where.nip = nip;
     if (jenis) where.jenis = jenis;
-    const result = await DataLain.findAll({
+    const data = await DataLain.getBulan(tahun, {
       where,
-      attributes: ["bulan"],
-      group: ["bulan"],
-      order: [["bulan", "DESC"]],
     });
-    return successResponse(res, "Success get bulan penghasilan lain", result);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const getJenisPenghasilanLain = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { nip } = req.user || {};
+
+    successResponse(res, "Success get bulan pembayaran lain", data);
+  }),
+  getJenis: asyncHandler(async (req: Request, res: Response) => {
+    const nip = req.user?.nip;
     if (!nip) {
-      return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
+      throw new AuthorizationError("Pengguna tidak dapat di verifikasi");
     }
-    const tahun = (req.query.tahun as string) || undefined;
-    const bulan = (req.query.bulan as string) || undefined;
-    const where: any = {
-      nip: nip,
-    };
+    const { tahun, bulan } = req.query;
+    const where: any = {};
+    if (nip) where.nip = nip;
     if (tahun) where.tahun = tahun;
     if (bulan) where.bulan = bulan;
-    const data = await DataLain.findAll({
+    const data = await DataLain.getJenis({
       where,
-      attributes: ["jenis"],
-      group: ["jenis"],
-      order: [["jenis", "DESC"]],
     });
-    return successResponse(res, "Success get jenis penghasilan lain", data);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const getPenghasilanLainById = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { nip } = req.user || {};
+
+    successResponse(res, "Success get jenis pembayaran lain", data);
+  }),
+  getById: asyncHandler(async (req: Request, res: Response) => {
+    const nip = req.user?.nip;
     if (!nip) {
-      return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
+      throw new AuthorizationError("Pengguna tidak dapat di verifikasi");
     }
-    const id = parseInt(req.params.id);
-    const data = await DataLain.findOne({ where: { id } });
-    if (!data || data.nip !== nip) {
-      return errorResponse(
-        res,
-        `Data dengan ID ${id} tidak ditemukan.`,
-        null,
-        404
-      );
+    const { id } = req.params;
+    if (typeof id !== "string") {
+      throw new InvalidRequestError("Invalid request");
     }
-    return successResponse(res, "Success get data penghasilan lain", data);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const getRekapPenghasilanLain = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { nip } = req.user || {};
+
+    const data = await DataLain.findOne({
+      where: {
+        id: id,
+        nip: nip,
+      },
+      include: [
+        {
+          association: "Bulan",
+          attributes: [],
+        },
+      ],
+      attributes: {
+        include: [[sequelize.col("Bulan.bulan"), "nama_bulan"]],
+      },
+    });
+    if (!data) {
+      throw new NotFoundError("Data not found");
+    }
+
+    successResponse(res, "Success get pembayaran lain", data);
+  }),
+  getRekap: asyncHandler(async (req: Request, res: Response) => {
+    const nip = req.user?.nip;
     if (!nip) {
-      return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
+      throw new AuthorizationError("Pengguna tidak dapat di verifikasi");
     }
     const tahun = (req.query.tahun as string) || undefined;
     const where: any = {
       nip: nip,
     };
     if (tahun) where.tahun = tahun;
-    const data = await DataLain.scope("rekap").findAll({
+    const data = await DataLain.getRekap({
       where,
     });
-    return successResponse(res, "Success get rekap penghasilan lain", data);
-  } catch (error: unknown) {
-    next(error);
-  }
+
+    successResponse(res, "Success get data rekap pembayaran lain", data);
+  }),
 };

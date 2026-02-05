@@ -1,15 +1,13 @@
-import { AuthenticatedRequest } from "@/types/auth";
-import { Response, NextFunction } from "express";
-import { errorResponse, successResponse } from "@/helpers/respose.helper";
-import { DataSatker } from "@/models";
+import { Request, Response } from "express";
 import { Op } from "sequelize";
+import { asyncHandler } from "@/middlewares/async-handler.middleware";
+import { InternalServerError, InvalidRequestError, NotFoundError } from "@/utils/errors";
+import { successResponse } from "@/helpers/respose.helper";
+import { sortBuilder } from "@/helpers/sequelizer.helper";
+import { DataSatker } from "@/repositories";
 
-export const getAllRefSatker = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
+export const RefSatkerControllerV1 = {
+  getAll: asyncHandler(async (req: Request, res: Response) => {
     const limit = parseInt(req.query.limit as string) || undefined;
     const offset = parseInt(req.query.offset as string) || undefined;
     const search = (req.query.keyword as string) || undefined;
@@ -24,32 +22,18 @@ export const getAllRefSatker = async (
         },
       };
     }
-    const order: any[] = [];
-    const sortField = (req.query.sortField as string) || "id";
-    const sortOrder = (req.query.sortOrder as string) || "DESC";
-    order.push([sortField, sortOrder.toUpperCase()]);
-    const { count, rows: data } = await DataSatker.findAndCountAll({
+    const sort = req.query.sort as string;
+    const order = sortBuilder(sort);
+    const { items: data, pagination } = await DataSatker.findAllWithPagination({
       where,
+      limit,
+      offset,
       order,
-      limit,
-      offset,
     });
-    return successResponse(res, "success get all ref satker", data, {
-      limit,
-      offset,
-      count,
-      totalPages: limit ? Math.ceil(count / limit) : 1,
-    });
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const countAllRefSatker = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
+
+    successResponse(res, "Success get all referensi satuan kerja", data, pagination);
+  }),
+  count: asyncHandler(async (req: Request, res: Response) => {
     const search = (req.query.keyword as string) || undefined;
     const where: any = {};
     if (search) {
@@ -62,72 +46,44 @@ export const countAllRefSatker = async (
         },
       };
     }
-    const count = await DataSatker.findAll({
+    const count = await DataSatker.count({
       where,
     });
-    return successResponse(res, "success count all ref satker", count);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const getRefSatkerById = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const id = parseInt(req.params.id);
-    const data = await DataSatker.findByPk(id);
-    if (!data) {
-      return errorResponse(
-        res,
-        `Data dengan ID ${id} tidak ditemukan.`,
-        null,
-        404
-      );
+
+    successResponse(res, "Success count referensi satuan kerja", { count });
+  }),
+  getById: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    if (typeof id !== "string") {
+      throw new InvalidRequestError("Invalid request");
     }
-    return successResponse(res, "success get ref satker", data);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const getRefSatkerByKdSatker = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const kdsatker = req.params.kdsatker;
-    const data = await DataSatker.findOne({ where: { kdsatker } });
+
+    const data = await DataSatker.findById(id);
     if (!data) {
-      return errorResponse(
-        res,
-        `Data dengan kode satker ${kdsatker} tidak ditemukan.`,
-        null,
-        404
-      );
+      throw new NotFoundError("Data not found");
     }
-    return successResponse(res, "success get ref satker", data);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const createRefSatker = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const {
-      kdsatker,
-      nmsatker,
-      header1,
-      header2,
-      subheader1,
-      subheader2,
-      subheader3,
-      kota,
-    } = req.body;
+
+    successResponse(res, "Success get referensi satuan kerja", data);
+  }),
+  getByKodeSatker: asyncHandler(async (req: Request, res: Response) => {
+    const { kdSatker } = req.params;
+    if (typeof kdSatker !== "string") {
+      throw new InvalidRequestError("Invalid request");
+    }
+
+    const data = await DataSatker.findOne({
+      where: {
+        kdsatker: kdSatker,
+      },
+    });
+    if (!data) {
+      throw new NotFoundError("Data not found");
+    }
+    successResponse(res, "Success get referensi satuan kerja", data);
+  }),
+  create: asyncHandler(async (req: Request, res: Response) => {
+    const { kdsatker, nmsatker, header1, header2, subheader1, subheader2, subheader3, kota } =
+      req.body;
     const data = await DataSatker.create({
       kdsatker,
       nmsatker,
@@ -138,79 +94,65 @@ export const createRefSatker = async (
       subheader3,
       kota,
     });
-    return successResponse(res, "success create ref satker", data, null, 201);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const updateRefSatker = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const id = parseInt(req.params.id);
-    const {
-      kdsatker,
-      nmsatker,
-      header1,
-      header2,
-      subheader1,
-      subheader2,
-      subheader3,
-      kota,
-    } = req.body;
-    const data = await DataSatker.findByPk(id);
-    if (!data) {
-      return errorResponse(
-        res,
-        `Data dengan ID ${id} tidak ditemukan.`,
-        null,
-        404
-      );
-    }
-    if (kdsatker) data.kdsatker = kdsatker;
-    if (nmsatker) data.nmsatker = nmsatker;
-    if (header1) data.header1 = header1;
-    if (header2) data.header2 = header2;
-    if (subheader1) data.subheader1 = subheader1;
-    if (subheader2) data.subheader2 = subheader2;
-    if (subheader3) data.subheader3 = subheader3;
-    if (kota) data.kota = kota;
-    await data.save();
-    await data.reload();
-    return successResponse(res, "success update ref satker", data, null, 200);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const hapusRefSatker = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const id = parseInt(req.params.id);
-    const data = await DataSatker.findByPk(id);
-    if (!data) {
-      return errorResponse(
-        res,
-        `Data dengan ID ${id} tidak ditemukan.`,
-        null,
-        404
-      );
-    }
-    await data.destroy();
-    return successResponse(
-      res,
-      "success delete ref satker",
-      null,
-      {
+
+    successResponse(res, "Success create referensi satuan kerja", data);
+  }),
+  update: asyncHandler(
+    async (req: Request, res: Response) => {
+      const t = req.transaction;
+      if (!t) {
+        throw new InternalServerError("Transaction not found");
+      }
+      const { id } = req.params;
+      if (typeof id !== "string") {
+        throw new InvalidRequestError("Invalid request");
+      }
+      const { kdsatker, nmsatker, header1, header2, subheader1, subheader2, subheader3, kota } =
+        req.body;
+
+      const data = await DataSatker.updateById(
         id,
-      },
-      200
-    );
-  } catch (error: unknown) {
-    next(error);
-  }
+        {
+          kdsatker,
+          nmsatker,
+          header1,
+          header2,
+          subheader1,
+          subheader2,
+          subheader3,
+          kota,
+        },
+        t
+      );
+
+      successResponse(res, "Success update referensi satuan kerja", data);
+    },
+    {
+      useTransaction: true,
+    }
+  ),
+  delete: asyncHandler(
+    async (req: Request, res: Response) => {
+      const t = req.transaction;
+      if (!t) {
+        throw new InternalServerError("Transaction not found");
+      }
+      const { id } = req.params;
+      if (typeof id !== "string") {
+        throw new InvalidRequestError("Invalid request");
+      }
+      const data = await DataSatker.deleteOne(
+        {
+          where: {
+            id: id,
+          },
+        },
+        t
+      );
+      successResponse(res, "Success delete referensi satuan kerja", data);
+    },
+    {
+      useTransaction: true,
+    }
+  ),
 };

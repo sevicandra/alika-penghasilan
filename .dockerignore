@@ -7,4 +7,4 @@ Dockerfile
 .env
 dist
 tests
-storage
+.vscode

@@ -1,17 +1,15 @@
-import { NextFunction, Response } from "express";
-import { errorResponse, successResponse } from "@/helpers/respose.helper";
-import { AuthenticatedRequest } from "@/types/auth";
-import { DataSptPegawai } from "@/models";
 import { parse } from "csv-parse";
+import { Request, Response } from "express";
+import { asyncHandler } from "@/middlewares/async-handler.middleware";
+import { InternalServerError, InvalidRequestError, NotFoundError } from "@/utils/errors";
+import { successResponse } from "@/helpers/respose.helper";
+import { sortBuilder } from "@/helpers/sequelizer.helper";
+import { DataSptPegawai } from "@/repositories";
 
-export const getAllDataSptPegawai = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
+export const DataSptPegawaiControllerV1 = {
+  getAll: asyncHandler(async (req: Request, res: Response) => {
     const limit = parseInt(req.query.limit as string) || undefined;
-    const offset = parseInt(req.query.offset as string) || 0;
+    const offset = parseInt(req.query.offset as string) || undefined;
     const kdsatker = (req.query.kdsatker as string) || undefined;
     const tahun = (req.query.tahun as string) || undefined;
     const nip = (req.query.nip as string) || undefined;
@@ -19,58 +17,18 @@ export const getAllDataSptPegawai = async (
     if (kdsatker) where.kdsatker = kdsatker;
     if (tahun) where.tahun = tahun;
     if (nip) where.nip = nip;
-    const order: any[] = [];
-    const sortField = (req.query.sortField as string) || "id";
-    const sortOrder = (req.query.sortOrder as string) || "DESC";
-    order.push([sortField, sortOrder.toUpperCase()]);
-    const { rows: data, count } = await DataSptPegawai.findAndCountAll({
+    const sort = req.query.sort as string;
+    const order = sortBuilder(sort);
+    const { items: data, pagination } = await DataSptPegawai.findAllWithPagination({
       where,
-      order,
       limit,
       offset,
-      include: [
-        {
-          association: "Pangkat",
-        },
-        { association: "Jabatan" },
-      ],
+      order,
     });
-    return successResponse(
-      res,
-      "success get all data spt pegawai",
-      data.map((item) => {
-        return {
-          id: item.id,
-          kdsatker: item.kdsatker,
-          tahun: item.tahun,
-          nip: item.nip,
-          npwp: item.npwp,
-          kdgol: item.kdgol,
-          alamat: item.alamat,
-          kdkawin: item.kdkawin,
-          kdjab: item.kdjab,
-          nourut: item.nourut,
-          nama_pangkat: item.Pangkat ? item.Pangkat.nama : null,
-          nama_jabatan: item.Jabatan ? item.Jabatan.nama : null,
-        };
-      }),
-      {
-        limit,
-        offset,
-        count,
-        totalPages: limit ? Math.ceil(count / limit) : 1,
-      }
-    );
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const countAllDataSptPegawai = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
+
+    successResponse(res, "Success get all data spt pegawai", data, pagination);
+  }),
+  count: asyncHandler(async (req: Request, res: Response) => {
     const kdsatker = (req.query.kdsatker as string) || undefined;
     const tahun = (req.query.tahun as string) || undefined;
     const nip = (req.query.nip as string) || undefined;
@@ -81,94 +39,37 @@ export const countAllDataSptPegawai = async (
     const count = await DataSptPegawai.count({
       where,
     });
-    return successResponse(res, "Success count data spt pegawai", count);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const getTahunDataSptPegawai = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
+
+    successResponse(res, "Success count data spt pegawai", { count });
+  }),
+  getTahun: asyncHandler(async (req: Request, res: Response) => {
     const kdsatker = (req.query.kdsatker as string) || undefined;
     const nip = (req.query.nip as string) || undefined;
     const where: any = {};
     if (kdsatker) where.kdsatker = kdsatker;
     if (nip) where.nip = nip;
-    const data = await DataSptPegawai.findAll({
+    const data = await DataSptPegawai.getTahun({
       where,
-      attributes: ["tahun"],
-      group: ["tahun"],
-      order: [["tahun", "DESC"]],
     });
-    return successResponse(res, "Success get tahun data spt pegawai", data);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const getDataSptPegawaiById = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const id = parseInt(req.params.id);
-    const data = await DataSptPegawai.findByPk(id);
-    if (!data) {
-      return errorResponse(
-        res,
-        `Data dengan ID ${id} tidak ditemukan.`,
-        null,
-        404
-      );
+
+    successResponse(res, "Success get tahun data spt pegawai", data);
+  }),
+  getById: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    if (typeof id !== "string") {
+      throw new InvalidRequestError("Invalid request");
     }
-    return successResponse(res, "success get data spt pegawai", data);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const createDataSptPegawai = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const {
-      kdsatker,
-      tahun,
-      nip,
-      npwp,
-      kdgol,
-      alamat,
-      kdkawin,
-      kdjab,
-      nourut,
-    } = req.body;
+
+    const data = await DataSptPegawai.findById(id);
+    if (!data) {
+      throw new NotFoundError("Data not found");
+    }
+
+    successResponse(res, "Success get data spt pegawai", data);
+  }),
+  create: asyncHandler(async (req: Request, res: Response) => {
+    const { kdsatker, tahun, nip, npwp, kdgol, alamat, kdkawin, kdjab, nourut } = req.body;
     const data = await DataSptPegawai.create({
-      kdsatker: kdsatker,
-      tahun: tahun,
-      nip: nip,
-      npwp: npwp,
-      kdgol: kdgol,
-      alamat: alamat,
-      kdkawin: kdkawin,
-      kdjab: kdjab,
-      nourut: nourut ? +nourut : nourut,
-    });
-    return successResponse(res, "success create data spt pegawai", data);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const updateDataSptPegawai = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const {
       kdsatker,
       tahun,
       nip,
@@ -178,68 +79,72 @@ export const updateDataSptPegawai = async (
       kdkawin,
       kdjab,
       nourut,
-    } = req.body;
-    const id = +req.params.id;
-    const data = await DataSptPegawai.findByPk(id);
-    if (!data) {
-      return errorResponse(
-        res,
-        `Data dengan ID ${id} tidak ditemukan.`,
-        null,
-        404
-      );
-    }
-    if (kdsatker) data.kdsatker = kdsatker;
-    if (tahun) data.tahun = tahun;
-    if (nip) data.nip = nip;
-    if (npwp) data.npwp = npwp;
-    if (kdgol) data.kdgol = kdgol;
-    if (alamat) data.alamat = alamat;
-    if (kdkawin) data.kdkawin = kdkawin;
-    if (kdjab) data.kdjab = kdjab;
-    if (nourut) data.nourut = nourut;
-    await data.save();
-    await data.reload();
-    return successResponse(res, "success update data spt pegawai", data);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const hapusDataSptPegawai = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const id = parseInt(req.params.id);
-    const data = await DataSptPegawai.findByPk(id);
-    if (!data) {
-      return errorResponse(
-        res,
-        `Data dengan ID ${id} tidak ditemukan.`,
-        null,
-        404
-      );
-    }
-    await data.destroy();
-    return successResponse(res, "success delete data spt pegawai", {
-      id,
     });
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const importCsvDataSpt = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    if (!req.file) {
-      return errorResponse(res, "File tidak ditemukan", null, 400);
+
+    successResponse(res, "Success create data spt pegawai", data);
+  }),
+  update: asyncHandler(
+    async (req: Request, res: Response) => {
+      const t = req.transaction;
+      if (!t) {
+        throw new InternalServerError("Transaction not found");
+      }
+      const { id } = req.params;
+      if (typeof id !== "string") {
+        throw new InvalidRequestError("Invalid request");
+      }
+      const { kdsatker, tahun, nip, npwp, kdgol, alamat, kdkawin, kdjab, nourut } = req.body;
+
+      const data = await DataSptPegawai.updateById(id, {
+        kdsatker,
+        tahun,
+        nip,
+        npwp,
+        kdgol,
+        alamat,
+        kdkawin,
+        kdjab,
+        nourut,
+      });
+
+      successResponse(res, "Success update data spt pegawai", data);
+    },
+    {
+      useTransaction: true,
     }
-    const csvBuffer = req.file.buffer;
-    const records: DataSptPegawai[] = [];
+  ),
+  delete: asyncHandler(
+    async (req: Request, res: Response) => {
+      const t = req.transaction;
+      if (!t) {
+        throw new InternalServerError("Transaction not found");
+      }
+      const { id } = req.params;
+      if (typeof id !== "string") {
+        throw new InvalidRequestError("Invalid request");
+      }
+      const data = await DataSptPegawai.deleteOne(
+        {
+          where: {
+            id: id,
+          },
+        },
+        t
+      );
+      successResponse(res, "Success delete data spt pegawai", data);
+    },
+    {
+      useTransaction: true,
+    }
+  ),
+  import: asyncHandler(async (req: Request, res: Response) => {
+    const file = req.file;
+    if (!file) {
+      throw new InvalidRequestError("File tidak ditemukan");
+    }
+
+    const csvBuffer = file.buffer;
+    const records = [];
     const parser = parse(csvBuffer, {
       columns: true,
       skip_empty_lines: true,
@@ -249,24 +154,8 @@ export const importCsvDataSpt = async (
     for await (const record of parser) {
       records.push(record);
     }
-    const invalid = records.find(
-      (r) =>
-        !r.nip ||
-        !r.tahun ||
-        !r.npwp ||
-        !r.kdsatker ||
-        !r.kdgol ||
-        !r.alamat ||
-        !r.kdkawin ||
-        !r.kdjab
-    );
-    if (invalid) {
-      return errorResponse(res, "Data tidak valid", invalid, 400);
-    }
-    await DataSptPegawai.bulkCreate(records);
 
-    return successResponse(res, "Data spt pegawai berhasil ditambahkan", null, 201);
-  } catch (error: unknown) {
-    next(error);
-  }
+    await DataSptPegawai.createBulk(records);
+    successResponse(res, "Berhasil membuat data spt pegawai", null, 201);
+  }),
 };

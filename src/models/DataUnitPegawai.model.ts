@@ -1,5 +1,5 @@
+import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "@/config/db.config";
-import { DataTypes, Optional, Model } from "sequelize";
 
 type DataUnitPegawaiAttributes = {
   id: number;
@@ -8,10 +8,7 @@ type DataUnitPegawaiAttributes = {
   nama: string;
 };
 
-type DataUnitPegawaiCreationAttributes = Optional<
-  DataUnitPegawaiAttributes,
-  "id"
->;
+type DataUnitPegawaiCreationAttributes = Optional<DataUnitPegawaiAttributes, "id">;
 
 export class DataUnitPegawai
   extends Model<DataUnitPegawaiAttributes, DataUnitPegawaiCreationAttributes>

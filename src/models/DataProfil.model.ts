@@ -1,5 +1,5 @@
+import { DataTypes, INTEGER, Model, Optional } from "sequelize";
 import sequelize from "@/config/db.config";
-import { DataTypes, INTEGER, Optional, Model } from "sequelize";
 
 type DataProfilAttributes = {
   id: number;
@@ -19,10 +19,7 @@ type DataProfilAttributes = {
   file: string | null;
 };
 
-type DataProfilCreationAttributes = Optional<
-  DataProfilAttributes,
-  "id" | "file" | "no_skp"
->;
+type DataProfilCreationAttributes = Optional<DataProfilAttributes, "id" | "file" | "no_skp">;
 
 class DataProfil
   extends Model<DataProfilAttributes, DataProfilCreationAttributes>

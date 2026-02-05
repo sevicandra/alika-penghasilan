@@ -1,4 +1,5 @@
 import { eSignConfig } from "@/config/esign.config";
+
 export class EsignService {
   private static Credentials = Buffer.from(
     `${eSignConfig.CLIENT_ID}:${eSignConfig.CLIENT_PASSWORD}`
@@ -35,10 +36,7 @@ export class EsignService {
       formdata.append("tampilan", "visible");
       formdata.append("height", `75`);
       formdata.append("width", `75`);
-      formdata.append(
-        "linkQR",
-        `${process.env.APP_URL}/download/pdf/${fileName}`
-      );
+      formdata.append("linkQR", `${process.env.APP_URL}/download/pdf/${fileName}`);
       formdata.append("image", `false`);
       formdata.append("tag_koordinat", tag_koordinat);
       formdata.append("file", blob, fileName);

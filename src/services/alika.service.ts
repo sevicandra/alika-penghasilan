@@ -1,6 +1,7 @@
 import axios from "axios";
-import { alikaConfig } from "@/config/alika.config";
 import jwkToPem from "jwk-to-pem";
+import { ExternalServiceError } from "@/utils/errors";
+import { alikaConfig } from "@/config/alika.config";
 
 export class AlikaService {
   private static token: string | null = null;
@@ -31,8 +32,7 @@ export class AlikaService {
       this.tokenExpiration = currentTime + response.data.expires_in;
       return this.token;
     } catch (error) {
-      console.error("Error requesting OAuth2 token:", error);
-      throw new Error("Failed to get access token");
+      throw new ExternalServiceError("AlikaService", "Failed to get access token", error as Error);
     }
   }
   static async sendPushNotification({
@@ -50,7 +50,7 @@ export class AlikaService {
         {
           nip: nip,
           message,
-          title
+          title,
         },
         {
           headers: {
@@ -59,8 +59,42 @@ export class AlikaService {
         }
       );
     } catch (error) {
-      console.error("Error sending push notification:", error);
-      throw new Error("Failed to send push notification");
+      throw new ExternalServiceError(
+        "AlikaService",
+        "Failed to send push notification",
+        error as Error
+      );
+    }
+  }
+  static async sendBulkPushNotification({
+    nip,
+    message,
+    title,
+  }: {
+    nip: string[];
+    message: string;
+    title?: string;
+  }) {
+    try {
+      await axios.post(
+        `${alikaConfig.PUSH_NOTIFICATION_URL}/notification/SendBulk`,
+        {
+          nip: nip,
+          message,
+          title,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${await this.getAccessToken()}`,
+          },
+        }
+      );
+    } catch (error) {
+      throw new ExternalServiceError(
+        "AlikaService",
+        "Failed to send push notification",
+        error as Error
+      );
     }
   }
   static async getPublicKey() {
@@ -69,17 +103,14 @@ export class AlikaService {
       if (this.publicKey && currentTime < this.publicKeyExpiration) {
         return this.publicKey;
       }
-      const response = await axios.get(
-        `${alikaConfig.BASE_URI}/.well-known/jwks.json`
-      );
+      const response = await axios.get(`${alikaConfig.BASE_URI}/.well-known/jwks.json`);
       const jwk = response.data.keys[0];
       const pem = jwkToPem(jwk);
       this.publicKey = pem;
       this.publicKeyExpiration = currentTime + 3600;
       return this.publicKey;
     } catch (error) {
-      console.error("Error getting public key:", error);
-      throw new Error("Failed to get public key");
+      throw new ExternalServiceError("AlikaService", "Failed to get jwt key", error as Error);
     }
   }
 }

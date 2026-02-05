@@ -1,5 +1,5 @@
+import { BelongsTo, DataTypes, Model } from "sequelize";
 import sequelize from "@/config/db.config";
-import { Model, DataTypes, BelongsTo } from "sequelize";
 import RefBulan from "./RefBulan.model";
 
 type ViewKurangAttributes = {
@@ -11,10 +11,7 @@ type ViewKurangAttributes = {
   netto: number;
 };
 
-class ViewKurang
-  extends Model<ViewKurangAttributes>
-  implements ViewKurangAttributes
-{
+class ViewKurang extends Model<ViewKurangAttributes> implements ViewKurangAttributes {
   public bulan!: string;
   public tahun!: string;
   public nip!: string;
@@ -73,9 +70,4 @@ ViewKurang.init(
   }
 );
 
-ViewKurang.belongsTo(RefBulan, {
-  foreignKey: "bulan",
-  targetKey: "bulan",
-  as: "Bulan",
-});
 export default ViewKurang;

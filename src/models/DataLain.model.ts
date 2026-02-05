@@ -1,5 +1,5 @@
+import { BelongsTo, DataTypes, Model, Optional } from "sequelize";
 import sequelize from "@/config/db.config";
-import { DataTypes, Model, Optional, BelongsTo } from "sequelize";
 import RefBulan from "./RefBulan.model";
 
 type DataLainAttributes = {
@@ -53,32 +53,32 @@ DataLain.init(
     bulan: {
       type: DataTypes.STRING(2),
       validate: {
-        is:{
-          args:/^[0]{1}[1-9]{1}|[1]{1}[0-2]{1}$/,
-          msg:"Format Bulan Salah"
-        }
-      }
+        is: {
+          args: /^[0]{1}[1-9]{1}|[1]{1}[0-2]{1}$/,
+          msg: "Format Bulan Salah",
+        },
+      },
     },
     tahun: {
       type: DataTypes.STRING(4),
       validate: {
         isNumeric: true,
         len: [4, 4],
-      }
+      },
     },
     kdsatker: {
       type: DataTypes.STRING(6),
       validate: {
         isNumeric: true,
         len: [6, 6],
-      }
+      },
     },
     nip: {
       type: DataTypes.STRING(18),
       validate: {
         isNumeric: true,
         len: [18, 18],
-      }
+      },
     },
     bruto: {
       type: DataTypes.DOUBLE(12, 0),
@@ -124,11 +124,5 @@ DataLain.init(
     },
   }
 );
-
-DataLain.belongsTo(RefBulan, {
-  foreignKey: "bulan",
-  targetKey: "kode",
-  as: "Bulan",
-});
 
 export default DataLain;

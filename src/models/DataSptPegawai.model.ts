@@ -1,12 +1,7 @@
+import { BelongsTo, DataTypes, Model, Optional } from "sequelize";
 import sequelize from "@/config/db.config";
-import {
-  DataTypes,
-  Optional,
-  Model,
-  BelongsTo,
-} from "sequelize";
-import RefPangkat from "./RefPangkat.model";
 import RefJabatan from "./RefJabatan.model";
+import RefPangkat from "./RefPangkat.model";
 
 type DataSptPegawaiAttributes = {
   id: number;
@@ -20,10 +15,7 @@ type DataSptPegawaiAttributes = {
   kdjab: string;
   nourut: number;
 };
-type DataSptPegawaiCreationAttributes = Optional<
-  DataSptPegawaiAttributes,
-  "id" | "nourut"
->;
+type DataSptPegawaiCreationAttributes = Optional<DataSptPegawaiAttributes, "id" | "nourut">;
 
 class DataSptPegawai
   extends Model<DataSptPegawaiAttributes, DataSptPegawaiCreationAttributes>
@@ -131,16 +123,5 @@ DataSptPegawai.init(
     ],
   }
 );
-
-DataSptPegawai.belongsTo(RefPangkat, {
-  foreignKey: "kdgol",
-  targetKey: "kdgol",
-  as: "Pangkat",
-});
-DataSptPegawai.belongsTo(RefJabatan, {
-  foreignKey: "kdjab",
-  targetKey: "kode",
-  as: "Jabatan",
-});
 
 export default DataSptPegawai;

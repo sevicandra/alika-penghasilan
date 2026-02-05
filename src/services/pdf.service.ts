@@ -1,26 +1,27 @@
+import fs from "fs";
+import path from "path";
+import { Content } from "pdfmake/interfaces";
+import generatePdf from "@/config/pdf.config";
+import { numberToWords } from "@/helpers/numberToWord.helper";
 import {
+  DataGaji,
+  DataKurang,
+  DataLain,
+  DataLembur,
+  DataMakan,
   DataProfil,
   DataSptPegawai,
-  ViewTukin,
-  RefSptTahunan,
-  DataMakan,
-  DataLembur,
-  DataLain,
-  DataGaji,
-  RefBulan,
-  ViewGaji,
-  DataKurang,
   DataTukin,
+  RefBulan,
+  RefSptTahunan,
+  ViewGaji,
+  ViewTukin,
 } from "@/models";
 import DataSatker from "@/models/DataSatker.model";
 import ViewPajakGaji from "@/models/ViewPajakGaji.model";
 import ViewPajakKurang from "@/models/ViewPajakKurang.model";
-import fs from "fs";
-import { Content } from "pdfmake/interfaces";
-import generatePdf from "@/config/pdf.config";
-import { numberToWords } from "@/helpers/numberToWord.helper";
 import { Keluarga } from "@/types/serviceKemenkeu";
-import path from "path";
+
 export class PdfService {
   static async Header({
     eselon2,
@@ -245,9 +246,7 @@ export class PdfService {
         const jml_iuran_pensiun = (iuran_pensiun * kelg) / 100;
         const jml_biaya_jabatan = (biaya_jabatan * bruto) / 100;
         const total_biaya_jabatan =
-          jml_biaya_jabatan >= biaya_jabatan_maks
-            ? biaya_jabatan_maks
-            : jml_biaya_jabatan;
+          jml_biaya_jabatan >= biaya_jabatan_maks ? biaya_jabatan_maks : jml_biaya_jabatan;
         const pengurangan = jml_iuran_pensiun + total_biaya_jabatan;
         const netto = bruto - pengurangan;
         let disetahun = 0;
@@ -389,19 +388,13 @@ export class PdfService {
                                     [
                                       "NAMA INSTANSI/ BADAN LAIN",
                                       ":",
-                                      `${
-                                        satker?.nmsatker
-                                          ? satker.nmsatker.toUpperCase()
-                                          : "-"
-                                      }`,
+                                      `${satker?.nmsatker ? satker.nmsatker.toUpperCase() : "-"}`,
                                     ],
                                     [
                                       "NAMA BENDAHARA",
                                       ":",
                                       `BENDAHARA PENGELUARAN ${
-                                        satker?.nmsatker
-                                          ? satker.nmsatker.toUpperCase()
-                                          : "-"
+                                        satker?.nmsatker ? satker.nmsatker.toUpperCase() : "-"
                                       }`,
                                     ],
                                   ],
@@ -415,10 +408,7 @@ export class PdfService {
                         width: "25%",
                         layout: "noBorders",
                         table: {
-                          body: [
-                            ["NPWP BENDAHARA:"],
-                            [`${profil?.npwp_bendahara || "-"}`],
-                          ],
+                          body: [["NPWP BENDAHARA:"], [`${profil?.npwp_bendahara || "-"}`]],
                         },
                       },
                     ],
@@ -449,18 +439,8 @@ export class PdfService {
                         table: {
                           widths: ["auto", 90, "auto", "*"],
                           body: [
-                            [
-                              "1.",
-                              { text: "NPWP", alignment: "left" },
-                              ":",
-                              `${npwp || "-"}`,
-                            ],
-                            [
-                              "2.",
-                              { text: "NIP", alignment: "left" },
-                              ":",
-                              `${nip || "-"}`,
-                            ],
+                            ["1.", { text: "NPWP", alignment: "left" }, ":", `${npwp || "-"}`],
+                            ["2.", { text: "NIP", alignment: "left" }, ":", `${nip || "-"}`],
                             [
                               "3.",
                               { text: "NAMA", alignment: "left" },
@@ -496,16 +476,11 @@ export class PdfService {
                                 nip?.substring(14, 15) == "1"
                                   ? "LAKI-LAKI"
                                   : nip?.substring(14, 15) == "2"
-                                  ? "PEREMPUAN"
-                                  : "-"
+                                    ? "PEREMPUAN"
+                                    : "-"
                               }`,
                             ],
-                            [
-                              "7.",
-                              { text: "NIK", alignment: "left" },
-                              ":",
-                              `${nik || "-"}`,
-                            ],
+                            ["7.", { text: "NIK", alignment: "left" }, ":", `${nik || "-"}`],
                             [
                               "8.",
                               {
@@ -517,8 +492,8 @@ export class PdfService {
                                 pegawai?.kdkawin.substring(1, 2) === "1"
                                   ? "K"
                                   : pegawai?.kdkawin.substring(1, 2) === "0"
-                                  ? "TK"
-                                  : "-"
+                                    ? "TK"
+                                    : "-"
                               }/${pegawai?.kdkawin.substring(2, 4) || "-"}`,
                             ],
                             [
@@ -683,11 +658,7 @@ export class PdfService {
                     alignment: "right",
                   },
                 ],
-                [
-                  { text: "PENGURANGAN :", bold: true, colSpan: 2 },
-                  {},
-                  { text: "", bold: true },
-                ],
+                [{ text: "PENGURANGAN :", bold: true, colSpan: 2 }, {}, { text: "", bold: true }],
                 [
                   { text: "12", alignment: "center" },
                   {
@@ -881,24 +852,9 @@ export class PdfService {
                         table: {
                           widths: ["auto", "auto", "auto", "*"],
                           body: [
-                            [
-                              "1.",
-                              "NPWP",
-                              ":",
-                              `${profil?.npwp_bendahara || "-"}`,
-                            ],
-                            [
-                              "2.",
-                              "NAMA",
-                              ":",
-                              `${profil?.nama_bendahara.toUpperCase() || "-"}`,
-                            ],
-                            [
-                              "3.",
-                              "NIP",
-                              ":",
-                              `${profil?.nip_bendahara || "-"}`,
-                            ],
+                            ["1.", "NPWP", ":", `${profil?.npwp_bendahara || "-"}`],
+                            ["2.", "NAMA", ":", `${profil?.nama_bendahara.toUpperCase() || "-"}`],
+                            ["3.", "NIP", ":", `${profil?.nip_bendahara || "-"}`],
                           ],
                         },
                       },
@@ -987,9 +943,7 @@ export class PdfService {
           (lembur?.bruto || 0) +
           lains?.reduce((a: any, b: any) => a + b.bruto, 0);
         let total_pph =
-          (makan?.pph || 0) +
-          (lembur?.pph || 0) +
-          lains?.reduce((a: any, b: any) => a + b.pph, 0);
+          (makan?.pph || 0) + (lembur?.pph || 0) + lains?.reduce((a: any, b: any) => a + b.pph, 0);
         const columns = lains?.map((lain: any, i: number) => [
           {
             columns: [
@@ -999,10 +953,7 @@ export class PdfService {
               },
               {
                 width: "*",
-                stack: [
-                  `21-499-99`,
-                  `Objek PPh Pasal 21 Final Lainnya (${lain.jenis})`,
-                ],
+                stack: [`21-499-99`, `Objek PPh Pasal 21 Final Lainnya (${lain.jenis})`],
               },
             ],
           },
@@ -1019,8 +970,8 @@ export class PdfService {
               pegawai.kdgol.substring(0, 1) === "4"
                 ? "15%"
                 : pegawai.kdgol.substring(0, 1) === "3"
-                ? "5%"
-                : "0%"
+                  ? "5%"
+                  : "0%"
             }`,
             alignment: "right",
           },
@@ -1121,12 +1072,7 @@ export class PdfService {
                         table: {
                           widths: ["auto", 90, "auto", "*"],
                           body: [
-                            [
-                              "1.",
-                              { text: "NIP", alignment: "left" },
-                              ":",
-                              `${nip || "-"}`,
-                            ],
+                            ["1.", { text: "NIP", alignment: "left" }, ":", `${nip || "-"}`],
                             [
                               "2.",
                               { text: "NAMA", alignment: "left" },
@@ -1156,8 +1102,8 @@ export class PdfService {
                                 nip?.substring(14, 15) == "1"
                                   ? "LAKI-LAKI"
                                   : nip?.substring(14, 15) == "2"
-                                  ? "PEREMPUAN"
-                                  : "-"
+                                    ? "PEREMPUAN"
+                                    : "-"
                               }`,
                             ],
                           ],
@@ -1203,10 +1149,7 @@ export class PdfService {
                       },
                       {
                         width: "*",
-                        stack: [
-                          `21-499-99`,
-                          `Objek PPh Pasal 21 Final Lainnya (Uang Makan)`,
-                        ],
+                        stack: [`21-499-99`, `Objek PPh Pasal 21 Final Lainnya (Uang Makan)`],
                       },
                     ],
                   },
@@ -1231,8 +1174,8 @@ export class PdfService {
                       pegawai.kdgol.substring(0, 1) === "4"
                         ? "15%"
                         : pegawai.kdgol.substring(0, 1) === "3"
-                        ? "5%"
-                        : "0%"
+                          ? "5%"
+                          : "0%"
                     }`,
                     alignment: "right",
                   },
@@ -1262,10 +1205,7 @@ export class PdfService {
                       },
                       {
                         width: "*",
-                        stack: [
-                          `21-499-99`,
-                          `Objek PPh Pasal 21 Final Lainnya (Uang Lembur)`,
-                        ],
+                        stack: [`21-499-99`, `Objek PPh Pasal 21 Final Lainnya (Uang Lembur)`],
                       },
                     ],
                   },
@@ -1290,8 +1230,8 @@ export class PdfService {
                       pegawai.kdgol.substring(0, 1) === "4"
                         ? "15%"
                         : pegawai.kdgol.substring(0, 1) === "3"
-                        ? "5%"
-                        : "0%"
+                          ? "5%"
+                          : "0%"
                     }`,
                     alignment: "right",
                   },
@@ -1357,24 +1297,9 @@ export class PdfService {
                         table: {
                           widths: ["auto", "auto", "auto", "*"],
                           body: [
-                            [
-                              "1.",
-                              "NPWP",
-                              ":",
-                              `${profil?.npwp_bendahara || "-"}`,
-                            ],
-                            [
-                              "2.",
-                              "NAMA",
-                              ":",
-                              `${profil?.nama_bendahara.toUpperCase() || "-"}`,
-                            ],
-                            [
-                              "3.",
-                              "NIP",
-                              ":",
-                              `${profil?.nip_bendahara || "-"}`,
-                            ],
+                            ["1.", "NPWP", ":", `${profil?.npwp_bendahara || "-"}`],
+                            ["2.", "NAMA", ":", `${profil?.nama_bendahara.toUpperCase() || "-"}`],
+                            ["3.", "NIP", ":", `${profil?.nip_bendahara || "-"}`],
                           ],
                         },
                       },
@@ -1471,9 +1396,7 @@ export class PdfService {
             margin: [0, 0, 0, 10],
           },
           {
-            text: `PEMBAYARAN : GAJI BULAN  ${
-              bulan.bulan.toUpperCase() || "-"
-            } ${tahun || "-"}`,
+            text: `PEMBAYARAN : GAJI BULAN  ${bulan.bulan.toUpperCase() || "-"} ${tahun || "-"}`,
           },
           {
             alignment: "left",
@@ -1505,13 +1428,7 @@ export class PdfService {
                     layout: "noBorders",
                     fontSize: 7,
                     table: {
-                      body: [
-                        ["NAMA"],
-                        ["TANGGAL LAHIR"],
-                        ["NIP"],
-                        ["GOLONGAN"],
-                        ["NPWP"],
-                      ],
+                      body: [["NAMA"], ["TANGGAL LAHIR"], ["NIP"], ["GOLONGAN"], ["NPWP"]],
                     },
                     rowSpan: 2,
                   }, //2
@@ -1544,24 +1461,14 @@ export class PdfService {
                     layout: "noBorders",
                     fontSize: 7,
                     table: {
-                      body: [
-                        ["GAJI POKOK"],
-                        ["TUNJ.KELG"],
-                        ["A. ISTRI/SUAMI"],
-                        ["B. ANAK"],
-                      ],
+                      body: [["GAJI POKOK"], ["TUNJ.KELG"], ["A. ISTRI/SUAMI"], ["B. ANAK"]],
                     },
                   }, //4
                   {
                     layout: "noBorders",
                     fontSize: 7,
                     table: {
-                      body: [
-                        ["TUN. UMUM"],
-                        ["TAMB. UMUM"],
-                        ["TUNJ. PAPUA"],
-                        ["TERPENCIL"],
-                      ],
+                      body: [["TUN. UMUM"], ["TAMB. UMUM"], ["TUNJ. PAPUA"], ["TERPENCIL"]],
                     },
                   }, //5
                   {
@@ -1661,11 +1568,7 @@ export class PdfService {
                             text: `LHR. ${
                               nip
                                 ? new Date(
-                                    nip.slice(0, 4) +
-                                      "-" +
-                                      nip.slice(4, 6) +
-                                      "-" +
-                                      nip.slice(6, 8)
+                                    nip.slice(0, 4) + "-" + nip.slice(4, 6) + "-" + nip.slice(6, 8)
                                   ).toLocaleDateString("id-ID", {
                                     year: "numeric",
                                     month: "long",
@@ -1678,9 +1581,7 @@ export class PdfService {
                         [{ text: `NIP${nip || " "}` }],
                         [
                           {
-                            text: `GOL. ${
-                              gaji ? gaji.kdgapok.slice(0, 2) : " "
-                            }`,
+                            text: `GOL. ${gaji ? gaji.kdgapok.slice(0, 2) : " "}`,
                           },
                         ],
                         [{ text: npwp || " " }],
@@ -1703,9 +1604,7 @@ export class PdfService {
                               },
                               {
                                 width: "*",
-                                text: gaji
-                                  ? gaji.gapok.toLocaleString("id-ID")
-                                  : "-",
+                                text: gaji ? gaji.gapok.toLocaleString("id-ID") : "-",
                                 alignment: "right",
                               },
                             ],
@@ -1721,9 +1620,7 @@ export class PdfService {
                               },
                               {
                                 width: "*",
-                                text: gaji
-                                  ? gaji.tistri.toLocaleString("id-ID")
-                                  : "-",
+                                text: gaji ? gaji.tistri.toLocaleString("id-ID") : "-",
                                 alignment: "right",
                               },
                             ],
@@ -1738,9 +1635,7 @@ export class PdfService {
                               },
                               {
                                 width: "*",
-                                text: gaji
-                                  ? gaji.tanak.toLocaleString("id-ID")
-                                  : "-",
+                                text: gaji ? gaji.tanak.toLocaleString("id-ID") : "-",
                                 alignment: "right",
                               },
                             ],
@@ -1764,9 +1659,7 @@ export class PdfService {
                               },
                               {
                                 width: "*",
-                                text: gaji
-                                  ? gaji.tumum.toLocaleString("id-ID")
-                                  : " ",
+                                text: gaji ? gaji.tumum.toLocaleString("id-ID") : " ",
                                 alignment: "right",
                               },
                             ],
@@ -1781,9 +1674,7 @@ export class PdfService {
                               },
                               {
                                 width: "*",
-                                text: gaji
-                                  ? gaji.ttambumum.toLocaleString("id-ID")
-                                  : "-",
+                                text: gaji ? gaji.ttambumum.toLocaleString("id-ID") : "-",
                                 alignment: "right",
                               },
                             ],
@@ -1798,9 +1689,7 @@ export class PdfService {
                               },
                               {
                                 width: "*",
-                                text: gaji
-                                  ? gaji.tpapua.toLocaleString("id-ID")
-                                  : " ",
+                                text: gaji ? gaji.tpapua.toLocaleString("id-ID") : " ",
                                 alignment: "right",
                               },
                             ],
@@ -1815,9 +1704,7 @@ export class PdfService {
                               },
                               {
                                 width: "*",
-                                text: gaji
-                                  ? gaji.tpencil.toLocaleString("id-ID")
-                                  : "-",
+                                text: gaji ? gaji.tpencil.toLocaleString("id-ID") : "-",
                                 alignment: "right",
                               },
                             ],
@@ -1842,9 +1729,7 @@ export class PdfService {
                               },
                               {
                                 width: "*",
-                                text: gaji
-                                  ? gaji.tstruktur.toLocaleString("id-ID")
-                                  : "-",
+                                text: gaji ? gaji.tstruktur.toLocaleString("id-ID") : "-",
                                 alignment: "right",
                               },
                             ],
@@ -1859,9 +1744,7 @@ export class PdfService {
                               },
                               {
                                 width: "*",
-                                text: gaji
-                                  ? gaji.tfungsi.toLocaleString("id-ID")
-                                  : "-",
+                                text: gaji ? gaji.tfungsi.toLocaleString("id-ID") : "-",
                                 alignment: "right",
                               },
                             ],
@@ -1876,9 +1759,7 @@ export class PdfService {
                               },
                               {
                                 width: "*",
-                                text: gaji
-                                  ? gaji.tlain.toLocaleString("id-ID")
-                                  : "-",
+                                text: gaji ? gaji.tlain.toLocaleString("id-ID") : "-",
                                 alignment: "right",
                               },
                             ],
@@ -1893,9 +1774,7 @@ export class PdfService {
                               },
                               {
                                 width: "*",
-                                text: gaji
-                                  ? gaji.bulat.toLocaleString("id-ID")
-                                  : "-",
+                                text: gaji ? gaji.bulat.toLocaleString("id-ID") : "-",
                                 alignment: "right",
                               },
                             ],
@@ -1938,9 +1817,7 @@ export class PdfService {
                       },
                       {
                         width: "*",
-                        text: viewGaji
-                          ? viewGaji.bruto.toLocaleString("id-ID")
-                          : "-",
+                        text: viewGaji ? viewGaji.bruto.toLocaleString("id-ID") : "-",
                         alignment: "right",
                       },
                     ],
@@ -1973,9 +1850,7 @@ export class PdfService {
                               },
                               {
                                 width: "*",
-                                text: gaji
-                                  ? gaji.pberas.toLocaleString("id-ID")
-                                  : "-",
+                                text: gaji ? gaji.pberas.toLocaleString("id-ID") : "-",
                                 alignment: "right",
                               },
                             ],
@@ -1990,9 +1865,7 @@ export class PdfService {
                               },
                               {
                                 width: "*",
-                                text: gaji
-                                  ? gaji.bpjs.toLocaleString("id-ID")
-                                  : "-",
+                                text: gaji ? gaji.bpjs.toLocaleString("id-ID") : "-",
                                 alignment: "right",
                               },
                             ],
@@ -2007,9 +1880,7 @@ export class PdfService {
                               },
                               {
                                 width: "*",
-                                text: gaji
-                                  ? gaji.bpjs2.toLocaleString("id-ID")
-                                  : "-",
+                                text: gaji ? gaji.bpjs2.toLocaleString("id-ID") : "-",
                                 alignment: "right",
                               },
                             ],
@@ -2046,9 +1917,7 @@ export class PdfService {
                               },
                               {
                                 width: "*",
-                                text: gaji
-                                  ? gaji.sewarmh.toLocaleString("id-ID")
-                                  : "-",
+                                text: gaji ? gaji.sewarmh.toLocaleString("id-ID") : "-",
                                 alignment: "right",
                               },
                             ],
@@ -2063,9 +1932,7 @@ export class PdfService {
                               },
                               {
                                 width: "*",
-                                text: gaji
-                                  ? gaji.tunggakan.toLocaleString("id-ID")
-                                  : "-",
+                                text: gaji ? gaji.tunggakan.toLocaleString("id-ID") : "-",
                                 alignment: "right",
                               },
                             ],
@@ -2080,9 +1947,7 @@ export class PdfService {
                               },
                               {
                                 width: "*",
-                                text: gaji
-                                  ? gaji.utanglebih.toLocaleString("id-ID")
-                                  : "-",
+                                text: gaji ? gaji.utanglebih.toLocaleString("id-ID") : "-",
                                 alignment: "right",
                               },
                             ],
@@ -2097,9 +1962,7 @@ export class PdfService {
                               },
                               {
                                 width: "*",
-                                text: gaji
-                                  ? gaji.potlain.toLocaleString("id-ID")
-                                  : "-",
+                                text: gaji ? gaji.potlain.toLocaleString("id-ID") : "-",
                                 alignment: "right",
                               },
                             ],
@@ -2114,9 +1977,7 @@ export class PdfService {
                               },
                               {
                                 width: "*",
-                                text: gaji
-                                  ? gaji.taperum.toLocaleString("id-ID")
-                                  : "-",
+                                text: gaji ? gaji.taperum.toLocaleString("id-ID") : "-",
                                 alignment: "right",
                               },
                             ],
@@ -2133,9 +1994,7 @@ export class PdfService {
                       },
                       {
                         width: "*",
-                        text: viewGaji
-                          ? viewGaji.potongan.toLocaleString("id-ID")
-                          : "-",
+                        text: viewGaji ? viewGaji.potongan.toLocaleString("id-ID") : "-",
                         alignment: "right",
                       },
                     ],
@@ -2148,9 +2007,7 @@ export class PdfService {
                       },
                       {
                         width: "*",
-                        text: viewGaji
-                          ? viewGaji.netto.toLocaleString("id-ID")
-                          : "-",
+                        text: viewGaji ? viewGaji.netto.toLocaleString("id-ID") : "-",
                         alignment: "right",
                       },
                     ],
@@ -2289,9 +2146,7 @@ export class PdfService {
                   { text: "Tempat, Tanggal Lahir", alignment: "left" },
                   { text: ":", alignment: "center" },
                   {
-                    text: `${tempatLahir?.toUpperCase()}, ${new Date(
-                      tanggalLahir
-                    )
+                    text: `${tempatLahir?.toUpperCase()}, ${new Date(tanggalLahir)
                       .toLocaleDateString("id-ID", {
                         day: "numeric",
                         month: "long",
@@ -2306,9 +2161,7 @@ export class PdfService {
                   { text: "Jenis Kelamin", alignment: "left" },
                   { text: ":", alignment: "center" },
                   {
-                    text: `${
-                      nip.substring(14, 15) == "1" ? "LAKI-LAKI" : "PEREMPUAN"
-                    }`,
+                    text: `${nip.substring(14, 15) == "1" ? "LAKI-LAKI" : "PEREMPUAN"}`,
                     alignment: "left",
                   },
                 ],
@@ -2318,9 +2171,7 @@ export class PdfService {
                   { text: ":", alignment: "center" },
                   {
                     text: `${gaji.kdkawin} / ${
-                      gaji.kdkawin.substring(1, 2) == "1"
-                        ? "KAWIN"
-                        : "TIDAK KAWIN"
+                      gaji.kdkawin.substring(1, 2) == "1" ? "KAWIN" : "TIDAK KAWIN"
                     } ${gaji.kdkawin.substring(2, 4)} ANAK`,
                     alignment: "left",
                   },
@@ -2454,14 +2305,7 @@ export class PdfService {
                               alignment: "center",
                             },
                           ]),
-                        [
-                          { text: "", alignment: "center", colSpan: 6 },
-                          {},
-                          {},
-                          {},
-                          {},
-                          {},
-                        ],
+                        [{ text: "", alignment: "center", colSpan: 6 }, {}, {}, {}, {}, {}],
                       ],
                     },
                     fontSize: 9,
@@ -2483,9 +2327,7 @@ export class PdfService {
                 [
                   {},
                   {},
-                  `${
-                    satker?.kota ? satker.kota : "-"
-                  }, ${new Date().toLocaleDateString("id-ID", {
+                  `${satker?.kota ? satker.kota : "-"}, ${new Date().toLocaleDateString("id-ID", {
                     year: "numeric",
                     month: "long",
                     day: "2-digit",
@@ -2592,11 +2434,7 @@ export class PdfService {
           pph += kurang.pph;
           bpjs += kurang.bpjs;
           bpjs2 += kurang.bpjs2;
-          lainnya +=
-            kurang.tunggakan +
-            kurang.utanglebih +
-            kurang.potlain +
-            kurang.sewarmh;
+          lainnya += kurang.tunggakan + kurang.utanglebih + kurang.potlain + kurang.sewarmh;
           taperum += kurang.taperum;
         }
         if (gaji) {
@@ -2613,29 +2451,18 @@ export class PdfService {
           pph += gaji.pph;
           bpjs += gaji.bpjs;
           bpjs2 += gaji.bpjs2;
-          lainnya +=
-            gaji.tunggakan + gaji.utanglebih + gaji.potlain + gaji.sewarmh;
+          lainnya += gaji.tunggakan + gaji.utanglebih + gaji.potlain + gaji.sewarmh;
           taperum += gaji.taperum;
         }
 
-        let bruto1 =
-          gapok +
-          tistri +
-          tanak +
-          tumum +
-          tjabatan +
-          bulat +
-          tberas +
-          tpajak +
-          tlain;
+        let bruto1 = gapok + tistri + tanak + tumum + tjabatan + bulat + tberas + tpajak + tlain;
         let potongan1 = iwp + pph + bpjs + bpjs2 + lainnya + taperum;
         let netto1 = bruto1 - potongan1;
 
         let tunjangan = 0;
         let absenr = 0;
         let tkpph = 0;
-        let potpph= 0;
-
+        let potpph = 0;
 
         if (tukin) {
           tunjangan = tukin.tjpokok + tukin.tjtamb;
@@ -2701,9 +2528,7 @@ export class PdfService {
                   { text: "Jabatan", alignment: "left" },
                   { text: ":", alignment: "center" },
                   {
-                    text: `${jabatan ? jabatan : "-"}, ${
-                      organisasi && organisasi
-                    }`,
+                    text: `${jabatan ? jabatan : "-"}, ${organisasi && organisasi}`,
                     alignment: "left",
                   },
                 ],
@@ -2911,14 +2736,7 @@ export class PdfService {
                   },
                   {},
                 ],
-                [
-                  {},
-                  { text: "Dengan potongan sebagai berikut:", colSpan: 2 },
-                  {},
-                  {},
-                  {},
-                  {},
-                ],
+                [{}, { text: "Dengan potongan sebagai berikut:", colSpan: 2 }, {}, {}, {}, {}],
                 [
                   {},
                   { text: "1.", alignment: "center" },
@@ -3059,14 +2877,7 @@ export class PdfService {
                     ],
                   },
                 ],
-                [
-                  "II.",
-                  { text: "Tunjangan Kinerja", colSpan: 5 },
-                  {},
-                  {},
-                  {},
-                  {},
-                ],
+                ["II.", { text: "Tunjangan Kinerja", colSpan: 5 }, {}, {}, {}, {}],
                 [
                   {},
                   { text: "1.", alignment: "center" },
@@ -3147,14 +2958,7 @@ export class PdfService {
                   },
                   {},
                 ],
-                [
-                  {},
-                  { text: "Dengan potongan sebagai berikut:", colSpan: 2 },
-                  {},
-                  {},
-                  {},
-                  {},
-                ],
+                [{}, { text: "Dengan potongan sebagai berikut:", colSpan: 2 }, {}, {}, {}, {}],
                 [
                   {},
                   { text: "1.", alignment: "center" },
@@ -3269,12 +3073,7 @@ export class PdfService {
                       },
                       {
                         width: "*",
-                        text: `${(
-                          netto1 +
-                          netto2 +
-                          netto3 +
-                          netto4
-                        ).toLocaleString("id-ID")}`,
+                        text: `${(netto1 + netto2 + netto3 + netto4).toLocaleString("id-ID")}`,
                         alignment: "right",
                       },
                     ],
@@ -3282,9 +3081,7 @@ export class PdfService {
                 ],
                 [
                   {
-                    text: `(${numberToWords(
-                      netto1 + netto2 + netto3 + netto4
-                    )} rupiah)`,
+                    text: `(${numberToWords(netto1 + netto2 + netto3 + netto4)} rupiah)`,
                     colSpan: 6,
                     alignment: "right",
                     fontSize: 7,

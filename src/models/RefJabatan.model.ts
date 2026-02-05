@@ -1,19 +1,17 @@
-import sequelize from "@/config/db.config";
 import { DataTypes, Model, Optional } from "sequelize";
+import sequelize from "@/config/db.config";
+
 type RefJabatanAttributes = {
   id: number;
   kode: string;
   nama: string;
 };
-type RefJabatanCreationAttributes = Optional<
-  RefJabatanAttributes,
-  "id"
->;
+type RefJabatanCreationAttributes = Optional<RefJabatanAttributes, "id">;
 
-class RefJabatan extends Model<
-  RefJabatanAttributes,
-  RefJabatanCreationAttributes
-> implements RefJabatanAttributes {
+class RefJabatan
+  extends Model<RefJabatanAttributes, RefJabatanCreationAttributes>
+  implements RefJabatanAttributes
+{
   public id!: number;
   public kode!: string;
   public nama!: string;
@@ -31,13 +29,13 @@ RefJabatan.init(
       validate: {
         isNumeric: true,
         len: [5, 5],
-      }
+      },
     },
     nama: {
       type: DataTypes.STRING(128),
-      validate:{
-        notEmpty: true
-      }
+      validate: {
+        notEmpty: true,
+      },
     },
   },
   {

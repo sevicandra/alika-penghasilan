@@ -1,28 +1,21 @@
-import { Response, NextFunction } from "express";
-import { errorResponse, successResponse } from "@/helpers/respose.helper";
-import { AuthenticatedRequest } from "@/types/auth";
-import { DataSptPegawai } from "@/models";
+import { Request, Response } from "express";
+import { asyncHandler } from "@/middlewares/async-handler.middleware";
+import { AuthorizationError } from "@/utils/errors";
+import { successResponse } from "@/helpers/respose.helper";
+import { DataSptPegawai } from "@/repositories";
 
-export const getTahunDataSptPegawai = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { nip } = req.user || {};
+export const DataSptPegawaiControllerV2 = {
+  getTahun: asyncHandler(async (req: Request, res: Response) => {
+    const nip = req.user?.nip;
     if (!nip) {
-      return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
+      throw new AuthorizationError("Pengguna tidak dapat di verifikasi");
     }
-    const data = await DataSptPegawai.findAll({
+    const data = await DataSptPegawai.getTahun({
       where: {
         nip: nip,
       },
-      attributes: ["tahun"],
-      group: ["tahun"],
-      order: [["tahun", "DESC"]],
     });
-    return successResponse(res, "Success get tahun data spt pegawai", data);
-  } catch (error: unknown) {
-    next(error);
-  }
+
+    successResponse(res, "Success get tahun data spt pegawai", data);
+  }),
 };

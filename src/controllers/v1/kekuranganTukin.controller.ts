@@ -1,18 +1,16 @@
-import { AuthenticatedRequest } from "@/types/auth";
-import { Response, NextFunction } from "express";
-import { errorResponse, successResponse } from "@/helpers/respose.helper";
-import { DataTukin } from "@/models";
-import sequelize from "@/config/db.config";
 import { parse } from "csv-parse";
+import { Request, Response } from "express";
+import { asyncHandler } from "@/middlewares/async-handler.middleware";
+import { InternalServerError, InvalidRequestError, NotFoundError } from "@/utils/errors";
+import { successResponse } from "@/helpers/respose.helper";
+import { sortBuilder } from "@/helpers/sequelizer.helper";
+import { sequelize } from "@/models";
+import { DataTukin } from "@/repositories";
 
-export const getAllKekuranganTukin = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
+export const DataKekuranganTukinControllerV1 = {
+  getAll: asyncHandler(async (req: Request, res: Response) => {
     const limit = parseInt(req.query.limit as string) || undefined;
-    const offset = parseInt(req.query.offset as string) || 0;
+    const offset = parseInt(req.query.offset as string) || undefined;
     const tahun = (req.query.tahun as string) || undefined;
     const bulan = (req.query.bulan as string) || undefined;
     const nip = (req.query.nip as string) || undefined;
@@ -24,15 +22,13 @@ export const getAllKekuranganTukin = async (
     if (bulan) where.bulan = bulan;
     if (nip) where.nip = nip;
     if (kdsatker) where.kdsatker = kdsatker;
-    const order: any[] = [];
-    const sortField = (req.query.sortField as string) || "id";
-    const sortOrder = (req.query.sortOrder as string) || "DESC";
-    order.push([sortField, sortOrder.toUpperCase()]);
-    const { count, rows: data } = await DataTukin.findAndCountAll({
+    const sort = req.query.sort as string;
+    const order = sortBuilder(sort);
+    const { items: data, pagination } = await DataTukin.findAllWithPagination({
       where,
-      order,
       limit,
       offset,
+      order,
       include: [
         {
           association: "Bulan",
@@ -43,22 +39,10 @@ export const getAllKekuranganTukin = async (
         include: [[sequelize.col("Bulan.bulan"), "nama_bulan"]],
       },
     });
-    return successResponse(res, "Success get all data tukin", data, {
-      limit,
-      offset,
-      count,
-      totalPages: limit ? Math.ceil(count / limit) : 1,
-    });
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const countAllKekuranganTukin = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
+
+    successResponse(res, "Success get all kekurangan tukin", data, pagination);
+  }),
+  count: asyncHandler(async (req: Request, res: Response) => {
     const tahun = (req.query.tahun as string) || undefined;
     const bulan = (req.query.bulan as string) || undefined;
     const nip = (req.query.nip as string) || undefined;
@@ -70,21 +54,13 @@ export const countAllKekuranganTukin = async (
     if (bulan) where.bulan = bulan;
     if (nip) where.nip = nip;
     if (kdsatker) where.kdsatker = kdsatker;
-
     const count = await DataTukin.count({
       where,
     });
-    return successResponse(res, "Success count all data tukin", count);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const getTahunKekuranganTukin = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
+
+    successResponse(res, "Success count kekurangan tukin", { count });
+  }),
+  getTahun: asyncHandler(async (req: Request, res: Response) => {
     const nip = (req.query.nip as string) || undefined;
     const kdsatker = (req.query.kdsatker as string) || undefined;
     const where: any = {
@@ -92,71 +68,59 @@ export const getTahunKekuranganTukin = async (
     };
     if (nip) where.nip = nip;
     if (kdsatker) where.kdsatker = kdsatker;
-    const data = await DataTukin.findAll({
+    const data = await DataTukin.getTahun({
       where,
-      attributes: ["tahun"],
-      group: ["tahun"],
-      order: [["tahun", "DESC"]],
     });
-    return successResponse(res, "Success get tahun tukin", data);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const getBulanKekuranganTukin = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const tahun = parseInt(req.params.tahun);
-    if (!tahun || isNaN(tahun)) {
-      return errorResponse(res, "Tahun tidak valid", null, 422);
+
+    successResponse(res, "Success get tahun kekurangan tukin", data);
+  }),
+  getBulan: asyncHandler(async (req: Request, res: Response) => {
+    const { tahun } = req.params;
+    if (typeof tahun !== "string") {
+      throw new InvalidRequestError("Invalid request");
     }
     const nip = (req.query.nip as string) || undefined;
     const kdsatker = (req.query.kdsatker as string) || undefined;
     const where: any = { tahun: tahun, p22: 1 };
     if (nip) where.nip = nip;
     if (kdsatker) where.kdsatker = kdsatker;
-    const data = await DataTukin.findAll({
+    const data = await DataTukin.getBulan(tahun, {
       where,
-      attributes: ["bulan"],
-      group: ["bulan"],
-      order: [["bulan", "DESC"]],
     });
-    return successResponse(res, "Success get bulan tukin", data);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const getKekuranganTukinById = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const id = parseInt(req.params.id);
-    const data = await DataTukin.findOne({ where: { id } });
-    if (!data || data.p22 === 0) {
-      return errorResponse(
-        res,
-        `Data dengan ID ${id} tidak ditemukan.`,
-        null,
-        404
-      );
+
+    successResponse(res, "Success get bulan kekurangan tukin", data);
+  }),
+  getById: asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    if (typeof id !== "string") {
+      throw new InvalidRequestError("Invalid request");
     }
-    return successResponse(res, "Success get data tukin", data);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const createKekuranganTukin = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const {
+
+    const data = await DataTukin.findOne({
+      where: {
+        id: id,
+        p22: 1,
+      },
+      include: [
+        {
+          association: "Bulan",
+          attributes: [],
+        },
+      ],
+      attributes: {
+        include: [[sequelize.col("Bulan.bulan"), "nama_bulan"]],
+      },
+    });
+    if (!data) {
+      throw new NotFoundError("Data not found");
+    }
+
+    successResponse(res, "Success get kekurangan tukin", data);
+  }),
+  create: asyncHandler(async (req: Request, res: Response) => {
+    const { bulan, tahun, kdsatker, nip, grade, tjpokok, tjtamb, abspotr, abspotp, tkpph, potpph } =
+      req.body;
+    const data = await DataTukin.create({
       bulan,
       tahun,
       kdsatker,
@@ -168,49 +132,97 @@ export const createKekuranganTukin = async (
       abspotp,
       tkpph,
       potpph,
-    } = req.body;
-    const data = await DataTukin.create({
-      bulan: bulan,
-      tahun: tahun,
-      kdsatker: kdsatker,
-      nip: nip,
-      grade: grade,
-      tjpokok: parseInt(tjpokok),
-      tjtamb: parseInt(tjtamb),
-      abspotr: parseInt(abspotr),
-      abspotp: parseInt(abspotp),
-      tkpph: parseInt(tkpph),
-      potpph: parseInt(potpph),
       p22: 1,
     });
-    return successResponse(res, "Success create data tukin", data);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const importCsvKekuranganTukin = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    if (!req.file) {
-      return errorResponse(res, "File tidak ditemukan", null, 400);
+
+    successResponse(res, "Success create kekurangan tukin", data);
+  }),
+  update: asyncHandler(
+    async (req: Request, res: Response) => {
+      const t = req.transaction;
+      if (!t) {
+        throw new InternalServerError("Transaction not found");
+      }
+      const { id } = req.params;
+      if (typeof id !== "string") {
+        throw new InvalidRequestError("Invalid request");
+      }
+      const {
+        bulan,
+        tahun,
+        kdsatker,
+        nip,
+        grade,
+        tjpokok,
+        tjtamb,
+        abspotr,
+        abspotp,
+        tkpph,
+        potpph,
+      } = req.body;
+
+      const data = await DataTukin.updateOne(
+        {
+          where: {
+            id: id,
+            p22: 1,
+          },
+        },
+        {
+          bulan,
+          tahun,
+          kdsatker,
+          nip,
+          grade,
+          tjpokok,
+          tjtamb,
+          abspotr,
+          abspotp,
+          tkpph,
+          potpph,
+        },
+        t
+      );
+
+      successResponse(res, "Success update kekurangan tukin", data);
+    },
+    {
+      useTransaction: true,
     }
-    const csvBuffer = req.file.buffer;
-    const records: {
-      bulan: string;
-      tahun: string;
-      kdsatker: string;
-      nip: string;
-      grade: string;
-      tjpokok: number;
-      tjtamb: number;
-      abspotr: number;
-      abspotp: number;
-      tkpph: number;
-      potpph: number;
-    }[] = [];
+  ),
+  delete: asyncHandler(
+    async (req: Request, res: Response) => {
+      const t = req.transaction;
+      if (!t) {
+        throw new InternalServerError("Transaction not found");
+      }
+      const { id } = req.params;
+      if (typeof id !== "string") {
+        throw new InvalidRequestError("Invalid request");
+      }
+      const data = await DataTukin.deleteOne(
+        {
+          where: {
+            id: id,
+            p22: 1,
+          },
+        },
+        t
+      );
+      successResponse(res, "Success delete kekurangan tukin", data);
+    },
+    {
+      useTransaction: true,
+    }
+  ),
+  import: asyncHandler(async (req: Request, res: Response) => {
+    const file = req.file;
+    if (!file) {
+      throw new InvalidRequestError("File tidak ditemukan");
+    }
+
+    const csvBuffer = file.buffer;
+    const records = [];
     const parser = parse(csvBuffer, {
       columns: true,
       skip_empty_lines: true,
@@ -220,86 +232,8 @@ export const importCsvKekuranganTukin = async (
     for await (const record of parser) {
       records.push({ ...record, p22: 1 });
     }
-    const invalid = records.find(
-      (r) => !r.nip || !r.tahun || !r.bulan || !r.kdsatker
-    );
-    if (invalid) {
-      return errorResponse(res, "Data tidak valid", invalid, 400);
-    }
-    await DataTukin.bulkCreate(records);
-    return successResponse(res, "Data tukin berhasil ditambahkan", null, 201);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const updateKekuranganTukin = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const id = +req.params.id;
-    const {
-      bulan,
-      tahun,
-      kdsatker,
-      nip,
-      grade,
-      tjpokok,
-      tjtamb,
-      abspotr,
-      abspotp,
-      tkpph,
-      potpph,
-    } = req.body;
-    const data = await DataTukin.findByPk(id);
-    if (!data || data.p22 === 0) {
-      return errorResponse(
-        res,
-        `Data dengan ID ${id} tidak ditemukan.`,
-        null,
-        404
-      );
-    }
-    if (bulan) data.bulan = bulan;
-    if (tahun) data.tahun = tahun;
-    if (kdsatker) data.kdsatker = kdsatker;
-    if (nip) data.nip = nip;
-    if (grade) data.grade = grade;
-    if (tjpokok) data.tjpokok = parseInt(tjpokok);
-    if (tjtamb) data.tjtamb = parseInt(tjtamb);
-    if (abspotr) data.abspotr = parseInt(abspotr);
-    if (abspotp) data.abspotp = parseInt(abspotp);
-    if (tkpph) data.tkpph = parseInt(tkpph);
-    if (potpph) data.potpph = parseInt(potpph);
-    await data.save();
-    await data.reload();
-    return successResponse(res, "Success update data tukin", data);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const hapusKekuranganTukin = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const id = parseInt(req.params.id);
-    const data = await DataTukin.findByPk(id);
-    if (!data || data.p22 === 0) {
-      return errorResponse(
-        res,
-        `Data dengan ID ${id} tidak ditemukan.`,
-        null,
-        404
-      );
-    }
-    await data.destroy();
-    return successResponse(res, "Success delete data tukin", {
-      id,
-    });
-  } catch (error: unknown) {
-    next(error);
-  }
+
+    await DataTukin.createBulk(records);
+    successResponse(res, "Berhasil membuat kekurangan tukin", null, 201);
+  }),
 };

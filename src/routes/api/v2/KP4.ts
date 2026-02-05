@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { cetakKP4, previewKP4 } from "@/controllers/v2/kp4.controller";
-const router = Router();
-import { authenticate } from "@/middlewares/auth.middleware";
+import { Kp4ControllerV2 } from "@/controllers/v2/kp4.controller";
 
-router.post("/Cetak", authenticate(), cetakKP4);
-router.post("/Preview", authenticate(), previewKP4);
+const router = Router();
+
+router.post("/Cetak", Kp4ControllerV2.cetak);
+router.post("/Preview", Kp4ControllerV2.preview);
 export default router;

@@ -1,5 +1,6 @@
-import sequelize from "@/config/db.config";
 import { DataTypes, Model, Optional } from "sequelize";
+import sequelize from "@/config/db.config";
+
 type RefPangkatAttributes = {
   id: number;
   kdgol: string;
@@ -29,27 +30,27 @@ RefPangkat.init(
     },
     kdgol: {
       type: DataTypes.STRING(2),
-      validate:{
+      validate: {
         len: [2, 2],
-      }
+      },
     },
     nmgol: {
       type: DataTypes.STRING(16),
       validate: {
         notEmpty: true,
-      }
+      },
     },
     kdgapok: {
       type: DataTypes.STRING(2),
       validate: {
         len: [2, 2],
-      }
+      },
     },
     nama: {
       type: DataTypes.STRING(32),
       validate: {
         notEmpty: true,
-      }
+      },
     },
   },
   {

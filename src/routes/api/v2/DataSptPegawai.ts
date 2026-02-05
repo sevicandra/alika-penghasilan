@@ -1,7 +1,6 @@
 import { Router } from "express";
-import { getTahunDataSptPegawai } from "@/controllers/v2/dataSptPegawai.controller";
-import { authenticate } from "@/middlewares/auth.middleware";
+import { DataSptPegawaiControllerV2 } from "@/controllers/v2/dataSptPegawai.controller";
 
 const router = Router();
-router.get("/GetTahun", authenticate(), getTahunDataSptPegawai);
+router.get("/GetTahun", DataSptPegawaiControllerV2.getTahun);
 export default router;

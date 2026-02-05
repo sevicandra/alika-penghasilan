@@ -1,5 +1,5 @@
+import { BelongsTo, DataTypes, Model, Optional } from "sequelize";
 import sequelize from "@/config/db.config";
-import { Model, DataTypes, Optional, BelongsTo } from "sequelize";
 import RefBulan from "./RefBulan.model";
 
 type DataGajiAttributes = {
@@ -39,10 +39,7 @@ type DataGajiAttributes = {
   bpjs2: number;
 };
 
-type DataGajiCreationAttributes = Optional<
-  DataGajiAttributes,
-  "id" | "kdanak" | "kdsubanak"
->;
+type DataGajiCreationAttributes = Optional<DataGajiAttributes, "id" | "kdanak" | "kdsubanak">;
 
 class DataGaji
   extends Model<DataGajiAttributes, DataGajiCreationAttributes>
@@ -111,7 +108,7 @@ DataGaji.init(
       type: DataTypes.STRING(2),
       validate: {
         len: [2, 2],
-      }
+      },
     },
     kdsubanak: {
       type: DataTypes.STRING(2),
@@ -130,7 +127,7 @@ DataGaji.init(
       type: DataTypes.STRING(4),
       validate: {
         is: {
-          args: /^([1-3]{1}[A-D]{1}|[4]{1}[A-E]{1})[0-9]{2}$/i,
+          args: /^([1-3]{1}[A-D]{1}|[4]{1}[A-E]{1})[0-9]{2}$/,
           msg: "Kode Gapok tidak valid",
         },
       },
@@ -265,10 +262,5 @@ DataGaji.init(
     modelName: "DataGaji",
   }
 );
-DataGaji.belongsTo(RefBulan, {
-  foreignKey: "bulan",
-  targetKey: "kode",
-  as: "Bulan",
-});
 
 export default DataGaji;

@@ -1,5 +1,5 @@
+import { DataTypes, Model } from "sequelize";
 import sequelize from "@/config/db.config";
-import { Model, DataTypes } from "sequelize";
 
 type ViewPajakGajiAttributes = {
   tahun: string;
@@ -17,10 +17,7 @@ type ViewPajakGajiAttributes = {
   tpajak: number;
 };
 
-class ViewPajakGaji
-  extends Model<ViewPajakGajiAttributes>
-  implements ViewPajakGajiAttributes
-{
+class ViewPajakGaji extends Model<ViewPajakGajiAttributes> implements ViewPajakGajiAttributes {
   public tahun!: string;
   public nip!: string;
   public jumlah!: number;

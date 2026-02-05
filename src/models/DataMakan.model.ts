@@ -1,5 +1,5 @@
+import { BelongsTo, DataTypes, Model, Optional } from "sequelize";
 import sequelize from "@/config/db.config";
-import { DataTypes, Model, Optional, BelongsTo } from "sequelize";
 import RefBulan from "./RefBulan.model";
 
 type DataMakanAttributes = {
@@ -18,10 +18,7 @@ type DataMakanAttributes = {
   netto: number;
 };
 
-type DataMakanCreationAttributes = Optional<
-  DataMakanAttributes,
-  "id" | "kdanak" | "kdsubanak"
->;
+type DataMakanCreationAttributes = Optional<DataMakanAttributes, "id" | "kdanak" | "kdsubanak">;
 
 class DataMakan
   extends Model<DataMakanAttributes, DataMakanCreationAttributes>
@@ -137,10 +134,5 @@ DataMakan.init(
     },
   }
 );
-DataMakan.belongsTo(RefBulan, {
-  foreignKey: "bulan",
-  targetKey: "kode",
-  as: "Bulan",
-});
 
 export default DataMakan;

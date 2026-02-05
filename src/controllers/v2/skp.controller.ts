@@ -1,277 +1,281 @@
-import { AuthenticatedRequest } from "@/types/auth";
-import { Response, NextFunction } from "express";
-import { errorResponse } from "@/helpers/respose.helper";
+import { Request, Response } from "express";
+import { v4 as uuid } from "uuid";
+import { asyncHandler } from "@/middlewares/async-handler.middleware";
+import { AlikaService } from "@/services/alika.service";
 import { KemenkeuService } from "@/services/kemenkeu.service";
+import { minioService } from "@/services/minio-service";
 import { PdfService } from "@/services/pdf.service";
 import {
+  AuthorizationError,
+  ExternalServiceError,
+  InternalServerError,
+  NotFoundError,
+} from "@/utils/errors";
+import { fileResponse, successResponse } from "@/helpers/respose.helper";
+import { sequelize } from "@/models";
+import {
+  DataCetak,
+  DataGaji,
+  DataKurang,
+  DataLembur,
+  DataMakan,
+  DataNomor,
   DataProfil,
   DataSatker,
-  DataNomor,
-  DataCetak,
-  DataMakan,
-  DataLembur,
-  DataGaji,
-  RefBulan,
-  DataKurang,
   DataTukin,
-  sequelize,
-} from "@/models";
-import { MinioService } from "@/services/minio.service";
-import { v4 as uuid } from "uuid";
-import { AlikaService } from "@/services/alika.service";
-const minioService = new MinioService();
+  RefBulan,
+} from "@/repositories";
 
-export const previewSkp = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { nip } = req.user || {};
-    if (!nip) {
-      return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
-    }
-    const { bulan, tahun } = req.body;
-    if (!bulan || !tahun)
-      return errorResponse(res, "Parameter Tidak Lengkap", 400);
-    const ClientProfile = await KemenkeuService.getProfilHris2({ nip });
-    const {
-      nama: name,
-      jabatan: jabatan,
-      kdSatker: kode_satker,
-    } = ClientProfile;
-    if (!kode_satker || !name || !jabatan)
-      return errorResponse(res, "Data HRIS Tidak Lengkap", 400);
-    const satker = await DataSatker.findOne({
-      where: { kdsatker: kode_satker },
-    });
-    if (!satker) return errorResponse(res, "Satker Tidak Ditemukan", 400);
-    const profil = await DataProfil.findOne({
-      where: {
-        kdsatker: kode_satker,
-        tahun: new Date().getFullYear(),
-      },
-    });
-    if (!profil)
-      return errorResponse(res, "Referensi Penandatangan Tidak Ditemukan", 400);
-    const gaji = await DataGaji.findOne({
-      where: {
-        nip: nip,
-        bulan: bulan,
-        tahun: tahun,
-      },
-    });
-    const kurang = await DataKurang.findOne({
-      where: { nip: nip, tahun: tahun, bulan: bulan },
-    });
-    const tukin = await DataTukin.findOne({
-      where: {
-        nip: nip,
-        bulan: bulan,
-        tahun: tahun,
-      },
-      group: ["tahun", "bulan", "nip"],
-      attributes: [
-        "nip",
-        "bulan",
-        "tahun",
-        [sequelize.fn("sum", sequelize.col("tjpokok")), "tjpokok"],
-        [sequelize.fn("sum", sequelize.col("tjtamb")), "tjtamb"],
-        [sequelize.fn("sum", sequelize.col("abspotp")), "abspotp"],
-        [sequelize.fn("sum", sequelize.col("abspotr")), "abspotr"],
-        [sequelize.fn("sum", sequelize.col("tkpph")), "tkpph"],
-        [sequelize.fn("sum", sequelize.col("potpph")), "potpph"],
-      ],
-    });
-    const makan = await DataMakan.findOne({
-      where: {
-        nip: nip,
-        bulan: bulan,
-        tahun: tahun,
-      },
-    });
-    const lembur = await DataLembur.findOne({
-      where: {
-        nip: nip,
-        bulan: bulan,
-        tahun: tahun,
-      },
-    });
-    const dataBulan = await RefBulan.findOne({ where: { kode: bulan } });
-    if (!dataBulan)
-      return errorResponse(res, "Data Bulan Tidak Ditemukan", 400);
-    const pdf = await PdfService.Skp({
-      satker: satker,
-      gaji: gaji,
-      kurang: kurang,
-      makan: makan,
-      lembur: lembur,
-      profil: profil,
-      tukin: tukin,
-      bulan: dataBulan,
-      tahun: tahun,
-      nama: name,
-      nip: nip,
-      jabatan:
-        jabatan.find((x) => x.statusJabatan == "Definitif")?.namaJabatan || "",
-      organisasi:
-        jabatan.find((x) => x.statusJabatan == "Definitif")?.organisasi || "",
-    });
-    const pdfBuffer = Buffer.from(pdf, "base64");
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `inline; filename="SKP-${name}.pdf"`);
-    return res.status(200).send(pdfBuffer);
-  } catch (error: unknown) {
-    next(error);
-  }
-};
-export const cetakSkp = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  const t = await sequelize.transaction();
-  try {
-    const { nip } = req.user || {};
-    if (!nip) {
-      return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
-    }
-    const { bulan, tahun } = req.body;
-    if (!bulan || !tahun)
-      return errorResponse(res, "Parameter Tidak Lengkap", 400);
-    const ClientProfile = await KemenkeuService.getProfilHris2({ nip });
-    const {
-      nama: name,
-      jabatan: jabatan,
-      kdSatker: kode_satker,
-    } = ClientProfile;
-    if (!kode_satker || !name || !jabatan)
-      return errorResponse(res, "Data HRIS Tidak Lengkap", 400);
-    const satker = await DataSatker.findOne({
-      where: { kdsatker: kode_satker },
-    });
-    if (!satker) return errorResponse(res, "Satker Tidak Ditemukan", 400);
-    const profil = await DataProfil.findOne({
-      where: {
-        kdsatker: kode_satker,
-        tahun: new Date().getFullYear(),
-      },
-    });
-    if (!profil)
-      return errorResponse(res, "Referensi Penandatangan Tidak Ditemukan", 400);
-    const gaji = await DataGaji.findOne({
-      where: {
-        nip: nip,
-        bulan: bulan,
-        tahun: tahun,
-      },
-    });
-    const kurang = await DataKurang.findOne({
-      where: { nip: nip, tahun: tahun, bulan: bulan },
-    });
-    const tukin = await DataTukin.findOne({
-      where: {
-        nip: nip,
-        bulan: bulan,
-        tahun: tahun,
-      },
-      group: ["tahun", "bulan", "nip"],
-      attributes: [
-        "nip",
-        "bulan",
-        "tahun",
-        [sequelize.fn("sum", sequelize.col("tjpokok")), "tjpokok"],
-        [sequelize.fn("sum", sequelize.col("tjtamb")), "tjtamb"],
-        [sequelize.fn("sum", sequelize.col("abspotp")), "abspotp"],
-        [sequelize.fn("sum", sequelize.col("abspotr")), "abspotr"],
-        [sequelize.fn("sum", sequelize.col("tkpph")), "tkpph"],
-        [sequelize.fn("sum", sequelize.col("potpph")), "potpph"],
-      ],
-    });
-    const makan = await DataMakan.findOne({
-      where: {
-        nip: nip,
-        bulan: bulan,
-        tahun: tahun,
-      },
-    });
-    const lembur = await DataLembur.findOne({
-      where: {
-        nip: nip,
-        bulan: bulan,
-        tahun: tahun,
-      },
-    });
-    const dataBulan = await RefBulan.findOne({ where: { kode: bulan } });
-    if (!dataBulan)
-      return errorResponse(res, "Data Bulan Tidak Ditemukan", 400);
-    const dataNomor = await DataNomor.findOne({
-      where: {
-        tahun: new Date().getFullYear(),
-        kdsatker: kode_satker,
-      },
-    });
-    if (!dataNomor)
-      return errorResponse(res, "Data Penomoran Tidak Ditemukan", 400);
-    const pdf = await PdfService.Skp({
-      satker: satker,
-      gaji: gaji,
-      kurang: kurang,
-      makan: makan,
-      lembur: lembur,
-      profil: profil,
-      tukin: tukin,
-      bulan: dataBulan,
-      tahun: tahun,
-      nama: name,
-      nip: nip,
-      jabatan:
-        jabatan.find((x) => x.statusJabatan == "Definitif")?.namaJabatan || "",
-      organisasi:
-        jabatan.find((x) => x.statusJabatan == "Definitif")?.organisasi || "",
-      nomor: `${Number(dataNomor.no_urut_skp)}${dataNomor.ext_skp}`,
-    });
-    const pdfBuffer = Buffer.from(pdf, "base64");
-    const filename = `${uuid()}-${Date.now()}.pdf`;
-    await minioService.uploadFile(pdfBuffer, filename);
-    await DataCetak.create(
-      {
-        tahun: new Date().getFullYear().toString(),
-        nip_asal: nip,
-        nip_tujuan: profil.nip_ttd_skp,
-        nama_tujuan: profil.nama_ttd_skp,
-        jenis: "skp",
-        nomor: `${Number(dataNomor.no_urut_skp)}${dataNomor.ext_skp}`,
-        tanggal: Math.round(Date.now() / 1000),
-        tujuan: name,
-        perihal: `SKP Bulan ${(await dataBulan).bulan} Tahun ${tahun}`,
-        file: filename,
-        status: 0,
-      },
-      {
-        transaction: t,
+export const SkpControllerV2 = {
+  preview: asyncHandler(
+    async (req: Request, res: Response) => {
+      const t = req.transaction;
+      if (!t) {
+        throw new InternalServerError("Transaction not found");
       }
-    );
-    await dataNomor.update(
-      {
-        no_urut_skp: `${Number(dataNomor.no_urut_skp) + 1}`,
-      },
-      {
-        transaction: t,
+      const nip = req.user?.nip;
+      if (!nip) {
+        throw new AuthorizationError("Pengguna tidak dapat di verifikasi");
       }
-    );
-    await AlikaService.sendPushNotification({
-      nip: profil.nip_ttd_skp,
-      message: `${name} mengirimkan permohonan SKP Bulan ${dataBulan.bulan} Tahun ${tahun}`,
-    });
-    await AlikaService.sendPushNotification({
-      nip: nip,
-      message: `Surat Keterangan Penghasilan Bulan ${dataBulan.bulan} Tahun ${tahun} sedang diproses oleh ${profil.nama_ttd_skp}.`,
-    });
-    await t.commit();
-    return res.status(200).json({ message: "Permohonan berhasil di kirim." });
-  } catch (error: unknown) {
-    await t.rollback();
-    next(error);
-  }
+      const current_tahun = new Date().getFullYear().toString();
+      const { bulan, tahun } = req.body;
+      const {
+        nama: name,
+        jabatan: jabatan,
+        kdSatker: kode_satker,
+      } = await KemenkeuService.getProfilHris2({ nip });
+
+      if (!kode_satker || !name || !jabatan) {
+        throw new ExternalServiceError("KemenkeuService", "Data HRIS Tidak Lengkap");
+      }
+      const jabatanDefinitif = jabatan.find((j) => j.statusJabatan == "Definitif");
+      if (!jabatanDefinitif) {
+        throw new ExternalServiceError("KemenkeuService", "Data Jabatan Definitif tidak ditemukan");
+      }
+
+      const satker = await DataSatker.findOne({
+        where: { kdsatker: kode_satker },
+      });
+      if (!satker) {
+        throw new NotFoundError("Satker Tidak Ditemukan");
+      }
+      const profil = await DataProfil.getPenandatangan(kode_satker, current_tahun, t);
+      if (!profil) {
+        throw new NotFoundError("Referensi Penandatangan Tidak Ditemukan");
+      }
+      const gaji = await DataGaji.findOne({
+        where: {
+          nip: nip,
+          bulan: bulan,
+          tahun: tahun,
+        },
+      });
+      const kurang = await DataKurang.findOne({
+        where: { nip: nip, tahun: tahun, bulan: bulan },
+      });
+      const tukin = await DataTukin.findOne({
+        where: {
+          nip: nip,
+          bulan: bulan,
+          tahun: tahun,
+        },
+        group: ["tahun", "bulan", "nip"],
+        attributes: [
+          "nip",
+          "bulan",
+          "tahun",
+          [sequelize.fn("sum", sequelize.col("tjpokok")), "tjpokok"],
+          [sequelize.fn("sum", sequelize.col("tjtamb")), "tjtamb"],
+          [sequelize.fn("sum", sequelize.col("abspotp")), "abspotp"],
+          [sequelize.fn("sum", sequelize.col("abspotr")), "abspotr"],
+          [sequelize.fn("sum", sequelize.col("tkpph")), "tkpph"],
+          [sequelize.fn("sum", sequelize.col("potpph")), "potpph"],
+        ],
+      });
+      const makan = await DataMakan.findOne({
+        where: {
+          nip: nip,
+          bulan: bulan,
+          tahun: tahun,
+        },
+      });
+      const lembur = await DataLembur.findOne({
+        where: {
+          nip: nip,
+          bulan: bulan,
+          tahun: tahun,
+        },
+      });
+      const dataBulan = await RefBulan.findOne({ where: { kode: bulan } });
+      if (!dataBulan) {
+        throw new NotFoundError("Referensi Bulan Tidak Ditemukan");
+      }
+      const pdf = await PdfService.Skp({
+        satker: satker,
+        gaji: gaji,
+        kurang: kurang,
+        makan: makan,
+        lembur: lembur,
+        profil: profil,
+        tukin: tukin,
+        bulan: dataBulan,
+        tahun: tahun,
+        nama: name,
+        nip: nip,
+        jabatan: jabatanDefinitif.namaJabatan,
+        organisasi: jabatanDefinitif.organisasi,
+      });
+      const pdfBuffer = Buffer.from(pdf, "base64");
+      fileResponse(
+        res,
+        pdfBuffer,
+        `SKP Bulan ${dataBulan.bulan} Tahun ${tahun} - ${name}_${nip}.pdf`,
+        "application/pdf"
+      );
+    },
+    {
+      useTransaction: true,
+    }
+  ),
+  cetak: asyncHandler(
+    async (req: Request, res: Response) => {
+      const t = req.transaction;
+      if (!t) {
+        throw new InternalServerError("Transaction not found");
+      }
+      const nip = req.user?.nip;
+      if (!nip) {
+        throw new AuthorizationError("Pengguna tidak dapat di verifikasi");
+      }
+      const current_tahun = new Date().getFullYear().toString();
+      const { bulan, tahun } = req.body;
+      const {
+        nama: name,
+        jabatan: jabatan,
+        kdSatker: kode_satker,
+      } = await KemenkeuService.getProfilHris2({ nip });
+
+      if (!kode_satker || !name || !jabatan) {
+        throw new ExternalServiceError("KemenkeuService", "Data HRIS Tidak Lengkap");
+      }
+      const jabatanDefinitif = jabatan.find((j) => j.statusJabatan == "Definitif");
+      if (!jabatanDefinitif) {
+        throw new ExternalServiceError("KemenkeuService", "Data Jabatan Definitif tidak ditemukan");
+      }
+
+      const satker = await DataSatker.findOne({
+        where: { kdsatker: kode_satker },
+      });
+      if (!satker) {
+        throw new NotFoundError("Satker Tidak Ditemukan");
+      }
+      const profil = await DataProfil.getPenandatangan(kode_satker, current_tahun, t);
+      if (!profil) {
+        throw new NotFoundError("Referensi Penandatangan Tidak Ditemukan");
+      }
+      const gaji = await DataGaji.findOne({
+        where: {
+          nip: nip,
+          bulan: bulan,
+          tahun: tahun,
+        },
+      });
+      const kurang = await DataKurang.findOne({
+        where: { nip: nip, tahun: tahun, bulan: bulan },
+      });
+      const tukin = await DataTukin.findOne({
+        where: {
+          nip: nip,
+          bulan: bulan,
+          tahun: tahun,
+        },
+        group: ["tahun", "bulan", "nip"],
+        attributes: [
+          "nip",
+          "bulan",
+          "tahun",
+          [sequelize.fn("sum", sequelize.col("tjpokok")), "tjpokok"],
+          [sequelize.fn("sum", sequelize.col("tjtamb")), "tjtamb"],
+          [sequelize.fn("sum", sequelize.col("abspotp")), "abspotp"],
+          [sequelize.fn("sum", sequelize.col("abspotr")), "abspotr"],
+          [sequelize.fn("sum", sequelize.col("tkpph")), "tkpph"],
+          [sequelize.fn("sum", sequelize.col("potpph")), "potpph"],
+        ],
+      });
+      const makan = await DataMakan.findOne({
+        where: {
+          nip: nip,
+          bulan: bulan,
+          tahun: tahun,
+        },
+      });
+      const lembur = await DataLembur.findOne({
+        where: {
+          nip: nip,
+          bulan: bulan,
+          tahun: tahun,
+        },
+      });
+      const dataBulan = await RefBulan.findOne({ where: { kode: bulan } });
+      if (!dataBulan) {
+        throw new NotFoundError("Referensi Bulan Tidak Ditemukan");
+      }
+      const dataNomor = await DataNomor.getNomor(kode_satker, current_tahun, t);
+
+      const pdf = await PdfService.Skp({
+        satker: satker,
+        gaji: gaji,
+        kurang: kurang,
+        makan: makan,
+        lembur: lembur,
+        profil: profil,
+        tukin: tukin,
+        bulan: dataBulan,
+        tahun: tahun,
+        nama: name,
+        nip: nip,
+        jabatan: jabatanDefinitif.namaJabatan,
+        organisasi: jabatanDefinitif.organisasi,
+        nomor: `${Number(dataNomor.no_urut_skp)}/${dataNomor.ext_skp}/${current_tahun}`,
+      });
+
+      const pdfBuffer = Buffer.from(pdf, "base64");
+      const filename = `${uuid()}-${Date.now()}.pdf`;
+      await minioService.uploadFile(pdfBuffer, filename, "application/pdf");
+      await DataCetak.create(
+        {
+          tahun: current_tahun,
+          nip_asal: nip,
+          nip_tujuan: profil.nip_ttd_skp,
+          nama_tujuan: profil.nama_ttd_skp,
+          jenis: "skp",
+          nomor: `${Number(dataNomor.no_urut_skp)}/${dataNomor.ext_skp}/${current_tahun}`,
+          tanggal: Math.round(Date.now() / 1000),
+          tujuan: name,
+          perihal: `SKP Bulan ${(await dataBulan).bulan} Tahun ${tahun}`,
+          file: filename,
+          status: 0,
+        },
+        {
+          transaction: t,
+        }
+      );
+
+      dataNomor.no_urut_skp = `${Number(dataNomor.no_urut_skp) + 1}`;
+      await dataNomor.save({ transaction: t });
+      await AlikaService.sendPushNotification({
+        nip: profil.nip_ttd_skp,
+        message: `${name} mengirimkan permohonan SKP Bulan ${dataBulan.bulan} Tahun ${tahun}`,
+      });
+      await AlikaService.sendPushNotification({
+        nip: nip,
+        message: `Permohonan SKP Bulan ${dataBulan.bulan} Tahun ${tahun} sedang diproses oleh ${profil.nama_ttd_skp}.`,
+      });
+
+      successResponse(res, "Permohonan berhasil di kirim.");
+    },
+    {
+      useTransaction: true,
+    }
+  ),
 };

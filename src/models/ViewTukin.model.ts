@@ -1,5 +1,5 @@
+import { BelongsTo, DataTypes, Model } from "sequelize";
 import sequelize from "@/config/db.config";
-import { Model, DataTypes, BelongsTo } from "sequelize";
 import RefBulan from "./RefBulan.model";
 
 type ViewTukinAttributes = {
@@ -11,10 +11,7 @@ type ViewTukinAttributes = {
   netto: number;
 };
 
-class ViewTukin
-  extends Model<ViewTukinAttributes>
-  implements ViewTukinAttributes
-{
+class ViewTukin extends Model<ViewTukinAttributes> implements ViewTukinAttributes {
   public bulan!: string;
   public tahun!: string;
   public nip!: string;
@@ -71,11 +68,5 @@ ViewTukin.init(
     },
   }
 );
-
-ViewTukin.belongsTo(RefBulan, {
-  foreignKey: "bulan",
-  targetKey: "kode",
-  as: "Bulan",
-});
 
 export default ViewTukin;

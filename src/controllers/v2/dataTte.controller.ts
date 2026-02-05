@@ -1,21 +1,25 @@
-import { AuthenticatedRequest } from "@/types/auth";
-import { Response, NextFunction } from "express";
-import { DataCetak } from "@/models";
+import { Request, Response } from "express";
 import { Op } from "sequelize";
-import { errorResponse, successResponse } from "@/helpers/respose.helper";
+import { asyncHandler } from "@/middlewares/async-handler.middleware";
+import {
+  AuthenticationError,
+  AuthorizationError,
+  InternalServerError,
+  InvalidRequestError,
+  NotFoundError,
+} from "@/utils/errors";
+import { successResponse } from "@/helpers/respose.helper";
+import { sortBuilder } from "@/helpers/sequelizer.helper";
+import { DataCetak } from "@/repositories";
 
-export async function getAllDataTte(
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) {
-  try {
-    const { nip } = req.user || {};
+export const DataTteControllerV2 = {
+  getAll: asyncHandler(async (req: Request, res: Response) => {
+    const nip = req.user?.nip;
     if (!nip) {
-      return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
+      throw new AuthorizationError("Pengguna tidak dapat di verifikasi");
     }
     const limit = parseInt(req.query.limit as string) || undefined;
-    const offset = parseInt(req.query.offset as string) || 0;
+    const offset = parseInt(req.query.offset as string) || undefined;
     const tahun = (req.query.tahun as string) || undefined;
     const jenis = (req.query.jenis as string) || undefined;
     const status = (req.query.status as string) || undefined;
@@ -27,112 +31,93 @@ export async function getAllDataTte(
     if (jenis) where.jenis = jenis;
     if (status) where.status = status;
     if (hal) where.perihal = { [Op.like]: `%${hal}%` };
-    const order: any[] = [];
-    const sortField = (req.query.sortField as string) || "id";
-    const sortOrder = (req.query.sortOrder as string) || "DESC";
-    order.push([sortField, sortOrder.toUpperCase()]);
-    const { count, rows: data } = await DataCetak.findAndCountAll({
+    const sort = req.query.sort as string;
+    const order = sortBuilder(sort);
+
+    const { items: data, pagination } = await DataCetak.findAllWithPagination({
       where,
       limit,
       offset,
       order,
     });
-    return successResponse(res, "success get data tte", data, {
-      limit,
-      offset,
-      count,
-      totalPages: limit ? Math.ceil(count / limit) : 1,
+
+    successResponse(res, "Success count data tte", data, pagination);
+  }),
+
+  count: asyncHandler(async (req: Request, res: Response) => {
+    const nip = req.user?.nip;
+    if (!nip) {
+      throw new AuthorizationError("Pengguna tidak dapat di verifikasi");
+    }
+    const tahun = (req.query.tahun as string) || undefined;
+    const jenis = req.query.jenis as string | undefined;
+    const status = (req.query.status as string) || undefined;
+    const hal = (req.query.hal as string) || undefined;
+    const where: any = {
+      nip_tujuan: nip,
+    };
+    if (tahun) where.tahun = tahun;
+    if (jenis) where.jenis = jenis;
+    if (status) where.status = status;
+    if (hal) where.perihal = { [Op.like]: `%${hal}%` };
+    const count = await DataCetak.count({
+      where,
     });
-  } catch (error: unknown) {
-    next(error);
-  }
-}
-export async function countAllDataTte(
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) {
-  const { nip } = req.user || {};
-  if (!nip) {
-    return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
-  }
-  const tahun = (req.query.tahun as string) || undefined;
-  const jenis = req.query.jenis as string | undefined;
-  const status = (req.query.status as string) || undefined;
-  const hal = (req.query.hal as string) || undefined;
 
-  const where: any = {
-    nip_tujuan: nip,
-  };
-  if (tahun) where.tahun = tahun;
-  if (jenis) where.jenis = jenis;
-  if (status) where.status = status;
-  if (hal) where.perihal = { [Op.like]: `%${hal}%` };
+    successResponse(res, "Success get all data tte", { count });
+  }),
 
-  try {
-    const count = await DataCetak.count({ where });
-    return successResponse(res, "Success count data tte", count);
-  } catch (error: unknown) {
-    next(error);
-  }
-}
-export async function getDataTteById(
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) {
-  try {
-    const { nip } = req.user || {};
+  getById: asyncHandler(async (req: Request, res: Response) => {
+    const nip = req.user?.nip;
     if (!nip) {
-      return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
+      throw new AuthorizationError("Pengguna tidak dapat di verifikasi");
     }
-    const id = parseInt(req.params.id);
-    const data = await DataCetak.findByPk(id);
-    if (!data || data.nip_tujuan !== nip) {
-      return errorResponse(
-        res,
-        `Data dengan ID ${id} tidak ditemukan.`,
-        null,
-        404
-      );
+    const { id } = req.params;
+    if (typeof id !== "string") {
+      throw new InvalidRequestError("Invalid request");
     }
-    return successResponse(res, "success get data tte", data);
-  } catch (error: unknown) {
-    next(error);
-  }
-}
-export async function tolakDataTte(
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) {
-  try {
-    const { nip } = req.user || {};
-    if (!nip) {
-      return errorResponse(res, "NIP pengguna tidak ditemukan.", 400);
+    const data = await DataCetak.findOne({
+      where: {
+        id: id,
+        nip_tujuan: nip,
+      },
+    });
+    if (!data) {
+      throw new NotFoundError("Data not found");
     }
-    const id = parseInt(req.params.id);
-    const data = await DataCetak.findByPk(id);
-    if (!data || data.nip_tujuan !== nip) {
-      return errorResponse(
-        res,
-        `Data dengan ID ${id} tidak ditemukan.`,
-        null,
-        404
-      );
+    successResponse(res, "Success get data tte", data);
+  }),
+
+  tolak: asyncHandler(
+    async (req: Request, res: Response) => {
+      const t = req.transaction;
+      if (!t) {
+        throw new InternalServerError("Transaction not found");
+      }
+      const nip = req.user?.nip;
+      if (!nip) {
+        throw new AuthorizationError("Pengguna tidak dapat di verifikasi");
+      }
+      const { id } = req.params;
+      if (typeof id !== "string") {
+        throw new InvalidRequestError("Invalid request");
+      }
+      const data = await DataCetak.findOne({
+        where: {
+          id: id,
+          nip_tujuan: nip,
+          status: 0,
+        },
+      });
+      if (!data) {
+        throw new AuthenticationError("Data tidak dapat di proses");
+      }
+      data.status = 2;
+      await data.save({ transaction: t });
+      successResponse(res, "Success tolak permohonan tte", data);
+    },
+    {
+      useTransaction: true,
     }
-    if (data.status !== 0) {
-      const statusMessage =
-        data.status === 1
-          ? "Permohonan telah disetujui"
-          : "Permohonan sudah ditolak";
-      return errorResponse(res, statusMessage, null, 400);
-    }
-    data.status = 2;
-    await data.save();
-    await data.reload();
-    return successResponse(res, "Success tolak data tte", data);
-  } catch (error: unknown) {
-    next(error);
-  }
-}
+  ),
+};

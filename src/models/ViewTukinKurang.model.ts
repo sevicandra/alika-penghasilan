@@ -1,6 +1,7 @@
+import { BelongsTo, DataTypes, Model } from "sequelize";
 import sequelize from "@/config/db.config";
-import { Model, DataTypes, BelongsTo } from "sequelize";
 import RefBulan from "./RefBulan.model";
+
 type ViewTukinKurangAttributes = {
   bulan: string;
   tahun: string;
@@ -69,10 +70,5 @@ ViewTukinKurang.init(
     },
   }
 );
-ViewTukinKurang.belongsTo(RefBulan, {
-  foreignKey: "bulan",
-  targetKey: "kode",
-  as: "Bulan",
-});
 
 export default ViewTukinKurang;

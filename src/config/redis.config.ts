@@ -1,17 +1,34 @@
-import { createClient } from "redis";
+import dotenv from "dotenv";
 import fs from "fs";
-// Membuat koneksi Redis
-const client = createClient({
-  url: `redis://${process.env.REDIS_HOST || "localhost"}:${
-    process.env.REDIS_PORT || 6379
-  }`,
+import { createClient } from "redis";
+
+dotenv.config();
+
+export const redisConfig = {
+  host: process.env.REDIS_HOST || "localhost",
+  port: process.env.REDIS_PORT ? parseInt(process.env.REDIS_PORT) : 6379,
   username: process.env.REDIS_USERNAME_FILE
     ? fs.readFileSync(process.env.REDIS_USERNAME_FILE, "utf8").trim()
     : process.env.REDIS_USERNAME || "",
   password: process.env.REDIS_PASSWORD_FILE
     ? fs.readFileSync(process.env.REDIS_PASSWORD_FILE, "utf8").trim()
-    : process.env.REDIS_PASSWORD || "",
-  database: 0,
+    : process.env.REDIS_PASSWORD || undefined,
+  db: process.env.REDIS_DB ? parseInt(process.env.REDIS_DB) : 0,
+  // jika menggunakan Redis dengan TLS/SSL
+  tls: process.env.REDIS_TLS === "true" ? true : false,
+  connectTimeout: process.env.REDIS_CONNECT_TIMEOUT
+    ? parseInt(process.env.REDIS_CONNECT_TIMEOUT)
+    : 30000, // waktu tunggu koneksi dalam milidetik
+};
+const client = createClient({
+  url: `redis://${redisConfig.host}:${redisConfig.port}`,
+  username: redisConfig.username,
+  password: redisConfig.password,
+  database: redisConfig.db,
+  socket: {
+    tls: redisConfig.tls,
+    connectTimeout: redisConfig.connectTimeout,
+  },
 });
 
 client.on("connect", () => {

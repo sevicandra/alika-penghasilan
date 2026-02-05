@@ -1,5 +1,5 @@
+import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "@/config/db.config";
-import { DataTypes, Optional, Model } from "sequelize";
 
 type DataSatkerAttributes = {
   id: number;
@@ -44,7 +44,7 @@ DataSatker.init(
       validate: {
         isNumeric: true,
         len: [6, 6],
-      }
+      },
     },
     nmsatker: {
       type: DataTypes.STRING(128),

@@ -1,27 +1,26 @@
 import { Router } from "express";
-import DataCetak from "./DataCetak";
-import Form1721A2 from "./Form1721A2";
-import Form1721VII from "./Form1721VII";
 import DaftarGaji from "./DaftarGaji";
+import DataCetak from "./DataCetak";
 import DataNomor from "./DataNomor";
 import DataSptPegawai from "./DataSptPegawai";
 import FilePreview from "./FilePreview";
+import Form1721A2 from "./Form1721A2";
+import Form1721VII from "./Form1721VII";
 import Gaji from "./Gaji";
-import KekuranganGaji from "./KekuranganGaji";
-import Tukin from "./Tukin";
-import KekuranganTukin from "./KekuranganTukin";
 import KP4 from "./KP4";
+import KekuranganGaji from "./KekuranganGaji";
+import KekuranganTukin from "./KekuranganTukin";
+import Penghasilan from "./Penghasilan";
 import PenghasilanLain from "./PenghasilanLain";
 import Profil from "./Profil";
 import RefJabatan from "./RefJabatan";
+import RefPangkat from "./RefPangkat";
 import RefSatker from "./RefSatker";
 import RefSptTahunan from "./RefSptTahunan";
 import Skp from "./Skp";
+import Tukin from "./Tukin";
 import UangLembur from "./UangLembur";
 import UangMakan from "./UangMakan";
-import Penghasilan from "./Penghasilan";
-import RefPangkat from "./RefPangkat";
-
 
 const router = Router();
 

@@ -1,5 +1,5 @@
+import { BelongsTo, DataTypes, Model, Optional } from "sequelize";
 import sequelize from "@/config/db.config";
-import { DataTypes, Model, Optional, BelongsTo } from "sequelize";
 import RefBulan from "./RefBulan.model";
 
 type DataLemburAttributes = {
@@ -374,9 +374,5 @@ DataLembur.init(
     },
   }
 );
-DataLembur.belongsTo(RefBulan, {
-  foreignKey: "bulan",
-  targetKey: "kode",
-  as: "Bulan",
-});
+
 export default DataLembur;

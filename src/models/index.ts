@@ -1,3 +1,4 @@
+import sequelize from "@/config/db.config";
 import DataCetak from "./DataCetak.model";
 import DataGaji from "./DataGaji.model";
 import DataKurang from "./DataKurang.model";
@@ -14,6 +15,7 @@ import RefBulan from "./RefBulan.model";
 import RefJabatan from "./RefJabatan.model";
 import RefPangkat from "./RefPangkat.model";
 import RefSptTahunan from "./RefSptTahunan.model";
+import User from "./User.model";
 import ViewGaji from "./ViewGaji.model";
 import ViewKurang from "./ViewKurang.model";
 import ViewPajakGaji from "./ViewPajakGaji.model";
@@ -21,7 +23,67 @@ import ViewPajakKurang from "./ViewPajakKurang.model";
 import ViewTukin from "./ViewTukin.model";
 import ViewTukinKurang from "./ViewTukinKurang.model";
 import ViewTukinRutin from "./ViewTukinRutin.model";
-import sequelize from "@/config/db.config";
+
+DataGaji.belongsTo(RefBulan, {
+  foreignKey: "bulan",
+  targetKey: "kode",
+  as: "Bulan",
+});
+DataKurang.belongsTo(RefBulan, {
+  foreignKey: "bulan",
+  targetKey: "kode",
+  as: "Bulan",
+});
+DataLain.belongsTo(RefBulan, {
+  foreignKey: "bulan",
+  targetKey: "kode",
+  as: "Bulan",
+});
+DataLembur.belongsTo(RefBulan, {
+  foreignKey: "bulan",
+  targetKey: "kode",
+  as: "Bulan",
+});
+DataMakan.belongsTo(RefBulan, {
+  foreignKey: "bulan",
+  targetKey: "kode",
+  as: "Bulan",
+});
+DataSptPegawai.belongsTo(RefPangkat, {
+  foreignKey: "kdgol",
+  targetKey: "kdgol",
+  as: "Pangkat",
+});
+DataSptPegawai.belongsTo(RefJabatan, {
+  foreignKey: "kdjab",
+  targetKey: "kode",
+  as: "Jabatan",
+});
+ViewGaji.belongsTo(RefBulan, {
+  foreignKey: "bulan",
+  targetKey: "bulan",
+  as: "Bulan",
+});
+ViewKurang.belongsTo(RefBulan, {
+  foreignKey: "bulan",
+  targetKey: "bulan",
+  as: "Bulan",
+});
+ViewTukin.belongsTo(RefBulan, {
+  foreignKey: "bulan",
+  targetKey: "kode",
+  as: "Bulan",
+});
+ViewTukinKurang.belongsTo(RefBulan, {
+  foreignKey: "bulan",
+  targetKey: "kode",
+  as: "Bulan",
+});
+ViewTukinRutin.belongsTo(RefBulan, {
+  foreignKey: "bulan",
+  targetKey: "kode",
+  as: "Bulan",
+});
 
 export {
   DataCetak,
@@ -47,5 +109,6 @@ export {
   DataSatker,
   ViewPajakGaji,
   ViewPajakKurang,
-  sequelize
+  User,
+  sequelize,
 };

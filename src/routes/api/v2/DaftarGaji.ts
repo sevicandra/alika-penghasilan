@@ -1,12 +1,21 @@
 import { Router } from "express";
-import {
-  previewDaftarGaji,
-  cetakDaftarGaji,
-} from "@/controllers/v2/daftarGaji.controller";
-import { authenticate } from "@/middlewares/auth.middleware";
+import z from "zod";
+import { DaftarGajiControllerV2 } from "@/controllers/v2/daftarGaji.controller";
+import { validateBody } from "@/middlewares/validate-request.middleware";
 
 const router = Router();
-router.post("/Preview", authenticate(), previewDaftarGaji);
-router.post("/Cetak", authenticate(), cetakDaftarGaji);
+
+const bodySchema = z.object({
+  bulan: z
+    .string("bulan is required")
+    .trim()
+    .regex(/^(0[1-9]{1}|1[0-2]{1})$/, "invalid format bulan [01-12]"),
+  tahun: z
+    .string("tahun is required")
+    .trim()
+    .regex(/^\d{4}$/, "invalid format tahun [YYYY]"),
+});
+router.post("/Preview", validateBody(bodySchema), DaftarGajiControllerV2.preview);
+router.post("/Cetak", validateBody(bodySchema), DaftarGajiControllerV2.cetak);
 
 export default router;

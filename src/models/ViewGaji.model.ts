@@ -1,5 +1,5 @@
+import { BelongsTo, DataTypes, Model } from "sequelize";
 import sequelize from "@/config/db.config";
-import { Model, DataTypes,  BelongsTo } from "sequelize";
 import RefBulan from "./RefBulan.model";
 
 type ViewGajiAttributes = {
@@ -70,9 +70,4 @@ ViewGaji.init(
   }
 );
 
-ViewGaji.belongsTo(RefBulan, {
-  foreignKey: "bulan",
-  targetKey: "bulan",
-  as: "Bulan",
-});
 export default ViewGaji;

@@ -1,5 +1,5 @@
-import sequelize from "@/config/db.config";
 import { DataTypes, Model, Optional } from "sequelize";
+import sequelize from "@/config/db.config";
 import RefBulan from "./RefBulan.model";
 
 type DataTukinAttributes = {

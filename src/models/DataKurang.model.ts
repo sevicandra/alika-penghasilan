@@ -1,5 +1,5 @@
+import { BelongsTo, DataTypes, Model, Optional } from "sequelize";
 import sequelize from "@/config/db.config";
-import { DataTypes, Optional, Model, BelongsTo } from "sequelize";
 import RefBulan from "./RefBulan.model";
 
 type DataKurangAttributes = {
@@ -7,7 +7,7 @@ type DataKurangAttributes = {
   kdjns: string;
   kdsatker: string;
   kdanak: string;
-  kdsubanak: string|null;
+  kdsubanak: string | null;
   kdkawin: string;
   kdgapok: string;
   kdjab: string;
@@ -39,10 +39,7 @@ type DataKurangAttributes = {
   bpjs2: number;
 };
 
-type DataKurangCreationAttributes = Optional<
-  DataKurangAttributes,
-  "id" | "kdanak" | "kdsubanak"
->;
+type DataKurangCreationAttributes = Optional<DataKurangAttributes, "id" | "kdanak" | "kdsubanak">;
 
 class DataKurang
   extends Model<DataKurangAttributes, DataKurangCreationAttributes>
@@ -112,7 +109,7 @@ DataKurang.init(
       validate: {
         isNumeric: true,
         len: [2, 2],
-      }
+      },
     },
     kdsubanak: {
       type: DataTypes.STRING(2),
@@ -146,11 +143,11 @@ DataKurang.init(
     bulan: {
       type: DataTypes.STRING(2),
       validate: {
-        is:{
-          args:/^[0]{1}[1-9]{1}|[1]{1}[0-4]{1}$/,
-          msg:"Format Bulan Salah"
-        }
-      }
+        is: {
+          args: /^[0]{1}[1-9]{1}|[1]{1}[0-4]{1}$/,
+          msg: "Format Bulan Salah",
+        },
+      },
     },
     tahun: {
       type: DataTypes.STRING(4),
@@ -267,9 +264,4 @@ DataKurang.init(
   }
 );
 
-DataKurang.belongsTo(RefBulan, {
-  foreignKey: "bulan",
-  targetKey: "kode",
-  as: "Bulan",
-});
 export default DataKurang;
