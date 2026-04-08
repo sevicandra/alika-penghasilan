@@ -240,7 +240,7 @@ export const SPTControllerV2 = {
         }
       );
 
-      dataNomor.no_urut_pph = `${Number(dataNomor.no_urut_pph) + 1}`;
+      dataNomor.no_urut_pph = dataNomor.no_urut_pph + 1;
       await dataNomor.save({ transaction: t });
       await AlikaService.sendPushNotification({
         nip: profil.nip_bendahara,

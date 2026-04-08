@@ -4,15 +4,15 @@ import sequelize from "@/config/db.config";
 type DataNomorAttributes = {
   id: number;
   kdsatker: string;
-  no_urut_skp: string;
+  no_urut_skp: number;
   ext_skp: string;
-  no_urut_kp4: string;
+  no_urut_kp4: number;
   ext_kp4: string;
-  no_urut_daftar: string;
+  no_urut_daftar: number;
   ext_daftar: string;
-  no_urut_pph: string;
+  no_urut_pph: number;
   ext_pph: string;
-  no_urut_final: string;
+  no_urut_final: number;
   ext_final: string;
   tahun: string;
 };
@@ -23,15 +23,15 @@ class DataNomor
 {
   public id!: number;
   public kdsatker!: string;
-  public no_urut_skp!: string;
+  public no_urut_skp!: number;
   public ext_skp!: string;
-  public no_urut_kp4!: string;
+  public no_urut_kp4!: number;
   public ext_kp4!: string;
-  public no_urut_daftar!: string;
+  public no_urut_daftar!: number;
   public ext_daftar!: string;
-  public no_urut_pph!: string;
+  public no_urut_pph!: number;
   public ext_pph!: string;
-  public no_urut_final!: string;
+  public no_urut_final!: number;
   public ext_final!: string;
   public tahun!: string;
 }
@@ -58,7 +58,7 @@ DataNomor.init(
       },
     },
     no_urut_skp: {
-      type: DataTypes.STRING(8),
+      type: DataTypes.INTEGER,
       validate: {
         notEmpty: true,
       },
@@ -70,7 +70,7 @@ DataNomor.init(
       },
     },
     no_urut_kp4: {
-      type: DataTypes.STRING(8),
+      type: DataTypes.INTEGER,
       validate: {
         notEmpty: true,
       },
@@ -82,7 +82,7 @@ DataNomor.init(
       },
     },
     no_urut_daftar: {
-      type: DataTypes.STRING(8),
+      type: DataTypes.INTEGER,
       validate: {
         notEmpty: true,
       },
@@ -94,7 +94,7 @@ DataNomor.init(
       },
     },
     no_urut_pph: {
-      type: DataTypes.STRING(8),
+      type: DataTypes.INTEGER,
       validate: {
         notEmpty: true,
       },
@@ -106,7 +106,7 @@ DataNomor.init(
       },
     },
     no_urut_final: {
-      type: DataTypes.STRING(8),
+      type: DataTypes.INTEGER,
       validate: {
         notEmpty: true,
       },

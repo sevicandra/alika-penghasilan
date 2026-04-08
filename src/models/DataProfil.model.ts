@@ -5,7 +5,6 @@ type DataProfilAttributes = {
   id: number;
   tahun: string;
   kdsatker: string;
-  no_skp: string;
   nama_ttd_skp: string;
   nip_ttd_skp: string;
   jab_ttd_skp: string;
@@ -19,7 +18,7 @@ type DataProfilAttributes = {
   file: string | null;
 };
 
-type DataProfilCreationAttributes = Optional<DataProfilAttributes, "id" | "file" | "no_skp">;
+type DataProfilCreationAttributes = Optional<DataProfilAttributes, "id" | "file">;
 
 class DataProfil
   extends Model<DataProfilAttributes, DataProfilCreationAttributes>
@@ -28,7 +27,6 @@ class DataProfil
   public id!: number;
   public tahun!: string;
   public kdsatker!: string;
-  public no_skp!: string;
   public nama_ttd_skp!: string;
   public nip_ttd_skp!: string;
   public jab_ttd_skp!: string;
@@ -61,12 +59,6 @@ DataProfil.init(
       validate: {
         isNumeric: true,
         len: [6, 6],
-      },
-    },
-    no_skp: {
-      type: DataTypes.STRING(128),
-      validate: {
-        notEmpty: true,
       },
     },
     nama_ttd_skp: {

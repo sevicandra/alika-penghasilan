@@ -54,7 +54,6 @@ export const DataPenandatanganControllerV1 = {
     const {
       tahun,
       kdsatker,
-      no_skp,
       nama_ttd_skp,
       nip_ttd_skp,
       jab_ttd_skp,
@@ -69,7 +68,6 @@ export const DataPenandatanganControllerV1 = {
     const data = await DataProfil.create({
       tahun,
       kdsatker,
-      no_skp,
       nama_ttd_skp,
       nip_ttd_skp,
       jab_ttd_skp,
@@ -97,7 +95,6 @@ export const DataPenandatanganControllerV1 = {
       const {
         tahun,
         kdsatker,
-        no_skp,
         nama_ttd_skp,
         nip_ttd_skp,
         jab_ttd_skp,
@@ -115,7 +112,6 @@ export const DataPenandatanganControllerV1 = {
         {
           tahun,
           kdsatker,
-          no_skp,
           nama_ttd_skp,
           nip_ttd_skp,
           jab_ttd_skp,

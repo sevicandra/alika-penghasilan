@@ -199,7 +199,7 @@ export const Kp4ControllerV2 = {
         }
       );
 
-      dataNomor.no_urut_kp4 = `${Number(dataNomor.no_urut_kp4) + 1}`;
+      dataNomor.no_urut_kp4 = dataNomor.no_urut_kp4 + 1;
       await dataNomor.save({ transaction: t });
       successResponse(res, "Cetak KP4 Berhasil");
     },

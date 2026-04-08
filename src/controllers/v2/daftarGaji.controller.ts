@@ -191,7 +191,7 @@ export const DaftarGajiControllerV2 = {
         }
       );
 
-      dataNomor.no_urut_daftar = `${Number(dataNomor.no_urut_daftar) + 1}`;
+      dataNomor.no_urut_daftar = dataNomor.no_urut_daftar + 1;
       await dataNomor.save({ transaction: t });
       await AlikaService.sendPushNotification({
         nip: profil.nip_ttd_skp,

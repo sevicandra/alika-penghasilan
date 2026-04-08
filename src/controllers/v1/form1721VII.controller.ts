@@ -221,7 +221,7 @@ export const SPTFinalControllerV1 = {
         }
       );
 
-      dataNomor.no_urut_final = `${Number(dataNomor.no_urut_final) + 1}`;
+      dataNomor.no_urut_final = dataNomor.no_urut_final + 1;
       await dataNomor.save({ transaction: t });
       await AlikaService.sendPushNotification({
         nip: profil.nip_bendahara,

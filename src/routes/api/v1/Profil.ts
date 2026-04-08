@@ -14,7 +14,6 @@ const createSchema = z.object({
   kdsatker: z
     .string("kode satker is required")
     .regex(/^\d{6}$/, "invalid format kdsatker [000000-999999]"),
-  no_skp: z.string("no skp is required").regex(/^\d+$/, "invalid format nip [0-9]").default("1"),
   nama_ttd_skp: z.string("nama ttd skp is required").trim().min(1, "nama ttd skp is required"),
   nip_ttd_skp: z
     .string("nip ttd skp is required")

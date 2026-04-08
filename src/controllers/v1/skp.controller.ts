@@ -248,7 +248,7 @@ export const SkpControllerV1 = {
         }
       );
 
-      dataNomor.no_urut_skp = `${Number(dataNomor.no_urut_skp) + 1}`;
+      dataNomor.no_urut_skp = dataNomor.no_urut_skp + 1;
       await dataNomor.save({ transaction: t });
       await AlikaService.sendPushNotification({
         nip: profil.nip_ttd_skp,
