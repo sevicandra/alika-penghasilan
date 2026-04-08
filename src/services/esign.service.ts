@@ -1,3 +1,4 @@
+import { generateQRCode } from "@/utils/qrcode.utils";
 import { eSignConfig } from "@/config/esign.config";
 
 export class EsignService {
@@ -26,6 +27,7 @@ export class EsignService {
     tag_koordinat: string;
   }) {
     try {
+      const TteBlob = await generateQRCode(`${process.env.APP_URL}/download/pdf/${fileName}`);
       const formdata = new FormData();
       formdata.append("nik", nik);
       formdata.append("passphrase", Passphrase);
@@ -36,8 +38,8 @@ export class EsignService {
       formdata.append("tampilan", "visible");
       formdata.append("height", `75`);
       formdata.append("width", `75`);
-      formdata.append("linkQR", `${process.env.APP_URL}/download/pdf/${fileName}`);
-      formdata.append("image", `false`);
+      formdata.append("image", `true`);
+      formdata.append("imageTTD", await fetch(TteBlob).then((res) => res.blob()), "tte.png");
       formdata.append("tag_koordinat", tag_koordinat);
       formdata.append("file", blob, fileName);
       const sign = await fetch(`${eSignConfig.BASE_URI}/pdf`, {
