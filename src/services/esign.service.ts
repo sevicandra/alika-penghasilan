@@ -1,3 +1,4 @@
+import { handleEsignError, handleEsignResponseError } from "@/utils/errors/esign-error-handler";
 import { generateQRCode } from "@/utils/qrcode.utils";
 import { eSignConfig } from "@/config/esign.config";
 
@@ -5,6 +6,7 @@ export class EsignService {
   private static Credentials = Buffer.from(
     `${eSignConfig.CLIENT_ID}:${eSignConfig.CLIENT_PASSWORD}`
   ).toString("base64");
+
   static async processEsign({
     nik,
     Passphrase,
@@ -26,6 +28,7 @@ export class EsignService {
     fileName: string;
     tag_koordinat: string;
   }) {
+    const context = { nik, jenis, nomor };
     try {
       const TteBlob = await generateQRCode(`${process.env.APP_URL}/download/pdf/${fileName}`);
       const formdata = new FormData();
@@ -42,6 +45,7 @@ export class EsignService {
       formdata.append("imageTTD", await fetch(TteBlob).then((res) => res.blob()), "tte.png");
       formdata.append("tag_koordinat", tag_koordinat);
       formdata.append("file", blob, fileName);
+
       const sign = await fetch(`${eSignConfig.BASE_URI}/pdf`, {
         method: "POST",
         headers: {
@@ -49,7 +53,12 @@ export class EsignService {
         },
         body: formdata,
       });
-      if (!sign.ok) throw new Error(await sign.text());
+
+      if (!sign.ok) {
+        const bodyText = await sign.text();
+        throw handleEsignResponseError(sign.status, bodyText, context);
+      }
+
       const result = await sign.arrayBuffer();
       const buffer = Buffer.from(result);
       const headers = sign.headers;
@@ -57,14 +66,14 @@ export class EsignService {
         date: headers.get("date"),
         id_dokumen: headers.get("id_dokumen"),
       };
+
       return {
         buffer: buffer,
         date: data.date,
         id_dokumen: data.id_dokumen,
       };
     } catch (error) {
-      console.log(error);
-      throw error;
+      throw handleEsignError(error, context);
     }
   }
 }
