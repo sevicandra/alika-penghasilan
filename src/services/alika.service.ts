@@ -1,5 +1,5 @@
 import axios from "axios";
-import jwkToPem from "jwk-to-pem";
+import crypto from "crypto";
 import { ExternalServiceError } from "@/utils/errors";
 import { alikaConfig } from "@/config/alika.config";
 
@@ -105,12 +105,22 @@ export class AlikaService {
       }
       const response = await axios.get(`${alikaConfig.BASE_URI}/.well-known/jwks.json`);
       const jwk = response.data.keys[0];
-      const pem = jwkToPem(jwk);
+      const keyObject = crypto.createPublicKey({
+        key: jwk,
+        format: "jwk",
+      });
+      const pem = keyObject
+        .export({
+          type: "spki",
+          format: "pem",
+        })
+        .toString();
       this.publicKey = pem;
       this.publicKeyExpiration = currentTime + 3600;
       return this.publicKey;
     } catch (error) {
-      throw new ExternalServiceError("AlikaService", "Failed to get jwt key", error as Error);
+      console.error("Error getting public key:", error);
+      throw new Error("Failed to get public key");
     }
   }
 }
