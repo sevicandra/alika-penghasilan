@@ -2279,7 +2279,7 @@ export class PdfService {
                               alignment: "center",
                             },
                             {
-                              text: item.Nama.toUpperCase(),
+                              text: item.Nama?.toUpperCase(),
                               alignment: "left",
                             },
                             {
@@ -2293,15 +2293,15 @@ export class PdfService {
                               alignment: "center",
                             },
                             {
-                              text: item.Hubungan.toUpperCase(),
+                              text: item.Hubungan?.toUpperCase(),
                               alignment: "center",
                             },
                             {
-                              text: item.Pekerjaan.toUpperCase(),
+                              text: item.Pekerjaan?.toUpperCase(),
                               alignment: "center",
                             },
                             {
-                              text: item.StatusTanggungan.toUpperCase(),
+                              text: item.StatusTanggungan?.toUpperCase(),
                               alignment: "center",
                             },
                           ]),
