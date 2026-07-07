@@ -114,7 +114,7 @@ export class KemenkeuService {
       }
 
       const response = await axios.get(
-        `${ServiceKemenkeuConfig.BASE_URI}/hris/keluarga/Riwayat/GetKeluargaByNip/${nip}`,
+        `${ServiceKemenkeuConfig.BASE_URI}/hris/keluarga/Riwayat/GetKeluargaByNip/${nip}?limit=0`,
         {
           headers: {
             Authorization: `Bearer ${await this.getAccessToken()}`,
