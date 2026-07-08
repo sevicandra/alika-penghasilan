@@ -42,7 +42,7 @@ const createSchema = z.object({
     .string("kdjab is required")
     .trim()
     .regex(/^\d{5}$/, "invalid format kdjab [00000-99999]"),
-  nourut: z.number("nourut is required").optional(),
+  nourut: z.coerce.number("nourut is required").optional(),
 });
 
 const updateSchema = createSchema.partial();

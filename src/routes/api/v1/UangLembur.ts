@@ -28,7 +28,7 @@ const createSchema = z.object({
     .string("nip is required")
     .trim()
     .regex(
-      /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2])([1-2])(\d{3})$/,
+      /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2]|2[1-9]|3[0-2])([1-2])(\d{3})$/,
       "Invalid nip format [18 digits without separator]"
     ),
   kdanak: z
@@ -41,14 +41,14 @@ const createSchema = z.object({
     .trim()
     .regex(/^[1-4]{1}$/, "invalid format gol [1-4]")
     .optional(),
-  jkerja: z.number("gapok is required").nonnegative().default(0),
-  jlibur: z.number("gapok is required").nonnegative().default(0),
-  jmakan: z.number("gapok is required").nonnegative().default(0),
-  lembur: z.number("gapok is required").nonnegative().default(0),
-  makan: z.number("gapok is required").nonnegative().default(0),
-  pph: z.number("gapok is required").nonnegative().default(0),
-  bruto: z.number("gapok is required").nonnegative().default(0),
-  netto: z.number("gapok is required").nonnegative().default(0),
+  jkerja: z.coerce.number("gapok is required").nonnegative().default(0),
+  jlibur: z.coerce.number("gapok is required").nonnegative().default(0),
+  jmakan: z.coerce.number("gapok is required").nonnegative().default(0),
+  lembur: z.coerce.number("gapok is required").nonnegative().default(0),
+  makan: z.coerce.number("gapok is required").nonnegative().default(0),
+  pph: z.coerce.number("gapok is required").nonnegative().default(0),
+  bruto: z.coerce.number("gapok is required").nonnegative().default(0),
+  netto: z.coerce.number("gapok is required").nonnegative().default(0),
   keterangan: z.string("gapok is required").optional(),
 });
 
@@ -71,7 +71,7 @@ const querySchema = z
       .string("nip is required")
       .trim()
       .regex(
-        /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2])([1-2])(\d{3})$/,
+        /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2]|2[1-9]|3[0-2])([1-2])(\d{3})$/,
         "Invalid nip format [18 digits without separator]"
       ),
     sort: z

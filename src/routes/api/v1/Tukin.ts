@@ -16,7 +16,7 @@ const createSchema = z.object({
   bulan: z
     .string("bulan is required")
     .trim()
-    .regex(/^(0[1-9]{1}|1[0-2]{1})$/, "invalid format bulan [01-12]"),
+    .regex(/^(0[1-9]{1}|1[0-4]{1})$/, "invalid format bulan [01-14]"),
   tahun: z
     .string("tahun is required")
     .trim()
@@ -28,19 +28,19 @@ const createSchema = z.object({
     .string("nip is required")
     .trim()
     .regex(
-      /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2])([1-2])(\d{3})$/,
+      /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2]|2[1-9]|3[0-2])([1-2])(\d{3})$/,
       "Invalid nip format [18 digits without separator]"
     ),
   grade: z
     .string("grade is required")
     .trim()
     .regex(/^\d{2}$/, "invalid format grade [00-99]"),
-  tjpokok: z.number("gapok is required").nonnegative().default(0),
-  tjtamb: z.number("gapok is required").nonnegative().default(0),
-  abspotr: z.number("gapok is required").nonnegative().default(0),
-  abspotp: z.number("gapok is required").nonnegative().default(0),
-  tkpph: z.number("gapok is required").nonnegative().default(0),
-  potpph: z.number("gapok is required").nonnegative().default(0),
+  tjpokok: z.coerce.number("tunjangan pokok is required").nonnegative().default(0),
+  tjtamb: z.coerce.number("tunjangan tambahan is required").nonnegative().default(0),
+  abspotr: z.coerce.number("absen potongan is required").default(0),
+  abspotp: z.coerce.number("absen potongan (%) is required").default(0),
+  tkpph: z.coerce.number("tunjangan PPh is required").nonnegative().default(0),
+  potpph: z.coerce.number("potongan PPh is required").nonnegative().default(0),
 });
 
 const updateSchema = createSchema.partial();
@@ -62,7 +62,7 @@ const querySchema = z
       .string("nip is required")
       .trim()
       .regex(
-        /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2])([1-2])(\d{3})$/,
+        /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2]|2[1-9]|3[0-2])([1-2])(\d{3})$/,
         "Invalid nip format [18 digits without separator]"
       )
       .optional(),

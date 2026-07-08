@@ -19,7 +19,7 @@ const createSchema = z.object({
     .string("nip ttd skp is required")
     .trim()
     .regex(
-      /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2])([1-2])(\d{3})$/,
+      /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2]|2[1-9]|3[0-2])([1-2])(\d{3})$/,
       "Invalid nip format [18 digits without separator]"
     ),
   jab_ttd_skp: z.string("jabatan ttd skp is required").trim().min(1, "jabatan ttd skp is required"),
@@ -28,7 +28,7 @@ const createSchema = z.object({
     .string("nip is required")
     .trim()
     .regex(
-      /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2])([1-2])(\d{3})$/,
+      /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2]|2[1-9]|3[0-2])([1-2])(\d{3})$/,
       "Invalid nip format [18 digits without separator]"
     ),
   jab_ttd_kp4: z.string("jabatan ttd kp4 is required").trim().min(1, "jabatan ttd kp4 is required"),
@@ -44,7 +44,7 @@ const createSchema = z.object({
     .string("nip is required")
     .trim()
     .regex(
-      /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2])([1-2])(\d{3})$/,
+      /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2]|2[1-9]|3[0-2])([1-2])(\d{3})$/,
       "Invalid nip format [18 digits without separator]"
     ),
   tgl_spt: z.string("tanggal spt is required").trim().min(1, "tanggal spt is required"),

@@ -28,15 +28,15 @@ const createSchema = z.object({
     .string("nip is required")
     .trim()
     .regex(
-      /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2])([1-2])(\d{3})$/,
+      /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2]|2[1-9]|3[0-2])([1-2])(\d{3})$/,
       "Invalid nip format [18 digits without separator]"
     ),
-  bruto: z.number("gapok is required").nonnegative(),
-  pph: z.number("gapok is required").nonnegative(),
-  netto: z.number("gapok is required").nonnegative(),
+  bruto: z.coerce.number("gapok is required").nonnegative(),
+  pph: z.coerce.number("gapok is required").nonnegative(),
+  netto: z.coerce.number("gapok is required").nonnegative(),
   jenis: z.string("jenis is required"),
   uraian: z.string("uraian is required"),
-  tanggal: z.number("tanggal is required"),
+  tanggal: z.coerce.number("tanggal is required"),
   nospm: z.string().optional(),
 });
 
@@ -59,7 +59,7 @@ const querySchema = z
       .string("nip is required")
       .trim()
       .regex(
-        /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2])([1-2])(\d{3})$/,
+        /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2]|2[1-9]|3[0-2])([1-2])(\d{3})$/,
         "Invalid nip format [18 digits without separator]"
       )
       .optional(),

@@ -44,7 +44,7 @@ const createSchema = z.object({
   bulan: z
     .string("bulan is required")
     .trim()
-    .regex(/^(0[1-9]{1}|1[0-2]{1})$/, "invalid format bulan [01-12]"),
+    .regex(/^(0[1-9]{1}|1[0-4]{1})$/, "invalid format bulan [01-14]"),
   tahun: z
     .string("tahun is required")
     .trim()
@@ -53,32 +53,32 @@ const createSchema = z.object({
     .string("nip is required")
     .trim()
     .regex(
-      /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2])([1-2])(\d{3})$/,
+      /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2]|2[1-9]|3[0-2])([1-2])(\d{3})$/,
       "Invalid nip format [18 digits without separator]"
     ),
-  gapok: z.number("gapok is required").nonnegative().default(0),
-  tistri: z.number("gapok is required").nonnegative().default(0),
-  tanak: z.number("gapok is required").nonnegative().default(0),
-  tumum: z.number("gapok is required").nonnegative().default(0),
-  ttambumum: z.number("gapok is required").nonnegative().default(0),
-  tstruktur: z.number("gapok is required").nonnegative().default(0),
-  tfungsi: z.number("gapok is required").nonnegative().default(0),
-  bulat: z.number("gapok is required").nonnegative().default(0),
-  tberas: z.number("gapok is required").nonnegative().default(0),
-  tpajak: z.number("gapok is required").nonnegative().default(0),
-  pberas: z.number("gapok is required").nonnegative().default(0),
-  tpapua: z.number("gapok is required").nonnegative().default(0),
-  tpencil: z.number("gapok is required").nonnegative().default(0),
-  tlain: z.number("gapok is required").nonnegative().default(0),
-  iwp: z.number("gapok is required").nonnegative().default(0),
-  pph: z.number("gapok is required").nonnegative().default(0),
-  sewarmh: z.number("gapok is required").nonnegative().default(0),
-  tunggakan: z.number("gapok is required").nonnegative().default(0),
-  utanglebih: z.number("gapok is required").nonnegative().default(0),
-  potlain: z.number("gapok is required").nonnegative().default(0),
-  taperum: z.number("gapok is required").nonnegative().default(0),
-  bpjs: z.number("gapok is required").nonnegative().default(0),
-  bpjs2: z.number("gapok is required").nonnegative().default(0),
+  gapok: z.coerce.number("gapok is required").nonnegative().default(0),
+  tistri: z.coerce.number("gapok is required").nonnegative().default(0),
+  tanak: z.coerce.number("gapok is required").nonnegative().default(0),
+  tumum: z.coerce.number("gapok is required").nonnegative().default(0),
+  ttambumum: z.coerce.number("gapok is required").nonnegative().default(0),
+  tstruktur: z.coerce.number("gapok is required").nonnegative().default(0),
+  tfungsi: z.coerce.number("gapok is required").nonnegative().default(0),
+  bulat: z.coerce.number("gapok is required").nonnegative().default(0),
+  tberas: z.coerce.number("gapok is required").nonnegative().default(0),
+  tpajak: z.coerce.number("gapok is required").nonnegative().default(0),
+  pberas: z.coerce.number("gapok is required").nonnegative().default(0),
+  tpapua: z.coerce.number("gapok is required").nonnegative().default(0),
+  tpencil: z.coerce.number("gapok is required").nonnegative().default(0),
+  tlain: z.coerce.number("gapok is required").nonnegative().default(0),
+  iwp: z.coerce.number("gapok is required").nonnegative().default(0),
+  pph: z.coerce.number("gapok is required").nonnegative().default(0),
+  sewarmh: z.coerce.number("gapok is required").nonnegative().default(0),
+  tunggakan: z.coerce.number("gapok is required").nonnegative().default(0),
+  utanglebih: z.coerce.number("gapok is required").nonnegative().default(0),
+  potlain: z.coerce.number("gapok is required").nonnegative().default(0),
+  taperum: z.coerce.number("gapok is required").nonnegative().default(0),
+  bpjs: z.coerce.number("gapok is required").nonnegative().default(0),
+  bpjs2: z.coerce.number("gapok is required").nonnegative().default(0),
 });
 const updateSchema = createSchema.partial();
 
@@ -104,7 +104,7 @@ const querySchema = z
       .string("nip is required")
       .trim()
       .regex(
-        /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2])([1-2])(\d{3})$/,
+        /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2]|2[1-9]|3[0-2])([1-2])(\d{3})$/,
         "Invalid nip format [18 digits without separator]"
       )
       .optional(),
