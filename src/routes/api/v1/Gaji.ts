@@ -53,7 +53,7 @@ const createSchema = z.object({
     .string("nip is required")
     .trim()
     .regex(
-      /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2])([1-2])(\d{3})$/,
+      /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2]|2[1-9]|3[0-2])([1-2])(\d{3})$/,
       "Invalid nip format [18 digits without separator]"
     ),
   gapok: z.coerce.number("gapok is required").nonnegative().default(0),
@@ -93,7 +93,7 @@ const querySchema = z
     bulan: z
       .string("bulan is required")
       .trim()
-      .regex(/^(0[1-9]{1}|1[0-2]{1})$/, "invalid format bulan [01-12]")
+      .regex(/^(0[1-9]{1}|1[0-4]{1})$/, "invalid format bulan [01-14]")
       .optional(),
     kdanak: z
       .string("kode anak is required")
@@ -104,7 +104,7 @@ const querySchema = z
       .string("nip is required")
       .trim()
       .regex(
-        /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2])([1-2])(\d{3})$/,
+        /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2]|2[1-9]|3[0-2])([1-2])(\d{3})$/,
         "Invalid nip format [18 digits without separator]"
       )
       .optional(),

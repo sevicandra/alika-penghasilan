@@ -16,7 +16,7 @@ const createSchema = z.object({
   bulan: z
     .string("bulan is required")
     .trim()
-    .regex(/^(0[1-9]{1}|1[0-2]{1})$/, "invalid format bulan [01-12]"),
+    .regex(/^(0[1-9]{1}|1[0-4]{1})$/, "invalid format bulan [01-14]"),
   tahun: z
     .string("tahun is required")
     .trim()
@@ -53,7 +53,7 @@ const querySchema = z
     bulan: z
       .string("bulan is required")
       .trim()
-      .regex(/^(0[1-9]{1}|1[0-2]{1})$/, "invalid format bulan [01-12]")
+      .regex(/^(0[1-9]{1}|1[0-4]{1})$/, "invalid format bulan [01-14]")
       .optional(),
     nip: z
       .string("nip is required")
