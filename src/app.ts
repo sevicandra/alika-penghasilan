@@ -5,14 +5,15 @@ import express, { NextFunction, Request, Response } from "express";
 import methodOverride from "method-override";
 import morgan from "morgan";
 import { correlationIdMiddleware } from "@/middlewares/correlation-id.middleware";
+import { errorHandler, notFoundHandler } from "@/middlewares/error-handler.middleware";
+import { minioService } from "@/services/minio-service";
 import { redisService } from "@/services/redis-service";
-import { appConfig } from "./config/app.config";
-import sequelize from "./config/db.config";
-import { errorHandler, notFoundHandler } from "./middlewares/error-handler.middleware";
-import "./register-alias";
-import router from "./routes";
-import { minioService } from "./services/minio-service";
-import logger from "./utils/Logger.utils";
+import logger from "@/utils/Logger.utils";
+import { appConfig } from "@/config/app.config";
+import sequelize from "@/config/db.config";
+import "@/register-alias";
+import router from "@/routes";
+import pkg from "../package.json";
 
 const startServer = async () => {
   try {
@@ -21,13 +22,18 @@ const startServer = async () => {
     try {
       await redisService.connect();
     } catch (error) {
-      logger.error("Failed to connect to Redis during startup. App will run without Redis cache.", { error });
+      logger.error("Failed to connect to Redis during startup. App will run without Redis cache.", {
+        error,
+      });
     }
 
     try {
       await minioService.ensureBucketExists();
     } catch (error) {
-      logger.error("Failed to initialize MinIO during startup. App will run without functional object storage.", { error });
+      logger.error(
+        "Failed to initialize MinIO during startup. App will run without functional object storage.",
+        { error }
+      );
     }
 
     const port = appConfig.PORT;
@@ -86,7 +92,7 @@ const startServer = async () => {
         health.status = "ERROR";
         logger.error("Failed to connect to minio", { error });
       }
-
+      health.version = pkg.version;
       res.status(health.status === "OK" ? 200 : 503).json(health);
     });
 
