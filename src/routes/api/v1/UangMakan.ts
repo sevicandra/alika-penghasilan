@@ -44,11 +44,11 @@ const createSchema = z.object({
     .string("gol is required")
     .trim()
     .regex(/^[1-4]{1}$/, "invalid format gol [1-4]"),
-  jmlhari: z.coerce.number("gapok is required").nonnegative().default(0),
-  tarif: z.coerce.number("gapok is required").nonnegative().default(0),
-  pph: z.coerce.number("gapok is required").nonnegative().default(0),
-  bruto: z.coerce.number("gapok is required").nonnegative().default(0),
-  netto: z.coerce.number("gapok is required").nonnegative().default(0),
+  jmlhari: z.coerce.number("jmlhari is required").nonnegative().default(0),
+  tarif: z.coerce.number("tarif is required").nonnegative().default(0),
+  pph: z.coerce.number("pph is required").nonnegative().default(0),
+  bruto: z.coerce.number("bruto is required").nonnegative().default(0),
+  netto: z.coerce.number("netto is required").nonnegative().default(0),
 });
 
 const updateSchema = createSchema.partial();

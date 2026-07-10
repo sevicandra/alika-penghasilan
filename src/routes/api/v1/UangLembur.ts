@@ -41,15 +41,15 @@ const createSchema = z.object({
     .trim()
     .regex(/^[1-4]{1}$/, "invalid format gol [1-4]")
     .optional(),
-  jkerja: z.coerce.number("gapok is required").nonnegative().default(0),
-  jlibur: z.coerce.number("gapok is required").nonnegative().default(0),
-  jmakan: z.coerce.number("gapok is required").nonnegative().default(0),
-  lembur: z.coerce.number("gapok is required").nonnegative().default(0),
-  makan: z.coerce.number("gapok is required").nonnegative().default(0),
-  pph: z.coerce.number("gapok is required").nonnegative().default(0),
-  bruto: z.coerce.number("gapok is required").nonnegative().default(0),
-  netto: z.coerce.number("gapok is required").nonnegative().default(0),
-  keterangan: z.string("gapok is required").optional(),
+  jkerja: z.coerce.number("jkerja is required").nonnegative().default(0),
+  jlibur: z.coerce.number("jlibur is required").nonnegative().default(0),
+  jmakan: z.coerce.number("jmakan is required").nonnegative().default(0),
+  lembur: z.coerce.number("lembur is required").nonnegative().default(0),
+  makan: z.coerce.number("makan is required").nonnegative().default(0),
+  pph: z.coerce.number("pph is required").nonnegative().default(0),
+  bruto: z.coerce.number("bruto is required").nonnegative().default(0),
+  netto: z.coerce.number("netto is required").nonnegative().default(0),
+  keterangan: z.string("keterangan is required").optional(),
 });
 
 const updateSchema = createSchema.partial();
