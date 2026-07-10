@@ -16,10 +16,10 @@ const createSchema = z.object({
     .regex(/^\d{6}$/, "invalid format kdsatker [000000-999999]"),
   nmsatker: z.string("nama satker is required").trim().min(1, "nama satker is required"),
   header1: z.string("header1 is required").trim().min(1, "header1 is required"),
-  header2: z.string("header2 is required").trim().min(1, "header2 is required").optional(),
+  header2: z.string("header2 is required").trim().optional().nullable(),
   subheader1: z.string("subheader1 is required").trim().min(1, "subheader1 is required"),
-  subheader2: z.string("subheader2 is required").trim().min(1, "subheader2 is required").optional(),
-  subheader3: z.string("subheader3 is required").trim().min(1, "subheader3 is required").optional(),
+  subheader2: z.string("subheader2 is required").trim().optional().nullable(),
+  subheader3: z.string("subheader3 is required").trim().optional().nullable(),
   kota: z.string("kota is required").trim().min(1, "kota is required"),
 });
 

@@ -76,8 +76,9 @@ export class PdfService {
               {
                 text: eselon3?.toLocaleUpperCase(),
                 alignment: "center",
-                fontSize: 11,
-                bold: true,
+                fontSize: eselon3 ? 11 : 0,
+                bold: eselon3 ? true : false,
+                height: eselon3 ? "auto" : 0,
               },
             ],
             [
@@ -122,7 +123,7 @@ export class PdfService {
     const tte = [
       {
         table: {
-          widths: ["*", 150],
+          widths: ["*", 200],
           heights: ["auto", "auto", 70, "auto", "auto"],
           body: [
             [{}, `${kota}, ${tanggal}`],
@@ -135,7 +136,19 @@ export class PdfService {
                 margin: [35, 35],
               },
             ],
-            [{}, { text: "Ditandatangani secara elektronik", fontSize: 7 }],
+            [
+              {
+                text: "",
+                height: 0,
+                fontSize: 0,
+              },
+              {
+                text: "Ditandatangani secara elektronik",
+                fontSize: 7,
+                height: 0,
+                color: "#B3B3B3",
+              },
+            ],
             [{}, `${nama}`],
           ],
         },
