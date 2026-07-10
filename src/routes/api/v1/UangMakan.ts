@@ -34,11 +34,11 @@ const createSchema = z.object({
   kdanak: z
     .string("kode anak is required")
     .trim()
-    .regex(/^\[a-zA-Z0-9]{2}$/, "invalid format kdanak [00-99]"),
+    .regex(/^[a-zA-Z0-9]{2}$/, "invalid format kdanak [00-99]"),
   kdsubanak: z
     .string("kode anak is required")
     .trim()
-    .regex(/^\[a-zA-Z0-9]{2}$/, "invalid format kdanak [00-99]")
+    .regex(/^[a-zA-Z0-9]{2}$/, "invalid format kdanak [00-99]")
     .optional(),
   kdgol: z
     .string("gol is required")
