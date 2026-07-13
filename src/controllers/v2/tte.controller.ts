@@ -99,9 +99,10 @@ export const tteController = {
       });
       await minioService.uploadFile(tte.buffer, dataCetak.file, "application/pdf");
       const tujuan = dataCetak.tujuan.split("/");
+      const nama_tujuan_old = dataCetak.nama_tujuan;
       dataCetak.nip_tujuan = tujuan[1];
       dataCetak.nama_tujuan = tujuan[0];
-      dataCetak.tujuan = dataCetak.nama_tujuan;
+      dataCetak.tujuan = nama_tujuan_old;
       dataCetak.jenis = "KP4";
       await dataCetak.save({ transaction: t });
       await AlikaService.sendPushNotification({
