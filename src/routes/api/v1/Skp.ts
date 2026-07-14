@@ -24,7 +24,8 @@ const bodySchema = z.object({
   kdsatker: z
     .string("kdsatker is required")
     .trim()
-    .regex(/^\d{6}$/, "invalid format kdsatker [kode satker]"),
+    .regex(/^\d{6}$/, "invalid format kdsatker [kode satker]")
+    .optional(),
 });
 
 router.post(
