@@ -29,20 +29,19 @@ export const SkpControllerV1 = {
         throw new InternalServerError("Transaction not found");
       }
       const current_tahun = new Date().getFullYear().toString();
-      const { bulan, tahun, nip } = req.body;
+      const { bulan, tahun, nip, kdsatker: kode_satker_params } = req.body;
       const {
         nama: name,
         jabatan: jabatan,
-        kdSatker: kode_satker,
+        kdSatker: kode_satker_hris,
       } = await KemenkeuService.getProfilHris2({ nip });
 
-      if (!kode_satker || !name || !jabatan) {
+      const kode_satker = kode_satker_hris || kode_satker_params;
+
+      if (!kode_satker || !name) {
         throw new ExternalServiceError("KemenkeuService", "Data HRIS Tidak Lengkap");
       }
       const jabatanDefinitif = jabatan.find((j) => j.statusJabatan == "Definitif");
-      if (!jabatanDefinitif) {
-        throw new ExternalServiceError("KemenkeuService", "Data Jabatan Definitif tidak ditemukan");
-      }
 
       const satker = await DataSatker.findOne({
         where: { kdsatker: kode_satker },
@@ -113,8 +112,8 @@ export const SkpControllerV1 = {
         tahun: tahun,
         nama: name,
         nip: nip,
-        jabatan: jabatanDefinitif.namaJabatan,
-        organisasi: jabatanDefinitif.organisasi,
+        jabatan: jabatanDefinitif?.namaJabatan || "-",
+        organisasi: jabatanDefinitif?.organisasi || satker.nmsatker,
       });
       const pdfBuffer = Buffer.from(pdf, "base64");
       fileResponse(
@@ -135,20 +134,19 @@ export const SkpControllerV1 = {
         throw new InternalServerError("Transaction not found");
       }
       const current_tahun = new Date().getFullYear().toString();
-      const { bulan, tahun, nip } = req.body;
+      const { bulan, tahun, nip, kdsatker: kode_satker_params } = req.body;
       const {
         nama: name,
         jabatan: jabatan,
-        kdSatker: kode_satker,
+        kdSatker: kode_satker_hris,
       } = await KemenkeuService.getProfilHris2({ nip });
+
+      const kode_satker = kode_satker_hris || kode_satker_params;
 
       if (!kode_satker || !name || !jabatan) {
         throw new ExternalServiceError("KemenkeuService", "Data HRIS Tidak Lengkap");
       }
       const jabatanDefinitif = jabatan.find((j) => j.statusJabatan == "Definitif");
-      if (!jabatanDefinitif) {
-        throw new ExternalServiceError("KemenkeuService", "Data Jabatan Definitif tidak ditemukan");
-      }
 
       const satker = await DataSatker.findOne({
         where: { kdsatker: kode_satker },
@@ -221,8 +219,8 @@ export const SkpControllerV1 = {
         tahun: tahun,
         nama: name,
         nip: nip,
-        jabatan: jabatanDefinitif.namaJabatan,
-        organisasi: jabatanDefinitif.organisasi,
+        jabatan: jabatanDefinitif?.namaJabatan || "-",
+        organisasi: jabatanDefinitif?.organisasi || satker.nmsatker,
         nomor: `${Number(dataNomor.no_urut_skp)}/${dataNomor.ext_skp}/${current_tahun}`,
       });
 

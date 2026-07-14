@@ -21,6 +21,10 @@ const bodySchema = z.object({
       /^(19[6-9]\d|20\d{2})(0[1-9]|1[0-2])(0[1-9]|[1-2]\d|3[0-1])(19[8-9]\d|20\d{2})(0[1-9]|1[0-2]|2[1-9]|3[0-2])([1-2])(\d{3})$/,
       "Invalid nip format [18 digits without separator]"
     ),
+  kdsatker: z
+    .string("kdsatker is required")
+    .trim()
+    .regex(/^\d{6}$/, "invalid format kdsatker [kode satker]"),
 });
 
 router.post(
