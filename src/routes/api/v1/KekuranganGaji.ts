@@ -16,7 +16,7 @@ const createSchema = z.object({
   kdjns: z
     .string("kode jenis is required")
     .trim()
-    .regex(/^d{1}$/, "invalid format kode jenis [d]"),
+    .regex(/^\d{1}$/, "invalid format kode jenis [d]"),
   kdsatker: z
     .string("kode satker is required")
     .regex(/^\d{6}$/, "invalid format kdsatker [000000-999999]"),
