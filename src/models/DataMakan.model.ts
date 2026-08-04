@@ -55,7 +55,7 @@ DataMakan.init(
     bulan: {
       type: DataTypes.STRING(2),
       validate: {
-        id: {
+        is: {
           args: /^[0]{1}[1-9]{1}|[1]{1}[0-2]{1}$/,
           msg: "Format Bulan Salah",
         },
@@ -93,9 +93,13 @@ DataMakan.init(
       },
     },
     kdgol: {
-      type: DataTypes.STRING(2),
+      type: DataTypes.STRING(1),
       validate: {
-        len: [2, 2],
+        len: [1, 1],
+        is: {
+          args: /^[1-4]{1}$/,
+          msg: "Format Golongan Salah",
+        },
       },
     },
     jmlhari: {
