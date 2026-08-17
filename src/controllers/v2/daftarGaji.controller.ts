@@ -166,7 +166,6 @@ export const DaftarGajiControllerV2 = {
         nama: name,
         nip: nip,
         jabatan: jabatanDefinitif.namaJabatan,
-        nomor: `${Number(dataNomor.no_urut_daftar)}${dataNomor.ext_daftar}`,
         nomor: `${Number(dataNomor.no_urut_daftar)}/${dataNomor.ext_daftar}/${current_tahun}`,
       });
 
