@@ -167,6 +167,7 @@ export const DaftarGajiControllerV2 = {
         nip: nip,
         jabatan: jabatanDefinitif.namaJabatan,
         nomor: `${Number(dataNomor.no_urut_daftar)}${dataNomor.ext_daftar}`,
+        nomor: `${Number(dataNomor.no_urut_daftar)}/${dataNomor.ext_daftar}/${current_tahun}`,
       });
 
       const pdfBuffer = Buffer.from(pdf, "base64");
